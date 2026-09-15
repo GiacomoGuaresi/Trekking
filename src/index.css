@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+/* Palette blu montagna (docs/09-interfaccia.md). Solo tema chiaro.
+   Font e scala come Grocery e Projects, per coerenza tra le app. */
+@theme {
+  --color-montagna: #3f6485;
+  --color-montagna-chiara: #5b87ad;
+  --color-fondo: #f1f5f9;
+  --color-panna: #fbf8f1;
+
+  --font-sans: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-fondo);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}

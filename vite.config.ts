@@ -1,0 +1,17 @@
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+// base = nome del repository, perché il sito è servito da GitHub Pages
+// su giacomoguaresi.github.io/Trekking/ (docs/05-deploy.md).
+// La PWA arriva allo step "Installabile" della roadmap.
+export default defineConfig({
+  base: '/Trekking/',
+  plugins: [react(), tailwindcss()],
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts'],
+    // Nello scheletro non c'è ancora logica da provare: i test arrivano con il dominio.
+    passWithNoTests: true,
+  },
+})
