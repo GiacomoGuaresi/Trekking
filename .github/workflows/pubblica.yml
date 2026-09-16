@@ -1,6 +1,9 @@
 # Build e deploy su GitHub Pages a ogni push su main (docs/05-deploy.md).
-# Le variabili di Supabase e openrouteservice, e il loro controllo, arrivano
-# con gli step che le usano.
+# URL, chiave publishable ed email dell'account arrivano dalle variabili del
+# repository (Settings → Secrets and variables → Actions → Variables), con gli
+# stessi valori di produzione di Grocery: finiscono comunque nel bundle
+# pubblico, quindi non sono segreti. La chiave di openrouteservice arriva con
+# lo step che la usa.
 
 name: Pubblica
 
@@ -22,6 +25,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_SUPABASE_EMAIL: ${{ vars.VITE_SUPABASE_EMAIL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,6 +36,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Senza le variabili la build riesce lo stesso, ma l'app si rompe all'apertura.
+      - name: Controlla le variabili di Supabase
+        run: |
+          for v in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_EMAIL; do
+            [ -n "${!v}" ] || { echo "::error::Manca la variabile $v"; exit 1; }
+          done
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

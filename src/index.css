@@ -5,8 +5,12 @@
 @theme {
   --color-montagna: #3f6485;
   --color-montagna-chiara: #5b87ad;
+  --color-montagna-scura: #32516c;
   --color-fondo: #f1f5f9;
   --color-panna: #fbf8f1;
+  --color-testo-tenue: #5c6b78;
+  --color-bordo: #d6e0e8;
+  --color-pericolo: #a8333a;
 
   --font-sans: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
