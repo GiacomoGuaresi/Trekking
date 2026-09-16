@@ -37,18 +37,15 @@ URL: `https://giacomoguaresi.github.io/Trekking/`. Vite ha `base: '/Trekking/'`;
 ## Configurazioni una tantum
 
 Sulla dashboard Supabase:
-1. Esporre `trekking` nell'API. Fatto il 2026-09-16 dal database, senza token della Management API, con la configurazione di PostgREST salvata sul ruolo `authenticator`:
-   ```sql
-   alter role authenticator set pgrst.db_schemas = 'public, graphql_public, projects, trekking';
-   notify pgrst, 'reload config';
-   ```
-   ⚠️ Questa impostazione **vince su Settings → Data API → Exposed schemas**: se un'altra app aggiunge uno schema dalla dashboard, va aggiunto anche qui. Per tornare alla dashboard: `alter role authenticator reset pgrst.db_schemas; notify pgrst, 'reload config';`
-2. Authentication → URL Configuration → aggiungere `https://giacomoguaresi.github.io/Trekking/`. L'accesso con passphrase non usa redirect: serve solo se un giorno arriveranno link via email
+1. Settings → Data API → aggiungere `trekking` agli *Exposed schemas*. Fatto il 2026-09-16 con la Management API (`PATCH /v1/projects/{ref}/postgrest`, `db_schema: "public,graphql_public,projects,trekking"`): la lista si manda sempre intera
+2. Authentication → URL Configuration → aggiungere `https://giacomoguaresi.github.io/Trekking/`. Fatto il 2026-09-16 con la Management API (`PATCH /v1/projects/{ref}/config/auth`, `uri_allow_list`)
 3. Eseguire gli script di `supabase/sql/` in ordine: dalla cartella di Grocery, già collegata al progetto, `supabase db query --linked -f ../Trekking/supabase/sql/NNN_*.sql`
 4. Inserire le coordinate di casa in `trekking.impostazioni` dal SQL Editor, **senza salvarle in un file** ([04](04-sicurezza.md))
 
 Su openrouteservice:
 5. Creare l'account gratuito su `openrouteservice.org` e generare la chiave
+
+Per la Management API serve un token personale (Account → Access Tokens), che sta in `credenziali.local` nella cartella sopra i repository, mai nel repo.
 
 ⚠️ Il progetto è quello di produzione di Grocery: ogni modifica alla configurazione va fatta senza toccare le impostazioni usate da Grocery e Projects.
 

@@ -32,8 +32,8 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Test della logica d'accesso (`src/dati/accesso.test.ts`)
   - [x] Script `supabase/sql/001_schema.sql` e variabili di Supabase nel workflow `pubblica.yml`
   - [x] `001_schema.sql` applicato in produzione il 2026-09-16 (`supabase db query --linked` dalla cartella di Grocery): schema `trekking` con gli stessi permessi di `projects`
-  - [x] `trekking` esposto nell'API il 2026-09-16, con `pgrst.db_schemas` sul ruolo `authenticator` ([05](05-deploy.md)): l'API risponde sullo schema, `public` e `projects` invariati
-  - [ ] Aggiungere `https://giacomoguaresi.github.io/Trekking/` agli URL di redirect di Auth (non blocca: l'accesso con passphrase non usa redirect; serve un token della Management API o la dashboard)
+  - [x] `trekking` esposto nell'API il 2026-09-16 con la Management API ([05](05-deploy.md)): l'API risponde sullo schema, `public` e `projects` invariati
+  - [x] `https://giacomoguaresi.github.io/Trekking/` negli URL di redirect di Auth (2026-09-16); registrazioni pubbliche ancora spente
   - [x] Variabili `VITE_SUPABASE_*` nel repository GitHub, GitHub Pages attivo, deploy riuscito il 2026-09-16
   - [ ] Prova in locale, da telefono e da PC: da Grocery si entra senza passphrase
 - [ ] **3 · Salvare un trekking**: tabella `trekking` con il solo nome, RLS, pulsante **+** con form di un campo, tabella semplice con i nomi, guscio con intestazione blu e menu. *Finito anche quando*: senza sessione una query non restituisce righe

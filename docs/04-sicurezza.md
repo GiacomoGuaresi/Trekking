@@ -43,11 +43,11 @@ Un'app statica **non ha segreti**: ogni variabile `VITE_*`, anche se sta nei *Se
 
 ## Checklist prima di pubblicare
 
-- [ ] Registrazioni pubbliche spente sul progetto (già così per le altre app, da riverificare)
+- [x] Registrazioni pubbliche spente sul progetto (`disable_signup: true`, verificato il 2026-09-16)
 - [ ] RLS attiva su ogni tabella dello schema `trekking`
 - [ ] Una query con la sola publishable key e senza sessione non restituisce righe, nemmeno da `impostazioni`
 - [ ] Nessun file `.env*` committato (solo `.env.example`)
 - [ ] Coordinate di casa assenti dal repo, dalla storia git e dal `dist/` pubblicato
 - [ ] Secret key e password del DB assenti dal repo e dalla storia git
-- [ ] URL di redirect di Auth: aggiunto `https://giacomoguaresi.github.io/Trekking/`
+- [x] URL di redirect di Auth: aggiunto `https://giacomoguaresi.github.io/Trekking/`
 - [ ] Sessione condivisa verificata: accesso a Grocery → Trekking aperto senza passphrase
