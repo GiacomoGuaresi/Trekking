@@ -11,7 +11,5 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
-    // Nello scheletro non c'è ancora logica da provare: i test arrivano con il dominio.
-    passWithNoTests: true,
   },
 })

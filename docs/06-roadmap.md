@@ -27,6 +27,14 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 - [x] **1 · Scheletro pubblicato**: `git init`, LICENSE, repository pubblico, scaffold Vite + React + TS + Tailwind + Vitest, workflow `pubblica.yml`, una pagina vuota "Trekking" online su GitHub Pages
 - [ ] **2 · Accesso**: schermata della passphrase, sessione condivisa con Grocery e Projects, schema `trekking` vuoto ed esposto nell'API. *Finito anche quando*: da Grocery si entra senza passphrase
+  - [x] Schermata della passphrase e cancello davanti all'app (`src/ui/Accesso.tsx`, `src/ui/ConAccesso.tsx`)
+  - [x] Client Supabase sullo schema `trekking`, sessione nei cookie con percorso `/` come Grocery e Projects (`src/dati/`)
+  - [x] Test della logica d'accesso (`src/dati/accesso.test.ts`)
+  - [x] Script `supabase/sql/001_schema.sql` e variabili di Supabase nel workflow `pubblica.yml`
+  - [ ] Eseguire `001_schema.sql` dal SQL Editor e aggiungere `trekking` agli *Exposed schemas* (al 2026-09-16 l'API espone solo `public`, `graphql_public`, `projects`)
+  - [ ] Aggiungere `https://giacomoguaresi.github.io/Trekking/` agli URL di redirect di Auth
+  - [ ] Variabili `VITE_SUPABASE_*` nel repository GitHub, deploy riuscito
+  - [ ] Prova in locale, da telefono e da PC: da Grocery si entra senza passphrase
 - [ ] **3 · Salvare un trekking**: tabella `trekking` con il solo nome, RLS, pulsante **+** con form di un campo, tabella semplice con i nomi, guscio con intestazione blu e menu. *Finito anche quando*: senza sessione una query non restituisce righe
 - [ ] **4 · Modificare ed eliminare**: modifica del nome, eliminazione con conferma
 - [ ] **5 · Completato**: segno reversibile, completati nascosti, interruttore "Mostra completati"
