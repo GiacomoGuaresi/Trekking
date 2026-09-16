@@ -37,9 +37,14 @@ URL: `https://giacomoguaresi.github.io/Trekking/`. Vite ha `base: '/Trekking/'`;
 ## Configurazioni una tantum
 
 Sulla dashboard Supabase:
-1. Settings → Data API → aggiungere `trekking` agli *Exposed schemas*
-2. Authentication → URL Configuration → aggiungere `https://giacomoguaresi.github.io/Trekking/`
-3. Eseguire gli script di `supabase/sql/` in ordine
+1. Esporre `trekking` nell'API. Fatto il 2026-09-16 dal database, senza token della Management API, con la configurazione di PostgREST salvata sul ruolo `authenticator`:
+   ```sql
+   alter role authenticator set pgrst.db_schemas = 'public, graphql_public, projects, trekking';
+   notify pgrst, 'reload config';
+   ```
+   ⚠️ Questa impostazione **vince su Settings → Data API → Exposed schemas**: se un'altra app aggiunge uno schema dalla dashboard, va aggiunto anche qui. Per tornare alla dashboard: `alter role authenticator reset pgrst.db_schemas; notify pgrst, 'reload config';`
+2. Authentication → URL Configuration → aggiungere `https://giacomoguaresi.github.io/Trekking/`. L'accesso con passphrase non usa redirect: serve solo se un giorno arriveranno link via email
+3. Eseguire gli script di `supabase/sql/` in ordine: dalla cartella di Grocery, già collegata al progetto, `supabase db query --linked -f ../Trekking/supabase/sql/NNN_*.sql`
 4. Inserire le coordinate di casa in `trekking.impostazioni` dal SQL Editor, **senza salvarle in un file** ([04](04-sicurezza.md))
 
 Su openrouteservice:
