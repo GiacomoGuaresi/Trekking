@@ -32,6 +32,30 @@ describe('ordina', () => {
   })
 })
 
+describe('ordina per dislivello', () => {
+  const conDislivello = [
+    esempio({ id: '1', nome: 'Media', dislivello: 800 }),
+    esempio({ id: '2', nome: 'Senza dettagli' }),
+    esempio({ id: '3', nome: 'Corta', dislivello: 200 }),
+  ]
+
+  it('dal più basso al più alto', () => {
+    expect(ordina(conDislivello, { colonna: 'dislivello', verso: 'crescente' }).map((t) => t.id)).toEqual([
+      '3',
+      '1',
+      '2',
+    ])
+  })
+
+  it('chi non ce l’ha resta in fondo anche al contrario', () => {
+    expect(ordina(conDislivello, { colonna: 'dislivello', verso: 'decrescente' }).map((t) => t.id)).toEqual([
+      '1',
+      '3',
+      '2',
+    ])
+  })
+})
+
 describe('tocca', () => {
   it('sulla stessa colonna inverte il verso', () => {
     expect(tocca({ colonna: 'nome', verso: 'crescente' }, 'nome')).toEqual({ colonna: 'nome', verso: 'decrescente' })

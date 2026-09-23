@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react'
 import { Menu, MountainSnow, Plus } from 'lucide-react'
 import { quantiCompletati, visibili } from '../dominio/elenco'
+import { FILTRI_VUOTI, type Filtri as ValoriFiltri, filtra, quantiFiltri } from '../dominio/filtri'
 import { ORDINAMENTO_INIZIALE, ordina, tocca, type Ordinamento } from '../dominio/ordinamento'
 import { cerca } from '../dominio/ricerca'
 import type { Trekking } from '../dominio/tipi'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
+import { Filtri } from './Filtri'
 import { MenuLaterale } from './MenuLaterale'
 import { ModaleTrekking } from './ModaleTrekking'
 import { MostraCompletati } from './MostraCompletati'
@@ -33,6 +35,7 @@ export function App() {
   const [mostraCompletati, setMostraCompletati] = useInterruttore('trekking_completati', false)
   const [ricerca, setRicerca] = useState('')
   const [ordinamento, setOrdinamento] = useState<Ordinamento>(ORDINAMENTO_INIZIALE)
+  const [filtri, setFiltri] = useState<ValoriFiltri>(FILTRI_VUOTI)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
   const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
 
@@ -118,16 +121,20 @@ export function App() {
                 onCambia={setMostraCompletati}
               />
             </div>
+            <div className="mb-2">
+              <Filtri valori={filtri} onCambia={setFiltri} />
+            </div>
             {erroreCompletato && (
               <p className="mb-2 text-sm text-pericolo" role="alert">
                 {erroreCompletato}
               </p>
             )}
             <Elenco
-              trekking={ordina(cerca(visibili(stato.trekking, mostraCompletati), ricerca), ordinamento)}
+              trekking={ordina(filtra(cerca(visibili(stato.trekking, mostraCompletati), ricerca), filtri), ordinamento)}
               ordinamento={ordinamento}
               onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
               ricerca={ricerca}
+              conFiltri={quantiFiltri(filtri) > 0}
               onNuovo={() => setNuovoAperto(true)}
               nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
               onCompletato={(t) => void cambiaCompletato(t)}
@@ -151,7 +158,12 @@ export function App() {
       {daModificare && (
         <ModaleTrekking
           titolo="Modifica trekking"
-          iniziale={{ nome: daModificare.nome, link: daModificare.link, note: daModificare.note }}
+          iniziale={{
+            nome: daModificare.nome,
+            link: daModificare.link,
+            note: daModificare.note,
+            dislivello: daModificare.dislivello,
+          }}
           esistenti={esistenti}
           escludi={daModificare.id}
           onSalva={(campi) => aggiorna(daModificare.id, campi)}

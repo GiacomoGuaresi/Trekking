@@ -1,5 +1,6 @@
 // Le query sui trekking, tabella `trekking.trekking` (docs/08-modello-dati.md).
-// Le colonne arrivano con gli step della roadmap: per ora c'è il solo nome.
+// Le colonne arrivano con gli step della roadmap: ricerca, ordinamento e filtri
+// stanno nel browser, qui si leggono e si scrivono le righe.
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { CampiTrekking, Trekking } from '../dominio/tipi'
@@ -8,7 +9,7 @@ import { fallita } from './errore'
 export class TrekkingSupabase {
   constructor(private readonly client: SupabaseClient) {}
 
-  /** Tutti i trekking, dal più recente: ricerca e ordinamento arrivano allo step 6. */
+  /** Tutti i trekking, dal più recente: ricerca, ordinamento e filtri li fa il browser. */
   async elenco(): Promise<Trekking[]> {
     const { data, error } = await this.client.from('trekking').select('*').order('creato_il', { ascending: false })
     if (error) throw fallita('Trekking non caricati', error)

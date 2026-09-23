@@ -1,11 +1,13 @@
 /** Le righe di `trekking.trekking` (docs/08-modello-dati.md). Le colonne
  *  arrivano con gli step della roadmap che le usano: per ora il nome, i link,
- *  le note e il segno "completato". */
+ *  le note, il dislivello e il segno "completato". */
 export interface Trekking {
   id: string
   nome: string
   link: string[]
   note: string | null
+  /** Metri di salita, intero positivo; `null` quando non si sa. */
+  dislivello: number | null
   completato: boolean
   creato_il: string
   modificato_il: string
@@ -17,4 +19,5 @@ export interface CampiTrekking {
   link: string[]
   /** Markdown; vuoto vuol dire `null`. */
   note: string | null
+  dislivello: number | null
 }

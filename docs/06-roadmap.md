@@ -75,7 +75,12 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 ## Fase 2 · Scegliere un trekking ← *in corso*
 
-- [ ] **9 · Dislivello**: campo nel form, filtro min/max (i trekking senza dislivello restano visibili)
+- [x] **9 · Dislivello**: campo nel form, filtro min/max (i trekking senza dislivello restano visibili)
+  - [x] `006_dislivello.sql` applicato in produzione il 2026-09-23: colonna `dislivello integer` con il vincolo `> 0`
+  - [x] Campo "Dislivello (m)" nel form, che si rifiuta di salvare un numero storto (`ModaleTrekking.tsx`, `src/dominio/dislivello.ts`)
+  - [x] Colonna Dislivello nell'elenco, ordinabile, con chi non ce l'ha sempre in fondo (`Elenco.tsx`, `ordinamento.ts`)
+  - [x] Pannello "Filtri" con dislivello minimo e massimo e il pulsante "Azzera" (`Filtri.tsx`, `src/dominio/filtri.ts`)
+  - [x] Test del dislivello, dei filtri e dell'ordinamento con i valori mancanti (`dislivello.test.ts`, `filtri.test.ts`, `ordinamento.test.ts`)
 - [ ] **10 · Durata**: campo a passi di mezz'ora, filtro min/max
 - [ ] **11 · Luogo per coordinate**: interruttore Nome / Coordinate con la sola parte Coordinate, `lat` e `lon` nel database
 - [ ] **12 · Luogo per nome**: suggerimenti di Photon, conversione in coordinate, primo risultato se non se ne sceglie uno

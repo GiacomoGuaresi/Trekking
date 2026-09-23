@@ -12,6 +12,8 @@ interface Props {
   onOrdina: (colonna: Colonna) => void
   /** Il testo cercato: cambia il messaggio quando non si trova nulla. */
   ricerca: string
+  /** Se c'è almeno un filtro acceso: cambia il messaggio dell'elenco vuoto. */
+  conFiltri: boolean
   /** Quanti sono nascosti perché completati: cambia il messaggio dell'elenco vuoto. */
   nascosti: number
   onNuovo: () => void
@@ -24,7 +26,7 @@ const data = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', 
 
 /**
  * L'elenco dei trekking (docs/09-interfaccia.md): il segno del completato, il
- * nome con i suoi link, la data di aggiunta e i pulsanti per modificare o
+ * nome con i suoi link, il dislivello, la data di aggiunta e i pulsanti per modificare o
  * eliminare. Chi ha delle note ha anche una freccia che le apre sotto la riga.
  * Toccando un'intestazione si ordina per quella colonna, un secondo tocco
  * inverte. Le altre colonne e i filtri arrivano con gli step successivi.
@@ -34,6 +36,7 @@ export function Elenco({
   ordinamento,
   onOrdina,
   ricerca,
+  conFiltri,
   nascosti,
   onNuovo,
   onCompletato,
@@ -48,6 +51,9 @@ export function Elenco({
   if (trekking.length === 0) {
     if (ricerca.trim() !== '') {
       return <p className="mt-8 text-center text-testo-tenue">Nessun trekking con questo nome.</p>
+    }
+    if (conFiltri) {
+      return <p className="mt-8 text-center text-testo-tenue">Nessun trekking con questi filtri.</p>
     }
     if (nascosti > 0) {
       return <p className="mt-8 text-center text-testo-tenue">Sono tutti completati.</p>
@@ -65,13 +71,20 @@ export function Elenco({
 
   return (
     <div className="overflow-x-auto rounded-[11px] border border-bordo bg-white">
-      <table className="w-full min-w-[420px] border-collapse text-left">
+      <table className="w-full min-w-[520px] border-collapse text-left">
         <thead>
           <tr className="border-b border-bordo">
             <th className="w-11">
               <span className="sr-only">Completato</span>
             </th>
             <Intestazione colonna="nome" etichetta="Nome" ordinamento={ordinamento} onOrdina={onOrdina} />
+            <Intestazione
+              colonna="dislivello"
+              etichetta="Dislivello"
+              ordinamento={ordinamento}
+              onOrdina={onOrdina}
+              stretta
+            />
             <Intestazione
               colonna="creato_il"
               etichetta="Aggiunto"
@@ -126,6 +139,9 @@ export function Elenco({
                   </span>
                   {t.link.length > 0 && <Link link={t.link} />}
                 </td>
+                <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">
+                  {t.dislivello === null ? '—' : `${t.dislivello} m`}
+                </td>
                 <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{data.format(new Date(t.creato_il))}</td>
                 <td className="py-1 pr-1">
                   <div className="flex justify-end gap-0.5">
@@ -151,7 +167,7 @@ export function Elenco({
               {t.note && aperte.includes(t.id) && (
                 <tr className="border-b border-bordo last:border-0">
                   <td />
-                  <td className="px-3 pt-0 pb-3" colSpan={3}>
+                  <td className="px-3 pt-0 pb-3" colSpan={4}>
                     <Markdown testo={t.note} />
                   </td>
                 </tr>
