@@ -54,7 +54,12 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Segno rotondo a inizio riga, reversibile, con il nome barrato (`src/ui/Elenco.tsx`)
   - [x] Interruttore "Mostra completati" con il conto, salvato in un cookie dell'app (`MostraCompletati.tsx`, `preferenze.ts`)
   - [x] Test del filtro, del conto e della lettura del cookie (`src/dominio/elenco.test.ts`, `src/ui/preferenze.test.ts`)
-- [ ] **6 · Ricerca, ordinamento e doppioni**: ricerca per nome, ordinamento cliccando sulle colonne, avviso mentre si scrive un nome già presente
+- [x] **6 · Ricerca, ordinamento e doppioni**: ricerca per nome, ordinamento cliccando sulle colonne, avviso mentre si scrive un nome già presente
+  - [x] Ricerca per nome che non bada ad accenti e maiuscole (`src/dominio/ricerca.ts`, `src/ui/Ricerca.tsx`)
+  - [x] Intestazioni Nome e Aggiunto ordinabili, secondo tocco al contrario (`src/dominio/ordinamento.ts`, `Elenco.tsx`)
+  - [x] Avviso del nome già presente nel modale, che non blocca il salvataggio (`ModaleNome.tsx`)
+  - [x] Test di ricerca, doppioni e ordinamento (`ricerca.test.ts`, `ordinamento.test.ts`)
+  - Nota: l'ordinamento di default resta "i più recenti in cima"; diventerà il tempo di viaggio crescente allo step 15, quando quella colonna esisterà
 - [ ] **7 · Link**: uno o più link per trekking, apribili dall'elenco
 - [ ] **8 · Note**: campo Markdown con la formattazione di base
 

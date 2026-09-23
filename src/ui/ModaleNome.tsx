@@ -1,11 +1,17 @@
 import { useId, useState, type FormEvent } from 'react'
 import { nomeValido, pulisciNome } from '../dominio/nome'
+import { doppione } from '../dominio/ricerca'
+import type { Trekking } from '../dominio/tipi'
 import { Modale } from './Modale'
 
 interface Props {
   /** "Nuovo trekking" quando si crea, "Cambia nome" quando si modifica. */
   titolo: string
   nomeIniziale?: string
+  /** Tutti i trekking, per avvisare dei doppioni mentre si scrive. */
+  esistenti: readonly Trekking[]
+  /** Il trekking che si sta modificando: non è doppione di sé stesso. */
+  escludi?: string
   onSalva: (nome: string) => Promise<unknown>
   onChiudi: () => void
 }
@@ -16,11 +22,14 @@ interface Props {
  * campi si aggiungono qui con gli step della roadmap. Invio salva; a schermo
  * intero su mobile.
  */
-export function ModaleNome({ titolo, nomeIniziale = '', onSalva, onChiudi }: Props) {
+export function ModaleNome({ titolo, nomeIniziale = '', esistenti, escludi, onSalva, onChiudi }: Props) {
   const [nome, setNome] = useState(nomeIniziale)
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
+  // L'avviso compare mentre si scrive e non blocca il salvataggio
+  // (docs/02-funzionalita.md).
+  const gia = doppione(esistenti, nome, escludi)
 
   const invia = async (evento: FormEvent) => {
     evento.preventDefault()
@@ -72,6 +81,11 @@ export function ModaleNome({ titolo, nomeIniziale = '', onSalva, onChiudi }: Pro
           value={nome}
           onChange={(evento) => setNome(evento.target.value)}
         />
+        {gia && (
+          <p className="m-0 text-xs text-testo-tenue">
+            Esiste già un trekking che si chiama <strong>{gia.nome}</strong>.
+          </p>
+        )}
         {errore && (
           <p className="m-0 text-xs text-pericolo" role="alert">
             {errore}

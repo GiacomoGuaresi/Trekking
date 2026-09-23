@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react'
 import { Menu, MountainSnow, Plus } from 'lucide-react'
 import { quantiCompletati, visibili } from '../dominio/elenco'
+import { ORDINAMENTO_INIZIALE, ordina, tocca, type Ordinamento } from '../dominio/ordinamento'
+import { cerca } from '../dominio/ricerca'
 import type { Trekking } from '../dominio/tipi'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
 import { MenuLaterale } from './MenuLaterale'
 import { ModaleNome } from './ModaleNome'
 import { MostraCompletati } from './MostraCompletati'
+import { Ricerca } from './Ricerca'
 import { useInterruttore } from './preferenze'
 import { useRotta } from './rotta'
 import { useTrekking } from './useTrekking'
@@ -28,8 +31,13 @@ export function App() {
   /** L'errore di un tocco sul completato: l'elenco resta com'era. */
   const [erroreCompletato, setErroreCompletato] = useState<string | null>(null)
   const [mostraCompletati, setMostraCompletati] = useInterruttore('trekking_completati', false)
+  const [ricerca, setRicerca] = useState('')
+  const [ordinamento, setOrdinamento] = useState<Ordinamento>(ORDINAMENTO_INIZIALE)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
   const { stato, ricarica, crea, rinomina, segnaCompletato, elimina } = useTrekking()
+
+  /** Per l'avviso dei doppioni contano tutti, completati compresi. */
+  const esistenti = stato.fase === 'pronto' ? stato.trekking : []
 
   const cambiaCompletato = async (t: Trekking) => {
     setErroreCompletato(null)
@@ -102,18 +110,24 @@ export function App() {
         )}
         {stato.fase === 'pronto' && (
           <>
-            <MostraCompletati
-              acceso={mostraCompletati}
-              quanti={quantiCompletati(stato.trekking)}
-              onCambia={setMostraCompletati}
-            />
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Ricerca testo={ricerca} onCambia={setRicerca} />
+              <MostraCompletati
+                acceso={mostraCompletati}
+                quanti={quantiCompletati(stato.trekking)}
+                onCambia={setMostraCompletati}
+              />
+            </div>
             {erroreCompletato && (
               <p className="mb-2 text-sm text-pericolo" role="alert">
                 {erroreCompletato}
               </p>
             )}
             <Elenco
-              trekking={visibili(stato.trekking, mostraCompletati)}
+              trekking={ordina(cerca(visibili(stato.trekking, mostraCompletati), ricerca), ordinamento)}
+              ordinamento={ordinamento}
+              onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
+              ricerca={ricerca}
               onNuovo={() => setNuovoAperto(true)}
               nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
               onCompletato={(t) => void cambiaCompletato(t)}
@@ -127,12 +141,19 @@ export function App() {
         )}
       </main>
       {nuovoAperto && (
-        <ModaleNome titolo="Nuovo trekking" onSalva={crea} onChiudi={() => setNuovoAperto(false)} />
+        <ModaleNome
+          titolo="Nuovo trekking"
+          esistenti={esistenti}
+          onSalva={crea}
+          onChiudi={() => setNuovoAperto(false)}
+        />
       )}
       {daRinominare && (
         <ModaleNome
           titolo="Cambia nome"
           nomeIniziale={daRinominare.nome}
+          esistenti={esistenti}
+          escludi={daRinominare.id}
           onSalva={(nome) => rinomina(daRinominare.id, nome)}
           onChiudi={() => setDaRinominare(null)}
         />
