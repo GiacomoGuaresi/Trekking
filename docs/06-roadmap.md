@@ -139,7 +139,11 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 ## Fase 4 · Rifinitura
 
-- [ ] **20 · Installabile**: icona, PWA, voce "Installa l'app" come nelle altre app
+- [x] **20 · Installabile**: icona, PWA, voce "Installa l'app" come nelle altre app
+  - [x] Icona della montagna su blu (`public/icona.svg`), con le versioni generate da `npm run icone`
+  - [x] `vite-plugin-pwa` con manifest, service worker e shell in cache; i dati non passano dal service worker
+  - [x] Voce "Installa l'app" in fondo al menu: dove il browser dà il prompt basta un tocco, altrove si aprono le istruzioni (`Installa.tsx`, `installazione.ts`, portati da Projects)
+  - [x] Pagina `#/installa` con le istruzioni per iOS, Android e PC
 - [ ] **21 · Aspetto**: palette blu montagna rifinita, sfondo doodle a tema montagna, animazioni brevi ([09](09-interfaccia.md))
 - [ ] **22 · Prove da telefono e da PC**: un giro solo sull'app online, con il telefono e con il PC
   - [ ] Si entra senza passphrase venendo da Grocery o da Projects

@@ -7,6 +7,7 @@ import { cerca } from '../dominio/ricerca'
 import type { Trekking } from '../dominio/tipi'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
+import { Installa } from './Installa'
 import { Filtri } from './Filtri'
 import { MenuLaterale } from './MenuLaterale'
 import { ModaleTrekking } from './ModaleTrekking'
@@ -14,7 +15,8 @@ import { MostraCompletati } from './MostraCompletati'
 import { Ricerca } from './Ricerca'
 import { useInterruttore } from './preferenze'
 import { useCasa } from './useCasa'
-import { useRotta } from './rotta'
+import { indirizzi, useRotta } from './rotta'
+import { installa, useInstallazione } from './installazione'
 import { useTrekking } from './useTrekking'
 
 // Leaflet pesa: si carica solo quando si apre la Mappa, così l'Elenco resta
@@ -44,6 +46,7 @@ export function App() {
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
   const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
   const casa = useCasa()
+  const statoInstallazione = useInstallazione()
 
   /** Quelli da mostrare, uguali per l'elenco e per la mappa (docs/02-funzionalita.md). */
   const daMostrare = (tutti: readonly Trekking[]) =>
@@ -110,10 +113,21 @@ export function App() {
           setMenuAperto(false)
           setNuovoAperto(true)
         }}
+        onInstalla={
+          statoInstallazione === 'installata'
+            ? undefined
+            : () => {
+                setMenuAperto(false)
+                // Dove il browser ha dato il suo prompt basta un tocco; dove no,
+                // si aprono le istruzioni.
+                if (statoInstallazione === 'pronta') void installa()
+                else window.location.hash = indirizzi.installa
+              }
+        }
       />
       <main className="mx-auto w-full max-w-[1200px] flex-1 p-3 pb-[calc(12px+env(safe-area-inset-bottom))] lg:col-start-2">
-        {stato.fase === 'caricamento' && <p className="mt-8 text-center text-testo-tenue">Carico…</p>}
-        {stato.fase === 'errore' && (
+        {rotta !== 'installa' && stato.fase === 'caricamento' && <p className="mt-8 text-center text-testo-tenue">Carico…</p>}
+        {rotta !== 'installa' && stato.fase === 'errore' && (
           <p className="mt-8 text-center text-testo-tenue" role="alert">
             {stato.messaggio}{' '}
             <button type="button" className="font-semibold text-montagna-scura underline" onClick={() => void ricarica()}>
@@ -121,7 +135,8 @@ export function App() {
             </button>
           </p>
         )}
-        {stato.fase === 'pronto' && (
+        {rotta === 'installa' && <Installa stato={statoInstallazione} />}
+        {rotta !== 'installa' && stato.fase === 'pronto' && (
           <>
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <Ricerca testo={ricerca} onCambia={setRicerca} />

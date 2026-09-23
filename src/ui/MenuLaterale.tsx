@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { LayoutList, Map, Plus, X, type LucideIcon } from 'lucide-react'
+import { Download, LayoutList, Map, Plus, X, type LucideIcon } from 'lucide-react'
 import { indirizzi, type Rotta } from './rotta'
 
 /** Da questa larghezza il menu è sempre aperto: la stessa soglia di `lg:`. */
 const SEMPRE_APERTO = '(min-width: 1024px)'
 
-/** "Installa l'app" si aggiunge qui, allo step 20 della roadmap. */
 const sezioni: { rotta: Rotta; etichetta: string; icona: LucideIcon }[] = [
   { rotta: 'elenco', etichetta: 'Elenco', icona: LayoutList },
   { rotta: 'mappa', etichetta: 'Mappa', icona: Map },
@@ -17,6 +16,8 @@ interface Props {
   onChiudi: () => void
   /** L'azione "Nuovo trekking", staccata dalle sezioni. */
   onNuovo: () => void
+  /** In fondo al menu "Installa l'app", finché l'app non è installata. Se manca, la voce non c'è. */
+  onInstalla?: () => void
 }
 
 /**
@@ -26,7 +27,7 @@ interface Props {
  * la pagina sotto non scorre, e alla chiusura il fuoco torna dov'era. Da
  * desktop è una colonna fissa, sempre visibile.
  */
-export function MenuLaterale({ aperto, corrente, onChiudi, onNuovo }: Props) {
+export function MenuLaterale({ aperto, corrente, onChiudi, onNuovo, onInstalla }: Props) {
   const pannello = useRef<HTMLElement>(null)
 
   // Se la finestra si allarga col menu aperto lo si chiude, così la pagina
@@ -114,6 +115,21 @@ export function MenuLaterale({ aperto, corrente, onChiudi, onNuovo }: Props) {
           <Plus className="size-[18px]" aria-hidden="true" />
           Nuovo trekking
         </button>
+        {/* Le voci di servizio stanno in fondo, lontane dall'uso di tutti i giorni. */}
+        {onInstalla && (
+          <button
+            type="button"
+            onClick={onInstalla}
+            aria-current={corrente === 'installa' ? 'page' : undefined}
+            className="group mt-auto flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-left hover:bg-fondo active:bg-bordo aria-[current=page]:bg-ghiaccio aria-[current=page]:font-semibold"
+          >
+            <Download
+              className="size-[18px] text-testo-tenue group-aria-[current=page]:text-montagna-scura"
+              aria-hidden="true"
+            />
+            Installa l'app
+          </button>
+        )}
       </nav>
     </>
   )
