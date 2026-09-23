@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { quantiCompletati, rimuovi, sostituisci, visibili } from './elenco'
+import { esempio } from './esempi'
 import type { Trekking } from './tipi'
 
 function trekking(id: string, nome: string, completato = false): Trekking {
-  return { id, nome, completato, creato_il: '2026-09-23T10:00:00Z', modificato_il: '2026-09-23T10:00:00Z' }
+  return esempio({ id, nome, completato })
 }
 
 const elenco = [trekking('1', 'Cima Tosa'), trekking('2', 'Monte Baldo'), trekking('3', 'Città Morta')]

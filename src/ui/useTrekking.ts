@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { trekking } from '../dati'
 import { rimuovi, sostituisci } from '../dominio/elenco'
-import type { Trekking } from '../dominio/tipi'
+import type { CampiTrekking, Trekking } from '../dominio/tipi'
 
 export type StatoElenco =
   | { fase: 'caricamento' }
@@ -31,15 +31,15 @@ export function useTrekking() {
   }, [ricarica])
 
   /** Crea il trekking; se non riesce lancia l'errore, e il modale lo mostra. */
-  const crea = useCallback(async (nome: string) => {
-    const creato = await trekking().crea(nome)
+  const crea = useCallback(async (campi: CampiTrekking) => {
+    const creato = await trekking().crea(campi)
     setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: [creato, ...prima.trekking] } : prima))
     return creato
   }, [])
 
-  /** Cambia il nome; se non riesce lancia l'errore, e il modale lo mostra. */
-  const rinomina = useCallback(async (id: string, nome: string) => {
-    const cambiato = await trekking().rinomina(id, nome)
+  /** Salva le modifiche; se non riesce lancia l'errore, e il modale lo mostra. */
+  const aggiorna = useCallback(async (id: string, campi: CampiTrekking) => {
+    const cambiato = await trekking().aggiorna(id, campi)
     setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: sostituisci(prima.trekking, cambiato) } : prima))
     return cambiato
   }, [])
@@ -57,5 +57,5 @@ export function useTrekking() {
     setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: rimuovi(prima.trekking, id) } : prima))
   }, [])
 
-  return { stato, ricarica, crea, rinomina, segnaCompletato, elimina }
+  return { stato, ricarica, crea, aggiorna, segnaCompletato, elimina }
 }

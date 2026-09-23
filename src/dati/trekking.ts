@@ -2,7 +2,7 @@
 // Le colonne arrivano con gli step della roadmap: per ora c'è il solo nome.
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Trekking } from '../dominio/tipi'
+import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { fallita } from './errore'
 
 export class TrekkingSupabase {
@@ -15,16 +15,16 @@ export class TrekkingSupabase {
     return data as Trekking[]
   }
 
-  async crea(nome: string): Promise<Trekking> {
-    const { data, error } = await this.client.from('trekking').insert({ nome }).select().single()
+  async crea(campi: CampiTrekking): Promise<Trekking> {
+    const { data, error } = await this.client.from('trekking').insert(campi).select().single()
     if (error) throw fallita('Trekking non salvato', error)
     return data as Trekking
   }
 
-  /** Cambia il nome; `modificato_il` lo aggiorna il trigger. */
-  async rinomina(id: string, nome: string): Promise<Trekking> {
-    const { data, error } = await this.client.from('trekking').update({ nome }).eq('id', id).select().single()
-    if (error) throw fallita('Nome non cambiato', error)
+  /** Salva i campi del form; `modificato_il` lo aggiorna il trigger. */
+  async aggiorna(id: string, campi: CampiTrekking): Promise<Trekking> {
+    const { data, error } = await this.client.from('trekking').update(campi).eq('id', id).select().single()
+    if (error) throw fallita('Modifica non salvata', error)
     return data as Trekking
   }
 

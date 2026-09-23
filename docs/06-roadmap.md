@@ -60,7 +60,11 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Avviso del nome già presente nel modale, che non blocca il salvataggio (`ModaleNome.tsx`)
   - [x] Test di ricerca, doppioni e ordinamento (`ricerca.test.ts`, `ordinamento.test.ts`)
   - Nota: l'ordinamento di default resta "i più recenti in cima"; diventerà il tempo di viaggio crescente allo step 15, quando quella colonna esisterà
-- [ ] **7 · Link**: uno o più link per trekking, apribili dall'elenco
+- [x] **7 · Link**: uno o più link per trekking, apribili dall'elenco
+  - [x] `004_link.sql` applicato in produzione il 2026-09-23: colonna `link text[]` con default `{}`
+  - [x] Campo "Link (uno per riga)" nel form, che ora salva più campi (`ModaleTrekking.tsx`, prima `ModaleNome.tsx`)
+  - [x] Link sotto il nome nell'elenco, con il sito come etichetta, che si aprono in una scheda nuova (`Elenco.tsx`)
+  - [x] Test di ripulitura, apertura ed etichetta (`src/dominio/link.test.ts`); trekking d'esempio comuni ai test (`esempi.ts`)
 - [ ] **8 · Note**: campo Markdown con la formattazione di base
 
 ➜ **Da qui l'app può già sostituire il file di note.**

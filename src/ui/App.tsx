@@ -7,7 +7,7 @@ import type { Trekking } from '../dominio/tipi'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
 import { MenuLaterale } from './MenuLaterale'
-import { ModaleNome } from './ModaleNome'
+import { ModaleTrekking } from './ModaleTrekking'
 import { MostraCompletati } from './MostraCompletati'
 import { Ricerca } from './Ricerca'
 import { useInterruttore } from './preferenze'
@@ -24,8 +24,8 @@ export function App() {
   const rotta = useRotta()
   const [menuAperto, setMenuAperto] = useState(false)
   const [nuovoAperto, setNuovoAperto] = useState(false)
-  /** Il trekking di cui si sta cambiando il nome, e quello che si sta eliminando. */
-  const [daRinominare, setDaRinominare] = useState<Trekking | null>(null)
+  /** Il trekking che si sta modificando, e quello che si sta eliminando. */
+  const [daModificare, setDaModificare] = useState<Trekking | null>(null)
   const [daEliminare, setDaEliminare] = useState<Trekking | null>(null)
   const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null)
   /** L'errore di un tocco sul completato: l'elenco resta com'era. */
@@ -34,7 +34,7 @@ export function App() {
   const [ricerca, setRicerca] = useState('')
   const [ordinamento, setOrdinamento] = useState<Ordinamento>(ORDINAMENTO_INIZIALE)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
-  const { stato, ricarica, crea, rinomina, segnaCompletato, elimina } = useTrekking()
+  const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
 
   /** Per l'avviso dei doppioni contano tutti, completati compresi. */
   const esistenti = stato.fase === 'pronto' ? stato.trekking : []
@@ -131,7 +131,7 @@ export function App() {
               onNuovo={() => setNuovoAperto(true)}
               nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
               onCompletato={(t) => void cambiaCompletato(t)}
-              onRinomina={setDaRinominare}
+              onRinomina={setDaModificare}
               onElimina={(t) => {
                 setErroreEliminazione(null)
                 setDaEliminare(t)
@@ -141,21 +141,21 @@ export function App() {
         )}
       </main>
       {nuovoAperto && (
-        <ModaleNome
+        <ModaleTrekking
           titolo="Nuovo trekking"
           esistenti={esistenti}
           onSalva={crea}
           onChiudi={() => setNuovoAperto(false)}
         />
       )}
-      {daRinominare && (
-        <ModaleNome
-          titolo="Cambia nome"
-          nomeIniziale={daRinominare.nome}
+      {daModificare && (
+        <ModaleTrekking
+          titolo="Modifica trekking"
+          iniziale={{ nome: daModificare.nome, link: daModificare.link }}
           esistenti={esistenti}
-          escludi={daRinominare.id}
-          onSalva={(nome) => rinomina(daRinominare.id, nome)}
-          onChiudi={() => setDaRinominare(null)}
+          escludi={daModificare.id}
+          onSalva={(campi) => aggiorna(daModificare.id, campi)}
+          onChiudi={() => setDaModificare(null)}
         />
       )}
       {daEliminare && (

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { ORDINAMENTO_INIZIALE, ordina, tocca } from './ordinamento'
+import { esempio } from './esempi'
 import type { Trekking } from './tipi'
 
 function trekking(id: string, nome: string, creato_il: string): Trekking {
-  return { id, nome, completato: false, creato_il, modificato_il: creato_il }
+  return esempio({ id, nome, creato_il, modificato_il: creato_il })
 }
 
 const elenco = [

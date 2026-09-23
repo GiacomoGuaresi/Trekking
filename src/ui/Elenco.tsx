@@ -1,4 +1,5 @@
-import { ArrowDown, ArrowUp, Check, Pencil, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { etichettaLink, perApertura } from '../dominio/link'
 import type { Colonna, Ordinamento } from '../dominio/ordinamento'
 import type { Trekking } from '../dominio/tipi'
 
@@ -21,7 +22,8 @@ const data = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', 
 
 /**
  * L'elenco dei trekking (docs/09-interfaccia.md): il segno del completato, il
- * nome, la data di aggiunta e i pulsanti per cambiare il nome o eliminare.
+ * nome con i suoi link, la data di aggiunta e i pulsanti per modificare o
+ * eliminare.
  * Toccando un'intestazione si ordina per quella colonna, un secondo tocco
  * inverte. Le altre colonne e i filtri arrivano con gli step successivi.
  */
@@ -95,14 +97,17 @@ export function Elenco({
                   </span>
                 </button>
               </td>
-              <td className={`px-3 py-2 ${t.completato ? 'text-testo-tenue line-through' : ''}`}>{t.nome}</td>
+              <td className="px-3 py-2">
+                <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
+                {t.link.length > 0 && <Link link={t.link} />}
+              </td>
               <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{data.format(new Date(t.creato_il))}</td>
               <td className="py-1 pr-1">
                 <div className="flex justify-end gap-0.5">
                   <button
                     type="button"
                     className="grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
-                    aria-label={`Cambia il nome di ${t.nome}`}
+                    aria-label={`Modifica ${t.nome}`}
                     onClick={() => onRinomina(t)}
                   >
                     <Pencil className="size-[18px]" aria-hidden="true" />
@@ -152,5 +157,36 @@ function Intestazione({ colonna, etichetta, ordinamento, onOrdina, stretta = fal
         {attiva && <Freccia className="size-[15px] text-montagna-scura" aria-hidden="true" />}
       </button>
     </th>
+  )
+}
+
+/** I link del trekking, apribili dall'elenco (docs/02-funzionalita.md). */
+function Link({ link }: { link: readonly string[] }) {
+  return (
+    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+      {link.map((indirizzo) => {
+        const apribile = perApertura(indirizzo)
+        const etichetta = etichettaLink(indirizzo)
+        if (apribile === null) {
+          return (
+            <span key={indirizzo} className="text-xs text-testo-tenue">
+              {etichetta}
+            </span>
+          )
+        }
+        return (
+          <a
+            key={indirizzo}
+            href={apribile}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-montagna-scura underline"
+          >
+            <ExternalLink className="size-[13px]" aria-hidden="true" />
+            {etichetta}
+          </a>
+        )
+      })}
+    </span>
   )
 }
