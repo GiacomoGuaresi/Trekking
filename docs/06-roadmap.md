@@ -131,7 +131,11 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Ricerca, "Mostra completati" e pannello dei filtri sopra tutte e due le pagine (`App.tsx`)
   - [x] Un solo calcolo di che cosa mostrare (`daMostrare`), usato dall'elenco e dalla mappa: passando da una pagina all'altra i filtri restano
   - Nota: 17 e 18 sono in un commit solo. Tenendo ricerca e filtri in `App`, la mappa li ha ereditati senza codice in più: dividerli avrebbe voluto dire scrivere una mappa senza filtri per poi toglierla subito
-- [ ] **19 · Casa e OpenTopoMap**: icona di casa, scelta della mappa topografica
+- [x] **19 · Casa e OpenTopoMap**: icona di casa, scelta della mappa topografica
+  - [x] Casa segnata con la sua icona, disegnata nel codice: nessun file da caricare (`Mappa.tsx`)
+  - [x] Scelta fra "Mappa" (OpenStreetMap) e "Sentieri" (OpenTopoMap), con le due attribuzioni
+  - [x] L'inquadratura tiene dentro anche casa
+  - Nota: l'icona di casa compare quando le coordinate di casa sono nel database (step 13)
 
 ## Fase 4 · Rifinitura
 

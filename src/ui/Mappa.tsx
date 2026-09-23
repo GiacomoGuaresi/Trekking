@@ -1,6 +1,6 @@
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet'
-import { useEffect } from 'react'
-import type { LatLngBoundsExpression } from 'leaflet'
+import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
+import { useEffect, useMemo } from 'react'
+import { divIcon, type LatLngBoundsExpression } from 'leaflet'
 import { Pencil } from 'lucide-react'
 import type { Coordinate } from '../dominio/coordinate'
 import { distanzaDaCasa, formattaDistanza } from '../dominio/distanza'
@@ -16,6 +16,16 @@ interface Props {
   onModifica: (trekking: Trekking) => void
 }
 
+/** L'icona di casa: una casetta disegnata a mano, senza file da caricare. */
+const ICONA_CASA = divIcon({
+  className: '',
+  iconSize: [26, 26],
+  iconAnchor: [13, 13],
+  html: `<span style="display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fbf8f1;border:2px solid #32516c;box-shadow:0 1px 4px rgb(37 50 62 / 0.3)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#32516c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+  </span>`,
+})
+
 /** Le Alpi orobiche, quando non c'è nessun puntino da mostrare. */
 const CENTRO: [number, number] = [45.98, 9.87]
 const ZOOM = 9
@@ -23,7 +33,8 @@ const ZOOM = 9
 /**
  * La mappa (docs/02-funzionalita.md): un puntino per ogni trekking con le
  * coordinate, con il popup dei dettagli e il pulsante per modificare. Chi non ha
- * il luogo resta nell'elenco ma non compare qui.
+ * il luogo resta nell'elenco ma non compare qui. Casa ha la sua icona, e si può
+ * passare a OpenTopoMap per vedere curve di livello e sentieri.
  */
 export function Mappa({ trekking, casa, onModifica }: Props) {
   const conLuogo = trekking.filter((t) => t.lat !== null && t.lon !== null)
@@ -31,12 +42,26 @@ export function Mappa({ trekking, casa, onModifica }: Props) {
   return (
     <div className="h-[calc(100dvh-140px)] min-h-[320px] overflow-hidden rounded-[11px] border border-bordo">
       <MapContainer center={CENTRO} zoom={ZOOM} scrollWheelZoom className="size-full">
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
-        />
-        <Inquadra trekking={conLuogo} />
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="Mappa">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Sentieri">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, tessere di <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              maxZoom={17}
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
+        <Inquadra trekking={conLuogo} casa={casa} />
+        {casa !== null && (
+          <Marker position={[casa.lat, casa.lon]} icon={ICONA_CASA} title="Casa" alt="Casa" />
+        )}
         {conLuogo.map((t) => (
           <CircleMarker
             key={t.id}
@@ -64,15 +89,21 @@ export function Mappa({ trekking, casa, onModifica }: Props) {
   )
 }
 
-/** Sposta la mappa per far entrare tutti i puntini, quando cambiano. */
-function Inquadra({ trekking }: { trekking: readonly Trekking[] }) {
+/** Sposta la mappa per far entrare tutti i puntini e casa, quando cambiano. */
+function Inquadra({ trekking, casa }: { trekking: readonly Trekking[]; casa: Coordinate | null }) {
   const mappa = useMap()
+  const punti = useMemo(
+    () => [
+      ...trekking.map((t) => [t.lat as number, t.lon as number] as [number, number]),
+      ...(casa === null ? [] : [[casa.lat, casa.lon] as [number, number]]),
+    ],
+    [trekking, casa],
+  )
 
   useEffect(() => {
-    if (trekking.length === 0) return
-    const punti = trekking.map((t) => [t.lat as number, t.lon as number]) as LatLngBoundsExpression
-    mappa.fitBounds(punti, { padding: [32, 32], maxZoom: 13 })
-  }, [mappa, trekking])
+    if (punti.length === 0) return
+    mappa.fitBounds(punti as LatLngBoundsExpression, { padding: [32, 32], maxZoom: 13 })
+  }, [mappa, punti])
 
   return null
 }
