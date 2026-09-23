@@ -34,7 +34,11 @@ export function testoCoordinate(lat: number | null, lon: number | null): string 
   return `${lat}, ${lon}`
 }
 
-/** L'indirizzo per aprire il punto in una mappa, finché la mappa dell'app non c'è (step 17). */
+/**
+ * L'indirizzo per aprire il punto su Google Maps ("Apri in Maps"): con gli URL
+ * ufficiali di Google Maps, senza chiave; sul telefono si apre l'app, se c'è,
+ * da cui partire con il navigatore.
+ */
 export function mappaEsterna({ lat, lon }: Coordinate): string {
-  return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=13/${lat}/${lon}`
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
 }

@@ -174,6 +174,8 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Il modale ha tre aspetti sul telefono: centrato, schermo intero, foglio dal basso (`Modale.tsx`)
   - [x] Form a gruppi, dislivello / durata / viaggio affiancati con l'unità nel campo e tastiera numerica (la virgola di iOS ora passa), un campo per ogni link, tastiera che si apre da sola solo per un trekking nuovo, "Elimina trekking" in fondo al form (`ModaleTrekking.tsx`)
 
+- [x] **26 · Apri in Google Maps**: "Apri in Maps" e il luogo nell'elenco aprono il punto su Google Maps invece che su OpenStreetMap, così sul telefono si parte col navigatore (`mappaEsterna` in `coordinate.ts`)
+
 ## Più avanti, se servirà
 - [ ] Posizione GPS: distanza dalla posizione attuale e puntino sulla mappa
 - [ ] Google Places al posto di Photon

@@ -50,7 +50,9 @@ describe('testoCoordinate', () => {
 })
 
 describe('mappaEsterna', () => {
-  it('porta al punto su OpenStreetMap', () => {
-    expect(mappaEsterna({ lat: 45.9876, lon: 9.8765 })).toContain('mlat=45.9876&mlon=9.8765')
+  it('porta al punto su Google Maps', () => {
+    expect(mappaEsterna({ lat: 45.9876, lon: 9.8765 })).toBe(
+      'https://www.google.com/maps/search/?api=1&query=45.9876,9.8765',
+    )
   })
 })
