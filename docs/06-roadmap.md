@@ -81,7 +81,12 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Colonna Dislivello nell'elenco, ordinabile, con chi non ce l'ha sempre in fondo (`Elenco.tsx`, `ordinamento.ts`)
   - [x] Pannello "Filtri" con dislivello minimo e massimo e il pulsante "Azzera" (`Filtri.tsx`, `src/dominio/filtri.ts`)
   - [x] Test del dislivello, dei filtri e dell'ordinamento con i valori mancanti (`dislivello.test.ts`, `filtri.test.ts`, `ordinamento.test.ts`)
-- [ ] **10 · Durata**: campo a passi di mezz'ora, filtro min/max
+- [x] **10 · Durata**: campo a passi di mezz'ora, filtro min/max
+  - [x] `007_durata.sql` applicato in produzione il 2026-09-23: colonna `durata_ore numeric(3,1)`, positiva e a mezz'ore
+  - [x] Campo "Durata (ore, andata e ritorno)" nel form, che accetta anche la virgola (`ModaleTrekking.tsx`, `src/dominio/durata.ts`)
+  - [x] Colonna Durata nell'elenco, scritta "3 h 30" e ordinabile, con chi non ce l'ha in fondo (`Elenco.tsx`, `ordinamento.ts`)
+  - [x] Durata minima e massima nel pannello dei filtri, insieme al dislivello (`Filtri.tsx`, `src/dominio/filtri.ts`)
+  - [x] Test della durata, del filtro doppio e dell'ordinamento (`durata.test.ts`, `filtri.test.ts`, `ordinamento.test.ts`)
 - [ ] **11 · Luogo per coordinate**: interruttore Nome / Coordinate con la sola parte Coordinate, `lat` e `lon` nel database
 - [ ] **12 · Luogo per nome**: suggerimenti di Photon, conversione in coordinate, primo risultato se non se ne sceglie uno
 - [ ] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"

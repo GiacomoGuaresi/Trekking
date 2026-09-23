@@ -56,6 +56,18 @@ describe('ordina per dislivello', () => {
   })
 })
 
+describe('ordina per durata', () => {
+  const conDurata = [
+    esempio({ id: '1', nome: 'Giornata', durata_ore: 7 }),
+    esempio({ id: '2', nome: 'Senza dettagli' }),
+    esempio({ id: '3', nome: 'Due passi', durata_ore: 1.5 }),
+  ]
+
+  it('dalla più corta, con chi non ce l’ha in fondo', () => {
+    expect(ordina(conDurata, { colonna: 'durata_ore', verso: 'crescente' }).map((t) => t.id)).toEqual(['3', '1', '2'])
+  })
+})
+
 describe('tocca', () => {
   it('sulla stessa colonna inverte il verso', () => {
     expect(tocca({ colonna: 'nome', verso: 'crescente' }, 'nome')).toEqual({ colonna: 'nome', verso: 'decrescente' })

@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronRight, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { formattaDurata } from '../dominio/durata'
 import { etichettaLink, perApertura } from '../dominio/link'
 import type { Colonna, Ordinamento } from '../dominio/ordinamento'
 import type { Trekking } from '../dominio/tipi'
@@ -26,7 +27,7 @@ const data = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', 
 
 /**
  * L'elenco dei trekking (docs/09-interfaccia.md): il segno del completato, il
- * nome con i suoi link, il dislivello, la data di aggiunta e i pulsanti per modificare o
+ * nome con i suoi link, il dislivello, la durata, la data di aggiunta e i pulsanti per modificare o
  * eliminare. Chi ha delle note ha anche una freccia che le apre sotto la riga.
  * Toccando un'intestazione si ordina per quella colonna, un secondo tocco
  * inverte. Le altre colonne e i filtri arrivano con gli step successivi.
@@ -71,7 +72,7 @@ export function Elenco({
 
   return (
     <div className="overflow-x-auto rounded-[11px] border border-bordo bg-white">
-      <table className="w-full min-w-[520px] border-collapse text-left">
+      <table className="w-full min-w-[620px] border-collapse text-left">
         <thead>
           <tr className="border-b border-bordo">
             <th className="w-11">
@@ -81,6 +82,13 @@ export function Elenco({
             <Intestazione
               colonna="dislivello"
               etichetta="Dislivello"
+              ordinamento={ordinamento}
+              onOrdina={onOrdina}
+              stretta
+            />
+            <Intestazione
+              colonna="durata_ore"
+              etichetta="Durata"
               ordinamento={ordinamento}
               onOrdina={onOrdina}
               stretta
@@ -142,6 +150,7 @@ export function Elenco({
                 <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">
                   {t.dislivello === null ? '—' : `${t.dislivello} m`}
                 </td>
+                <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{formattaDurata(t.durata_ore)}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{data.format(new Date(t.creato_il))}</td>
                 <td className="py-1 pr-1">
                   <div className="flex justify-end gap-0.5">
@@ -167,7 +176,7 @@ export function Elenco({
               {t.note && aperte.includes(t.id) && (
                 <tr className="border-b border-bordo last:border-0">
                   <td />
-                  <td className="px-3 pt-0 pb-3" colSpan={4}>
+                  <td className="px-3 pt-0 pb-3" colSpan={5}>
                     <Markdown testo={t.note} />
                   </td>
                 </tr>

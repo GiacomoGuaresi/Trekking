@@ -163,6 +163,7 @@ export function App() {
             link: daModificare.link,
             note: daModificare.note,
             dislivello: daModificare.dislivello,
+            durata_ore: daModificare.durata_ore,
           }}
           esistenti={esistenti}
           escludi={daModificare.id}

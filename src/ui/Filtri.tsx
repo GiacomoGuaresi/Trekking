@@ -1,6 +1,6 @@
 import { SlidersHorizontal } from 'lucide-react'
 import { useId, useState } from 'react'
-import { type Filtri as Valori, limite, quantiFiltri, testoLimite } from '../dominio/filtri'
+import { FILTRI_VUOTI, type Filtri as Valori, limite, quantiFiltri, testoLimite } from '../dominio/filtri'
 
 interface Props {
   valori: Valori
@@ -9,8 +9,8 @@ interface Props {
 
 /**
  * I filtri dell'elenco (docs/02-funzionalita.md): un pulsante che dice quanti
- * limiti sono accesi e apre il pannello. Per ora c'è il solo dislivello; gli
- * altri si aggiungono qui con gli step della roadmap.
+ * limiti sono accesi e apre il pannello. Per ora ci sono dislivello e durata;
+ * gli altri si aggiungono qui con gli step della roadmap.
  */
 export function Filtri({ valori, onCambia }: Props) {
   const [aperto, setAperto] = useState(false)
@@ -34,21 +34,28 @@ export function Filtri({ valori, onCambia }: Props) {
           <button
             type="button"
             className="min-h-11 rounded-[11px] px-2 text-montagna-scura underline"
-            onClick={() => onCambia({ dislivello: { min: null, max: null } })}
+            onClick={() => onCambia(FILTRI_VUOTI)}
           >
             Azzera
           </button>
         )}
       </div>
       {aperto && (
-        <div id={id} className="mt-1 rounded-[11px] border border-bordo bg-white p-3">
+        <div id={id} className="mt-1 flex flex-wrap gap-x-6 gap-y-3 rounded-[11px] border border-bordo bg-white p-3">
           <Intervallo
             etichetta="Dislivello (m)"
             min={valori.dislivello.min}
             max={valori.dislivello.max}
             onCambia={(dislivello) => onCambia({ ...valori, dislivello })}
           />
-          <p className="m-0 mt-2 text-xs text-testo-tenue">
+          <Intervallo
+            etichetta="Durata (ore)"
+            passo={0.5}
+            min={valori.durata.min}
+            max={valori.durata.max}
+            onCambia={(durata) => onCambia({ ...valori, durata })}
+          />
+          <p className="m-0 w-full text-xs text-testo-tenue">
             I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
           </p>
         </div>
@@ -59,13 +66,15 @@ export function Filtri({ valori, onCambia }: Props) {
 
 interface PropsIntervallo {
   etichetta: string
+  /** Di quanto sale e scende il campo: le ore vanno a mezz'ore. */
+  passo?: number
   min: number | null
   max: number | null
   onCambia: (intervallo: { min: number | null; max: number | null }) => void
 }
 
 /** Una coppia da / a: il campo vuoto vuol dire "nessun limite". */
-function Intervallo({ etichetta, min, max, onCambia }: PropsIntervallo) {
+function Intervallo({ etichetta, passo = 1, min, max, onCambia }: PropsIntervallo) {
   const id = useId()
 
   return (
@@ -78,8 +87,9 @@ function Intervallo({ etichetta, min, max, onCambia }: PropsIntervallo) {
         <input
           id={`${id}-min`}
           type="number"
-          inputMode="numeric"
+          inputMode="decimal"
           min={0}
+          step={passo}
           className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
           placeholder="da"
           value={testoLimite(min)}
@@ -92,8 +102,9 @@ function Intervallo({ etichetta, min, max, onCambia }: PropsIntervallo) {
         <input
           id={`${id}-max`}
           type="number"
-          inputMode="numeric"
+          inputMode="decimal"
           min={0}
+          step={passo}
           className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
           placeholder="a"
           value={testoLimite(max)}

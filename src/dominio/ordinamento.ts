@@ -7,7 +7,7 @@
 
 import type { Trekking } from './tipi'
 
-export type Colonna = 'nome' | 'creato_il' | 'dislivello'
+export type Colonna = 'nome' | 'creato_il' | 'dislivello' | 'durata_ore'
 export type Verso = 'crescente' | 'decrescente'
 
 export interface Ordinamento {
@@ -36,12 +36,15 @@ function perNome(a: Trekking, b: Trekking): number {
 function confronta(a: Trekking, b: Trekking, colonna: Colonna): number {
   if (colonna === 'nome') return perNome(a, b)
   if (colonna === 'dislivello') return (a.dislivello ?? 0) - (b.dislivello ?? 0)
+  if (colonna === 'durata_ore') return (a.durata_ore ?? 0) - (b.durata_ore ?? 0)
   return a.creato_il.localeCompare(b.creato_il)
 }
 
 /** Chi non ha il valore va in fondo in tutti e due i versi (docs/02-funzionalita.md). */
 function senzaValore(trekking: Trekking, colonna: Colonna): boolean {
-  return colonna === 'dislivello' && trekking.dislivello === null
+  if (colonna === 'dislivello') return trekking.dislivello === null
+  if (colonna === 'durata_ore') return trekking.durata_ore === null
+  return false
 }
 
 /** L'elenco ordinato; a parità vale il nome, così l'ordine non balla. */

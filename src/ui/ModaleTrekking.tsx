@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import { dislivelloValido, pulisciDislivello, testoDislivello } from '../dominio/dislivello'
+import { durataValida, pulisciDurata, testoDurata } from '../dominio/durata'
 import { pulisciLink, righeLink } from '../dominio/link'
 import { nomeValido, pulisciNome } from '../dominio/nome'
 import { doppione } from '../dominio/ricerca'
@@ -21,7 +22,7 @@ interface Props {
 
 /**
  * Il form del trekking (docs/02-funzionalita.md, inserimento rapido): il nome,
- * obbligatorio, il dislivello, i link (uno per riga) e le note in Markdown. Gli
+ * obbligatorio, il dislivello, la durata, i link (uno per riga) e le note in Markdown. Gli
  * altri campi si aggiungono qui con gli step della roadmap. Invio salva; a
  * schermo intero su mobile.
  */
@@ -30,6 +31,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   const [link, setLink] = useState(righeLink(iniziale?.link ?? []))
   const [note, setNote] = useState(iniziale?.note ?? '')
   const [dislivello, setDislivello] = useState(testoDislivello(iniziale?.dislivello ?? null))
+  const [durata, setDurata] = useState(testoDurata(iniziale?.durata_ore ?? null))
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
@@ -39,7 +41,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
 
   const invia = async (evento: FormEvent) => {
     evento.preventDefault()
-    if (!nomeValido(nome) || !dislivelloValido(dislivello) || inCorso) return
+    if (!nomeValido(nome) || !dislivelloValido(dislivello) || !durataValida(durata) || inCorso) return
     setInCorso(true)
     setErrore(null)
     try {
@@ -48,6 +50,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
         link: pulisciLink(link),
         note: note.trim() === '' ? null : note,
         dislivello: pulisciDislivello(dislivello),
+        durata_ore: pulisciDurata(durata),
       })
       onChiudi()
     } catch (e) {
@@ -74,7 +77,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
             type="submit"
             form={id}
             className="min-h-11 rounded-[11px] bg-montagna px-4 font-semibold text-panna hover:bg-montagna-scura disabled:opacity-50"
-            disabled={!nomeValido(nome) || !dislivelloValido(dislivello) || inCorso}
+            disabled={!nomeValido(nome) || !dislivelloValido(dislivello) || !durataValida(durata) || inCorso}
           >
             {inCorso ? 'Salvo…' : 'Salva'}
           </button>
@@ -112,6 +115,23 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
         />
         {!dislivelloValido(dislivello) && (
           <p className="m-0 text-xs text-pericolo">Il dislivello sono metri interi, sopra lo zero.</p>
+        )}
+        <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-durata`}>
+          Durata (ore, andata e ritorno)
+        </label>
+        <input
+          id={`${id}-durata`}
+          type="number"
+          inputMode="decimal"
+          min={0.5}
+          step={0.5}
+          className="min-h-11 w-32 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
+          placeholder="3.5"
+          value={durata}
+          onChange={(evento) => setDurata(evento.target.value)}
+        />
+        {!durataValida(durata) && (
+          <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 o 3.5, non 3.2.</p>
         )}
         <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-link`}>
           Link (uno per riga)

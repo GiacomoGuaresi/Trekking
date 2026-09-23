@@ -14,9 +14,13 @@ export interface Intervallo {
 
 export interface Filtri {
   dislivello: Intervallo
+  durata: Intervallo
 }
 
-export const FILTRI_VUOTI: Filtri = { dislivello: { min: null, max: null } }
+export const FILTRI_VUOTI: Filtri = {
+  dislivello: { min: null, max: null },
+  durata: { min: null, max: null },
+}
 
 /** Il numero scritto in un campo del filtro: vuoto o storto vuol dire "nessun limite". */
 export function limite(testo: string): number | null {
@@ -33,8 +37,8 @@ export function testoLimite(valore: number | null): string {
 }
 
 /** Quanti limiti sono accesi: il pulsante dei filtri lo mostra. */
-export function quantiFiltri({ dislivello }: Filtri): number {
-  return [dislivello.min, dislivello.max].filter((x) => x !== null).length
+export function quantiFiltri({ dislivello, durata }: Filtri): number {
+  return [dislivello.min, dislivello.max, durata.min, durata.max].filter((x) => x !== null).length
 }
 
 /** Se il valore sta nell'intervallo; chi non ha il dato passa sempre. */
@@ -46,5 +50,5 @@ export function dentro(valore: number | null, { min, max }: Intervallo): boolean
 }
 
 export function filtra(elenco: readonly Trekking[], filtri: Filtri): Trekking[] {
-  return elenco.filter((t) => dentro(t.dislivello, filtri.dislivello))
+  return elenco.filter((t) => dentro(t.dislivello, filtri.dislivello) && dentro(t.durata_ore, filtri.durata))
 }

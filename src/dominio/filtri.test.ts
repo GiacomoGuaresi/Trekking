@@ -3,8 +3,8 @@ import { esempio } from './esempi'
 import { FILTRI_VUOTI, dentro, filtra, limite, quantiFiltri, testoLimite } from './filtri'
 
 const elenco = [
-  esempio({ id: '1', nome: 'Passeggiata', dislivello: 200 }),
-  esempio({ id: '2', nome: 'Cima lunga', dislivello: 1400 }),
+  esempio({ id: '1', nome: 'Passeggiata', dislivello: 200, durata_ore: 1.5 }),
+  esempio({ id: '2', nome: 'Cima lunga', dislivello: 1400, durata_ore: 7 }),
   esempio({ id: '3', nome: 'Senza dettagli' }),
 ]
 
@@ -14,13 +14,20 @@ describe('filtra', () => {
   })
 
   it('tiene chi sta nell’intervallo', () => {
-    expect(filtra(elenco, { dislivello: { min: 500, max: null } }).map((t) => t.id)).toEqual(['2', '3'])
-    expect(filtra(elenco, { dislivello: { min: null, max: 500 } }).map((t) => t.id)).toEqual(['1', '3'])
-    expect(filtra(elenco, { dislivello: { min: 100, max: 300 } }).map((t) => t.id)).toEqual(['1', '3'])
+    expect(filtra(elenco, { ...FILTRI_VUOTI, dislivello: { min: 500, max: null } }).map((t) => t.id)).toEqual(['2', '3'])
+    expect(filtra(elenco, { ...FILTRI_VUOTI, dislivello: { min: null, max: 500 } }).map((t) => t.id)).toEqual(['1', '3'])
+    expect(filtra(elenco, { ...FILTRI_VUOTI, dislivello: { min: 100, max: 300 } }).map((t) => t.id)).toEqual(['1', '3'])
+  })
+
+  it('filtra anche sulla durata, e i due filtri valgono insieme', () => {
+    expect(filtra(elenco, { ...FILTRI_VUOTI, durata: { min: null, max: 3 } }).map((t) => t.id)).toEqual(['1', '3'])
+    expect(
+      filtra(elenco, { dislivello: { min: 1000, max: null }, durata: { min: null, max: 3 } }).map((t) => t.id),
+    ).toEqual(['3'])
   })
 
   it('chi non ha il dislivello resta sempre visibile', () => {
-    expect(filtra(elenco, { dislivello: { min: 3000, max: 4000 } }).map((t) => t.id)).toEqual(['3'])
+    expect(filtra(elenco, { ...FILTRI_VUOTI, dislivello: { min: 3000, max: 4000 } }).map((t) => t.id)).toEqual(['3'])
   })
 
   it('i limiti sono compresi', () => {
@@ -50,7 +57,8 @@ describe('limite', () => {
 describe('quantiFiltri', () => {
   it('conta i limiti accesi', () => {
     expect(quantiFiltri(FILTRI_VUOTI)).toBe(0)
-    expect(quantiFiltri({ dislivello: { min: 500, max: null } })).toBe(1)
-    expect(quantiFiltri({ dislivello: { min: 500, max: 900 } })).toBe(2)
+    expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: null } })).toBe(1)
+    expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 } })).toBe(2)
+    expect(quantiFiltri({ dislivello: { min: 500, max: 900 }, durata: { min: 2, max: null } })).toBe(3)
   })
 })
