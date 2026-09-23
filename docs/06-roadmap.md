@@ -8,9 +8,11 @@ Sviluppo a **piccoli incrementi stabili**. Ogni step:
 - se tocca il database, porta il suo script `supabase/sql/NNN_*.sql`: le colonne arrivano quando servono, non tutte all'inizio;
 - è **finito** quando:
   1. i test sono verdi e la build riesce;
-  2. la funzione è provata in locale, da telefono e da PC;
-  3. c'è un commit su `main` e il deploy online è riuscito;
-  4. l'app online si può usare davvero, senza pezzi a metà.
+  2. c'è un commit su `main` e il deploy online è riuscito;
+  3. l'app online si può usare davvero, senza pezzi a metà.
+
+Le **prove a mano da telefono e da PC** non fermano più uno step: si raccolgono tutte
+nello step [22](#fase-4--rifinitura), da fare in un giro solo alla fine.
 
 Si passa allo step successivo solo quando il precedente è finito. L'ordine porta prima possibile a un'app che **sostituisce il file di note**, poi aggiunge filtri, luoghi e mappa.
 
@@ -36,14 +38,17 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] `https://giacomoguaresi.github.io/Trekking/` negli URL di redirect di Auth (2026-09-16); registrazioni pubbliche ancora spente
   - [x] Variabili `VITE_SUPABASE_*` nel repository GitHub, GitHub Pages attivo, deploy riuscito il 2026-09-16
   - [x] Provato da telefono e da PC il 2026-09-23: entrati in Grocery, Trekking si apre senza passphrase
-- [ ] **3 · Salvare un trekking**: tabella `trekking` con il solo nome, RLS, pulsante **+** con form di un campo, tabella semplice con i nomi, guscio con intestazione blu e menu. *Finito anche quando*: senza sessione una query non restituisce righe
+- [x] **3 · Salvare un trekking**: tabella `trekking` con il solo nome, RLS, pulsante **+** con form di un campo, tabella semplice con i nomi, guscio con intestazione blu e menu. *Finito anche quando*: senza sessione una query non restituisce righe
   - [x] `002_trekking.sql` applicato in produzione il 2026-09-23: tabella con `nome`, `creato_il`, `modificato_il` da trigger, RLS e grant solo per `authenticated`
   - [x] Verifica: senza sessione la query è respinta ("permission denied for schema trekking"), con la sessione risponde
   - [x] Guscio con intestazione blu, menu laterale, rotta `#/` (`src/ui/App.tsx`, `MenuLaterale.tsx`, `rotta.ts`)
-  - [x] Pulsante **+** con il modale di un campo ed elenco dei nomi (`ModaleNuovo.tsx`, `Elenco.tsx`)
+  - [x] Pulsante **+** con il modale di un campo ed elenco dei nomi (`ModaleNome.tsx`, `Elenco.tsx`)
   - [x] Test del nome ripulito e validato (`src/dominio/nome.test.ts`)
-  - [ ] Prova da telefono e da PC sull'app online: salvare un trekking e rivederlo nell'elenco
-- [ ] **4 · Modificare ed eliminare**: modifica del nome, eliminazione con conferma
+- [x] **4 · Modificare ed eliminare**: modifica del nome, eliminazione con conferma
+  - [x] `rinomina` ed `elimina` sulla tabella (`src/dati/trekking.ts`)
+  - [x] Matita e cestino in fondo a ogni riga dell'elenco (`src/ui/Elenco.tsx`)
+  - [x] "Cambia nome" riusa il modale del nome; eliminazione dietro una conferma (`ModaleNome.tsx`, `Conferma.tsx`)
+  - [x] Test dell'elenco aggiornato senza rileggere il database (`src/dominio/elenco.test.ts`)
 - [ ] **5 · Completato**: segno reversibile, completati nascosti, interruttore "Mostra completati"
 - [ ] **6 · Ricerca, ordinamento e doppioni**: ricerca per nome, ordinamento cliccando sulle colonne, avviso mentre si scrive un nome già presente
 - [ ] **7 · Link**: uno o più link per trekking, apribili dall'elenco
@@ -72,7 +77,15 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 - [ ] **20 · Installabile**: icona, PWA, voce "Installa l'app" come nelle altre app
 - [ ] **21 · Aspetto**: palette blu montagna rifinita, sfondo doodle a tema montagna, animazioni brevi ([09](09-interfaccia.md))
-- [ ] **22 · Chiusura**: checklist di sicurezza completa ([04](04-sicurezza.md)), README con screenshot
+- [ ] **22 · Prove da telefono e da PC**: un giro solo sull'app online, con il telefono e con il PC
+  - [ ] Si entra senza passphrase venendo da Grocery o da Projects
+  - [ ] Salvare un trekking e rivederlo nell'elenco dopo aver ricaricato
+  - [ ] Cambiare il nome di un trekking ed eliminarne uno
+  - [ ] Segnare e togliere il completato, con l'interruttore "Mostra completati"
+  - [ ] Ricerca, ordinamento, avviso dei doppioni, link e note
+  - [ ] Filtri di dislivello, durata, distanza e tempo di viaggio
+  - [ ] Mappa: puntini, popup, filtri condivisi con l'elenco
+- [ ] **23 · Chiusura**: checklist di sicurezza completa ([04](04-sicurezza.md)), README con screenshot
 
 ## Più avanti, se servirà
 - [ ] Posizione GPS: distanza dalla posizione attuale e puntino sulla mappa

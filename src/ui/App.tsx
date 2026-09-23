@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react'
 import { Menu, MountainSnow, Plus } from 'lucide-react'
+import type { Trekking } from '../dominio/tipi'
+import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
 import { MenuLaterale } from './MenuLaterale'
-import { ModaleNuovo } from './ModaleNuovo'
+import { ModaleNome } from './ModaleNome'
 import { useRotta } from './rotta'
 import { useTrekking } from './useTrekking'
 
@@ -16,8 +18,28 @@ export function App() {
   const rotta = useRotta()
   const [menuAperto, setMenuAperto] = useState(false)
   const [nuovoAperto, setNuovoAperto] = useState(false)
+  /** Il trekking di cui si sta cambiando il nome, e quello che si sta eliminando. */
+  const [daRinominare, setDaRinominare] = useState<Trekking | null>(null)
+  const [daEliminare, setDaEliminare] = useState<Trekking | null>(null)
+  const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
-  const { stato, ricarica, crea } = useTrekking()
+  const { stato, ricarica, crea, rinomina, elimina } = useTrekking()
+
+  const chiudiEliminazione = () => {
+    setDaEliminare(null)
+    setErroreEliminazione(null)
+  }
+
+  const confermaEliminazione = async () => {
+    if (!daEliminare) return
+    setErroreEliminazione(null)
+    try {
+      await elimina(daEliminare.id)
+      setDaEliminare(null)
+    } catch (e) {
+      setErroreEliminazione((e as Error).message)
+    }
+  }
 
   return (
     <div className="flex min-h-dvh flex-col lg:grid lg:grid-cols-[256px_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
@@ -63,9 +85,47 @@ export function App() {
             </button>
           </p>
         )}
-        {stato.fase === 'pronto' && <Elenco trekking={stato.trekking} onNuovo={() => setNuovoAperto(true)} />}
+        {stato.fase === 'pronto' && (
+          <Elenco
+            trekking={stato.trekking}
+            onNuovo={() => setNuovoAperto(true)}
+            onRinomina={setDaRinominare}
+            onElimina={(t) => {
+              setErroreEliminazione(null)
+              setDaEliminare(t)
+            }}
+          />
+        )}
       </main>
-      {nuovoAperto && <ModaleNuovo onCrea={crea} onChiudi={() => setNuovoAperto(false)} />}
+      {nuovoAperto && (
+        <ModaleNome titolo="Nuovo trekking" onSalva={crea} onChiudi={() => setNuovoAperto(false)} />
+      )}
+      {daRinominare && (
+        <ModaleNome
+          titolo="Cambia nome"
+          nomeIniziale={daRinominare.nome}
+          onSalva={(nome) => rinomina(daRinominare.id, nome)}
+          onChiudi={() => setDaRinominare(null)}
+        />
+      )}
+      {daEliminare && (
+        <Conferma
+          titolo="Elimina trekking"
+          conferma="Elimina"
+          pericolo
+          onConferma={() => void confermaEliminazione()}
+          onAnnulla={chiudiEliminazione}
+        >
+          <p className="m-0">
+            Elimino <strong>{daEliminare.nome}</strong>? Non si torna indietro.
+          </p>
+          {erroreEliminazione && (
+            <p className="mt-2 mb-0 text-xs text-pericolo" role="alert">
+              {erroreEliminazione}
+            </p>
+          )}
+        </Conferma>
+      )}
     </div>
   )
 }

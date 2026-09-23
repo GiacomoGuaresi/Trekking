@@ -1,20 +1,23 @@
 import { useId, useState, type FormEvent } from 'react'
 import { nomeValido, pulisciNome } from '../dominio/nome'
-import type { Trekking } from '../dominio/tipi'
 import { Modale } from './Modale'
 
 interface Props {
-  onCrea: (nome: string) => Promise<Trekking>
+  /** "Nuovo trekking" quando si crea, "Cambia nome" quando si modifica. */
+  titolo: string
+  nomeIniziale?: string
+  onSalva: (nome: string) => Promise<unknown>
   onChiudi: () => void
 }
 
 /**
- * Il modale "Nuovo trekking" (docs/02-funzionalita.md, inserimento rapido):
- * per ora il solo nome, che basta a salvare. Gli altri campi si aggiungono qui
- * con gli step della roadmap. Invio salva; a schermo intero su mobile.
+ * Il modale del nome (docs/02-funzionalita.md, inserimento rapido): serve sia a
+ * creare sia a rinominare. Per ora il solo nome, che basta a salvare: gli altri
+ * campi si aggiungono qui con gli step della roadmap. Invio salva; a schermo
+ * intero su mobile.
  */
-export function ModaleNuovo({ onCrea, onChiudi }: Props) {
-  const [nome, setNome] = useState('')
+export function ModaleNome({ titolo, nomeIniziale = '', onSalva, onChiudi }: Props) {
+  const [nome, setNome] = useState(nomeIniziale)
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
@@ -25,7 +28,7 @@ export function ModaleNuovo({ onCrea, onChiudi }: Props) {
     setInCorso(true)
     setErrore(null)
     try {
-      await onCrea(pulisciNome(nome))
+      await onSalva(pulisciNome(nome))
       onChiudi()
     } catch (e) {
       setErrore((e as Error).message)
@@ -35,7 +38,7 @@ export function ModaleNuovo({ onCrea, onChiudi }: Props) {
 
   return (
     <Modale
-      titolo="Nuovo trekking"
+      titolo={titolo}
       onChiudi={onChiudi}
       schermoInteroMobile
       piede={

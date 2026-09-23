@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { trekking } from '../dati'
+import { rimuovi, sostituisci } from '../dominio/elenco'
 import type { Trekking } from '../dominio/tipi'
 
 export type StatoElenco =
@@ -36,5 +37,18 @@ export function useTrekking() {
     return creato
   }, [])
 
-  return { stato, ricarica, crea }
+  /** Cambia il nome; se non riesce lancia l'errore, e il modale lo mostra. */
+  const rinomina = useCallback(async (id: string, nome: string) => {
+    const cambiato = await trekking().rinomina(id, nome)
+    setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: sostituisci(prima.trekking, cambiato) } : prima))
+    return cambiato
+  }, [])
+
+  /** Elimina; la conferma è già stata data dall'interfaccia. */
+  const elimina = useCallback(async (id: string) => {
+    await trekking().elimina(id)
+    setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: rimuovi(prima.trekking, id) } : prima))
+  }, [])
+
+  return { stato, ricarica, crea, rinomina, elimina }
 }

@@ -20,4 +20,16 @@ export class TrekkingSupabase {
     if (error) throw fallita('Trekking non salvato', error)
     return data as Trekking
   }
+
+  /** Cambia il nome; `modificato_il` lo aggiorna il trigger. */
+  async rinomina(id: string, nome: string): Promise<Trekking> {
+    const { data, error } = await this.client.from('trekking').update({ nome }).eq('id', id).select().single()
+    if (error) throw fallita('Nome non cambiato', error)
+    return data as Trekking
+  }
+
+  async elimina(id: string): Promise<void> {
+    const { error } = await this.client.from('trekking').delete().eq('id', id)
+    if (error) throw fallita('Trekking non eliminato', error)
+  }
 }
