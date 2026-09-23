@@ -2,15 +2,16 @@
 
 Piccolo database dei trekking da fare: si salvano al volo, con i dettagli disponibili, quando se ne trova uno interessante sui social, su un sito o su Komoot, e si sceglie dove andare dall'elenco o dalla mappa. Terza app di casa dopo **Grocery** e **Projects**. Si usa da smartphone e da PC.
 
-> **Stato: sviluppo, Fase 1** (vedi [roadmap](docs/06-roadmap.md)). Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
+> **Stato: in uso.** Mancano solo il tempo di viaggio automatico (step 15 e 16 della [roadmap](docs/06-roadmap.md), in attesa della chiave di openrouteservice) e il giro di prove a mano. Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
 
 ## Cosa fa
 
 - **Inserimento rapido**: nome (unico obbligatorio), luogo, link, dislivello, durata, tempo di viaggio, note; avviso se il nome esiste già
 - **Luogo** per nome, con i suggerimenti di Photon, oppure per coordinate
-- **Tempo di viaggio in auto da casa** calcolato con openrouteservice, o scritto a mano; **distanza in linea d'aria** da casa
+- **Tempo di viaggio in auto da casa** scritto a mano (il calcolo con openrouteservice arriva allo step 15); **distanza in linea d'aria** da casa, calcolata nel browser
 - **Elenco** con ricerca per nome e filtri su dislivello, durata, distanza e tempo di viaggio; i completati si nascondono
-- **Mappa** con un puntino per trekking e i dettagli in un popup
+- **Mappa** con un puntino per trekking, casa, le tessere di OpenStreetMap o OpenTopoMap e i dettagli in un popup; stessa ricerca e stessi filtri dell'elenco
+- **Installabile** sulla schermata Home, come Grocery e Projects
 
 ## In breve
 

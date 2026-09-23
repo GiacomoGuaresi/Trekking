@@ -158,6 +158,10 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [ ] Filtri di dislivello, durata, distanza e tempo di viaggio
   - [ ] Mappa: puntini, popup, filtri condivisi con l'elenco
 - [ ] **23 · Chiusura**: checklist di sicurezza completa ([04](04-sicurezza.md)), README con screenshot
+  - [x] Checklist di sicurezza verificata il 2026-09-23: niente `.env` committati, niente segreti nella storia, coordinate di casa fuori dal bundle
+  - [x] README aggiornato: stato, cosa fa davvero l'app oggi
+  - [ ] Screenshot nel README: lo fa Giacomo dall'app online
+  - [ ] Ultimo giro della checklist quando ci sarà la chiave di openrouteservice
 
 ## Più avanti, se servirà
 - [ ] Posizione GPS: distanza dalla posizione attuale e puntino sulla mappa
