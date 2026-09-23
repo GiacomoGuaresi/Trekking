@@ -43,7 +43,10 @@ export function Filtri({ valori, onCambia, conDistanza }: Props) {
         )}
       </div>
       {aperto && (
-        <div id={id} className="mt-1 flex flex-wrap gap-x-6 gap-y-3 rounded-[11px] border border-bordo bg-white p-3">
+        <div
+          id={id}
+          className="mt-1 flex animate-entra flex-wrap gap-x-6 gap-y-3 rounded-[11px] border border-bordo bg-white p-3"
+        >
           <Intervallo
             etichetta="Dislivello (m)"
             min={valori.dislivello.min}

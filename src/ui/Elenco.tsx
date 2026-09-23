@@ -230,7 +230,9 @@ export function Elenco({
                 <tr className="border-b border-bordo last:border-0">
                   <td />
                   <td className="px-3 pt-0 pb-3" colSpan={casa === null ? 6 : 7}>
-                    <Markdown testo={t.note} />
+                    <div className="animate-entra">
+                      <Markdown testo={t.note} />
+                    </div>
                   </td>
                 </tr>
               )}

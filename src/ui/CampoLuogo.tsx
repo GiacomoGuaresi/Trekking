@@ -86,7 +86,7 @@ export function CampoLuogo({ valore, onCambia }: Props) {
             onChange={(evento) => onCambia({ ...valore, nome: evento.target.value, scelto: null })}
           />
           {suggerimenti.length > 0 && (
-            <ul className="m-0 list-none rounded-[11px] border border-bordo bg-white p-1">
+            <ul className="m-0 animate-entra list-none rounded-[11px] border border-bordo bg-white p-1">
               {suggerimenti.map((luogo) => (
                 <li key={`${luogo.lat},${luogo.lon},${luogo.nome}`}>
                   <button

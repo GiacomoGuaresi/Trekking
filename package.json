@@ -8,6 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "icone": "pwa-assets-generator",
+    "sfondo": "node scripts/genera-sfondo.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -144,7 +144,11 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] `vite-plugin-pwa` con manifest, service worker e shell in cache; i dati non passano dal service worker
   - [x] Voce "Installa l'app" in fondo al menu: dove il browser dà il prompt basta un tocco, altrove si aprono le istruzioni (`Installa.tsx`, `installazione.ts`, portati da Projects)
   - [x] Pagina `#/installa` con le istruzioni per iOS, Android e PC
-- [ ] **21 · Aspetto**: palette blu montagna rifinita, sfondo doodle a tema montagna, animazioni brevi ([09](09-interfaccia.md))
+- [x] **21 · Aspetto**: palette blu montagna rifinita, sfondo doodle a tema montagna, animazioni brevi ([09](09-interfaccia.md))
+  - [x] Sfondo doodle con cime, abeti, scarponi, bussola, zaino e sentiero, seed fisso (`scripts/genera-sfondo.ts`, `npm run sfondo`)
+  - [x] Animazioni brevi dove qualcosa compare: pannello dei filtri, suggerimenti dei luoghi, note aperte
+  - [x] Palette confermata: i quattro colori di [09](09-interfaccia.md) reggono all'uso, nessuna correzione
+  - Nota: le icone dello sfondo sono `#e0eaf3` invece del bianco delle altre app: sul ghiaccio `#f1f5f9` il bianco non si vedrebbe
 - [ ] **22 · Prove da telefono e da PC**: un giro solo sull'app online, con il telefono e con il PC
   - [ ] Si entra senza passphrase venendo da Grocery o da Projects
   - [ ] Salvare un trekking e rivederlo nell'elenco dopo aver ricaricato
