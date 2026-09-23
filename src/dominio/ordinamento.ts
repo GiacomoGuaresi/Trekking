@@ -9,7 +9,7 @@ import type { Coordinate } from './coordinate'
 import { distanzaDaCasa } from './distanza'
 import type { Trekking } from './tipi'
 
-export type Colonna = 'nome' | 'creato_il' | 'dislivello' | 'durata_ore' | 'distanza'
+export type Colonna = 'nome' | 'creato_il' | 'dislivello' | 'durata_ore' | 'distanza' | 'viaggio_minuti'
 export type Verso = 'crescente' | 'decrescente'
 
 export interface Ordinamento {
@@ -40,6 +40,7 @@ function confronta(a: Trekking, b: Trekking, colonna: Colonna, casa: Coordinate 
   if (colonna === 'dislivello') return (a.dislivello ?? 0) - (b.dislivello ?? 0)
   if (colonna === 'durata_ore') return (a.durata_ore ?? 0) - (b.durata_ore ?? 0)
   if (colonna === 'distanza') return (distanzaDaCasa(a, casa) ?? 0) - (distanzaDaCasa(b, casa) ?? 0)
+  if (colonna === 'viaggio_minuti') return (a.viaggio_minuti ?? 0) - (b.viaggio_minuti ?? 0)
   return a.creato_il.localeCompare(b.creato_il)
 }
 
@@ -48,6 +49,7 @@ function senzaValore(trekking: Trekking, colonna: Colonna, casa: Coordinate | nu
   if (colonna === 'dislivello') return trekking.dislivello === null
   if (colonna === 'durata_ore') return trekking.durata_ore === null
   if (colonna === 'distanza') return distanzaDaCasa(trekking, casa) === null
+  if (colonna === 'viaggio_minuti') return trekking.viaggio_minuti === null
   return false
 }
 

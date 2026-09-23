@@ -1,6 +1,7 @@
 /** Le righe di `trekking.trekking` (docs/08-modello-dati.md). Le colonne
  *  arrivano con gli step della roadmap che le usano: per ora il nome, i link,
- *  le note, il dislivello, la durata, il luogo e il segno "completato". */
+ *  le note, il dislivello, la durata, il luogo, il tempo di viaggio e il segno
+ *  "completato". */
 export interface Trekking {
   id: string
   nome: string
@@ -15,6 +16,10 @@ export interface Trekking {
   /** Le coordinate: o ci sono tutte e due o non c'è il punto. */
   lat: number | null
   lon: number | null
+  /** Minuti in auto da casa; `null` finché non si sa. */
+  viaggio_minuti: number | null
+  /** `true` se il tempo è stato scritto a mano: il ricalcolo non lo tocca. */
+  viaggio_manuale: boolean
   completato: boolean
   creato_il: string
   modificato_il: string
@@ -31,4 +36,6 @@ export interface CampiTrekking {
   luogo_nome: string | null
   lat: number | null
   lon: number | null
+  viaggio_minuti: number | null
+  viaggio_manuale: boolean
 }

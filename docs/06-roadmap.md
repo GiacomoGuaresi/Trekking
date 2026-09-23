@@ -108,7 +108,14 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Colonna "Da casa" nell'elenco, ordinabile, che compare solo quando la posizione di casa c'è (`Elenco.tsx`, `useCasa.ts`)
   - [x] Filtro "Distanza da casa (km)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
   - [x] Test della distanza, del filtro e del caso "senza casa non si nasconde nessuno" (`distanza.test.ts`, `filtri.test.ts`)
-- [ ] **14 · Tempo di viaggio a mano**: campo, filtro "tempo massimo"
+- [x] **14 · Tempo di viaggio a mano**: campo, filtro "tempo massimo"
+  - [x] `011_viaggio.sql` applicato in produzione il 2026-09-23: `viaggio_minuti` e `viaggio_manuale`, con le due regole nel trigger
+  - [x] Trigger provato in produzione su una riga finta, poi cancellata: il tempo manuale resta quando cambia il luogo, quello automatico si svuota
+  - [x] Campo "Tempo di viaggio (minuti)" nel form, che legge anche `1:30` (`ModaleTrekking.tsx`, `src/dominio/viaggio.ts`)
+  - [x] Chi scrive o cambia il tempo se lo tiene; chi non tocca il campo non rende manuale un tempo calcolato (`viaggioManuale`)
+  - [x] Colonna Viaggio nell'elenco, scritta "1 h 25" e ordinabile (`Elenco.tsx`, `ordinamento.ts`)
+  - [x] Filtro "Viaggio (minuti)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
+  - [x] Test della lettura, del formato e di quando il tempo resta manuale (`src/dominio/viaggio.test.ts`)
 - [ ] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
 - [ ] **16 · Tempi mancanti**: recupero dei mancanti a ogni salvataggio, popup "Ricalcola percorsi mancanti" all'apertura, luogo tolto quando il percorso è impossibile
 

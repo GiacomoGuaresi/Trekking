@@ -19,12 +19,15 @@ export interface Filtri {
   durata: Intervallo
   /** Chilometri in linea d'aria da casa: si usa il solo massimo. */
   distanza: Intervallo
+  /** Minuti in auto da casa: si usa il solo massimo. */
+  viaggio: Intervallo
 }
 
 export const FILTRI_VUOTI: Filtri = {
   dislivello: { min: null, max: null },
   durata: { min: null, max: null },
   distanza: { min: null, max: null },
+  viaggio: { min: null, max: null },
 }
 
 /** Il numero scritto in un campo del filtro: vuoto o storto vuol dire "nessun limite". */
@@ -42,10 +45,9 @@ export function testoLimite(valore: number | null): string {
 }
 
 /** Quanti limiti sono accesi: il pulsante dei filtri lo mostra. */
-export function quantiFiltri({ dislivello, durata, distanza }: Filtri): number {
-  return [dislivello.min, dislivello.max, durata.min, durata.max, distanza.min, distanza.max].filter(
-    (x) => x !== null,
-  ).length
+export function quantiFiltri({ dislivello, durata, distanza, viaggio }: Filtri): number {
+  const limiti = [dislivello, durata, distanza, viaggio].flatMap(({ min, max }) => [min, max])
+  return limiti.filter((x) => x !== null).length
 }
 
 /** Se il valore sta nell'intervallo; chi non ha il dato passa sempre. */
@@ -62,6 +64,7 @@ export function filtra(elenco: readonly Trekking[], filtri: Filtri, casa: Coordi
     (t) =>
       dentro(t.dislivello, filtri.dislivello) &&
       dentro(t.durata_ore, filtri.durata) &&
-      dentro(distanzaDaCasa(t, casa), filtri.distanza),
+      dentro(distanzaDaCasa(t, casa), filtri.distanza) &&
+      dentro(t.viaggio_minuti, filtri.viaggio),
   )
 }

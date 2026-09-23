@@ -5,6 +5,7 @@ import { durataValida, pulisciDurata, testoDurata } from '../dominio/durata'
 import { pulisciLink, righeLink } from '../dominio/link'
 import { nomeValido, pulisciNome } from '../dominio/nome'
 import { doppione } from '../dominio/ricerca'
+import { pulisciViaggio, testoViaggio, viaggioManuale, viaggioValido } from '../dominio/viaggio'
 import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { EditorMarkdown } from './EditorMarkdown'
 import { CampoLuogo } from './CampoLuogo'
@@ -25,8 +26,8 @@ interface Props {
 
 /**
  * Il form del trekking (docs/02-funzionalita.md, inserimento rapido): il nome,
- * obbligatorio, il luogo per nome o per coordinate, il dislivello, la durata, i
- * link (uno per riga) e le note in Markdown. Gli
+ * obbligatorio, il luogo per nome o per coordinate, il dislivello, la durata, il
+ * tempo di viaggio, i link (uno per riga) e le note in Markdown. Gli
  * altri campi si aggiungono qui con gli step della roadmap. Invio salva; a
  * schermo intero su mobile.
  */
@@ -37,6 +38,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   const [dislivello, setDislivello] = useState(testoDislivello(iniziale?.dislivello ?? null))
   const [durata, setDurata] = useState(testoDurata(iniziale?.durata_ore ?? null))
   const [luogo, setLuogo] = useState(() => statoLuogoIniziale(iniziale))
+  const [viaggio, setViaggio] = useState(testoViaggio(iniziale?.viaggio_minuti ?? null))
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
@@ -49,9 +51,11 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   const invia = async (evento: FormEvent) => {
     evento.preventDefault()
     if (!nomeValido(nome) || !dislivelloValido(dislivello) || !durataValida(durata) || !luogoValido) return
+    if (!viaggioValido(viaggio)) return
     if (inCorso) return
     setInCorso(true)
     setErrore(null)
+    const minuti = pulisciViaggio(viaggio)
     try {
       const salvato = await risolviLuogo(luogo)
       await onSalva({
@@ -60,6 +64,8 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
         note: note.trim() === '' ? null : note,
         dislivello: pulisciDislivello(dislivello),
         durata_ore: pulisciDurata(durata),
+        viaggio_minuti: minuti,
+        viaggio_manuale: viaggioManuale(minuti, iniziale ?? null),
         ...salvato,
       })
       onChiudi()
@@ -92,6 +98,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
               !dislivelloValido(dislivello) ||
               !durataValida(durata) ||
               !luogoValido ||
+              !viaggioValido(viaggio) ||
               inCorso
             }
           >
@@ -149,6 +156,22 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
         />
         {!durataValida(durata) && (
           <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 o 3.5, non 3.2.</p>
+        )}
+        <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-viaggio`}>
+          Tempo di viaggio (minuti)
+        </label>
+        <input
+          id={`${id}-viaggio`}
+          inputMode="numeric"
+          className="min-h-11 w-32 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
+          placeholder="90"
+          value={viaggio}
+          onChange={(evento) => setViaggio(evento.target.value)}
+        />
+        {viaggioValido(viaggio) ? (
+          <p className="m-0 text-xs text-testo-tenue">Anche come 1:30. Scrivendolo a mano non verrà ricalcolato.</p>
+        ) : (
+          <p className="m-0 text-xs text-pericolo">Minuti (90) oppure ore e minuti (1:30).</p>
         )}
         <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-link`}>
           Link (uno per riga)

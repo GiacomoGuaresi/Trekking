@@ -11,8 +11,8 @@ interface Props {
 
 /**
  * I filtri dell'elenco (docs/02-funzionalita.md): un pulsante che dice quanti
- * limiti sono accesi e apre il pannello. Per ora ci sono dislivello, durata e
- * distanza da casa; gli altri si aggiungono qui con gli step della roadmap.
+ * limiti sono accesi e apre il pannello: dislivello, durata, distanza da casa e
+ * tempo di viaggio.
  */
 export function Filtri({ valori, onCambia, conDistanza }: Props) {
   const [aperto, setAperto] = useState(false)
@@ -66,6 +66,14 @@ export function Filtri({ valori, onCambia, conDistanza }: Props) {
               onCambia={(distanza) => onCambia({ ...valori, distanza })}
             />
           )}
+          <Intervallo
+            etichetta="Viaggio (minuti)"
+            passo={5}
+            soloMassimo
+            min={valori.viaggio.min}
+            max={valori.viaggio.max}
+            onCambia={(viaggio) => onCambia({ ...valori, viaggio })}
+          />
           <p className="m-0 w-full text-xs text-testo-tenue">
             I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
           </p>
