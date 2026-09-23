@@ -65,7 +65,7 @@ export function ModaleDettagli({ trekking: t, casa, onModifica, onCompletato, on
             onClick={() => void cambiaCompletato()}
           >
             <Check className="size-[18px]" aria-hidden="true" />
-            {t.completato ? 'Da rifare' : 'Fatto'}
+            {t.completato ? 'Togli completato' : 'Trekking completato'}
           </button>
           <button
             type="button"

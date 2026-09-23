@@ -33,7 +33,7 @@ Stesso sistema delle altre app: disegno Lucide **`mountain-snow`** (montagna con
 |---|---|
 | **Mappa** (`#/`, pagina principale) | mappa a tutta pagina sotto l'intestazione; sopra galleggia una barra con ricerca e pulsante **Filtri** (pannello con "Mostra completati" e gli stessi filtri dell'elenco); zoom e scelta della mappa in basso a destra; puntini, casa, popup con i dettagli |
 | **Elenco** (`#/elenco`) | ricerca, filtri, tabella semplice ordinabile per colonna ([02](02-funzionalita.md#elenco)) |
-| **Dettagli** | scheda in sola lettura, foglio dal basso sul telefono, con Modifica e Fatto / Da rifare in fondo |
+| **Dettagli** | scheda in sola lettura, foglio dal basso sul telefono, con Modifica e Trekking completato / Togli completato in fondo |
 | **Inserimento / modifica** | form a schermo intero sul telefono, a gruppi (Dove, Quanto, Link, Note), tastiere numeriche, un campo per link, Salva sempre in vista, "Elimina trekking" in fondo in modifica ([02](02-funzionalita.md#inserimento-rapido)) |
 | **Accesso** | solo passphrase, come le altre app |
 | **Popup dei percorsi mancanti** | all'apertura, se ci sono tempi di viaggio da calcolare |
