@@ -4,14 +4,16 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AccessoSupabase, type Accesso } from './accesso'
+import { ImpostazioniSupabase } from './impostazioni'
 import { PhotonLuoghi, type RicercaLuoghi } from './luoghi'
 import { TrekkingSupabase } from './trekking'
 
 export type { Accesso, EsitoAccesso } from './accesso'
+export type { ImpostazioniSupabase } from './impostazioni'
 export type { RicercaLuoghi } from './luoghi'
 export type { TrekkingSupabase } from './trekking'
 
-let connessione: { accesso: Accesso; trekking: TrekkingSupabase } | null = null
+let connessione: { accesso: Accesso; trekking: TrekkingSupabase; impostazioni: ImpostazioniSupabase } | null = null
 
 /**
  * Il client è uno solo: accesso e query condividono la sessione.
@@ -34,7 +36,11 @@ function connetti() {
     cookieOptions: { path: '/' },
     db: { schema: 'trekking' },
   }) as unknown as SupabaseClient
-  connessione = { accesso: new AccessoSupabase(client, email), trekking: new TrekkingSupabase(client) }
+  connessione = {
+    accesso: new AccessoSupabase(client, email),
+    trekking: new TrekkingSupabase(client),
+    impostazioni: new ImpostazioniSupabase(client),
+  }
   return connessione
 }
 
@@ -46,6 +52,11 @@ export function accesso(): Accesso {
 /** Le query sui trekking. */
 export function trekking(): TrekkingSupabase {
   return connetti().trekking
+}
+
+/** Le impostazioni: per ora la sola posizione di casa. */
+export function impostazioni(): ImpostazioniSupabase {
+  return connetti().impostazioni
 }
 
 const ricercaLuoghi = new PhotonLuoghi()

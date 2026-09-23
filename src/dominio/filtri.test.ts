@@ -22,7 +22,9 @@ describe('filtra', () => {
   it('filtra anche sulla durata, e i due filtri valgono insieme', () => {
     expect(filtra(elenco, { ...FILTRI_VUOTI, durata: { min: null, max: 3 } }).map((t) => t.id)).toEqual(['1', '3'])
     expect(
-      filtra(elenco, { dislivello: { min: 1000, max: null }, durata: { min: null, max: 3 } }).map((t) => t.id),
+      filtra(elenco, { ...FILTRI_VUOTI, dislivello: { min: 1000, max: null }, durata: { min: null, max: 3 } }).map(
+        (t) => t.id,
+      ),
     ).toEqual(['3'])
   })
 
@@ -33,6 +35,30 @@ describe('filtra', () => {
   it('i limiti sono compresi', () => {
     expect(dentro(200, { min: 200, max: 200 })).toBe(true)
     expect(dentro(null, { min: 200, max: 300 })).toBe(true)
+  })
+})
+
+describe('filtra sulla distanza da casa', () => {
+  const casa = { lat: 45.6983, lon: 9.6773 }
+  const vicini = [
+    esempio({ id: 'a', nome: 'Dietro casa', lat: 45.72, lon: 9.7 }),
+    esempio({ id: 'b', nome: 'Rifugio Curò', lat: 46.0618, lon: 10.0477 }),
+    esempio({ id: 'c', nome: 'Senza luogo' }),
+  ]
+
+  it('tiene chi sta entro i chilometri chiesti, e chi non ha il luogo', () => {
+    expect(filtra(vicini, { ...FILTRI_VUOTI, distanza: { min: null, max: 10 } }, casa).map((t) => t.id)).toEqual([
+      'a',
+      'c',
+    ])
+  })
+
+  it('senza la posizione di casa non nasconde nessuno', () => {
+    expect(filtra(vicini, { ...FILTRI_VUOTI, distanza: { min: null, max: 10 } }, null).map((t) => t.id)).toEqual([
+      'a',
+      'b',
+      'c',
+    ])
   })
 })
 
@@ -59,6 +85,8 @@ describe('quantiFiltri', () => {
     expect(quantiFiltri(FILTRI_VUOTI)).toBe(0)
     expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: null } })).toBe(1)
     expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 } })).toBe(2)
-    expect(quantiFiltri({ dislivello: { min: 500, max: 900 }, durata: { min: 2, max: null } })).toBe(3)
+    expect(
+      quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 }, durata: { min: 2, max: null } }),
+    ).toBe(3)
   })
 })

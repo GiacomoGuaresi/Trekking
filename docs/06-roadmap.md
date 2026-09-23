@@ -101,7 +101,13 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Nome del luogo nell'elenco, che apre il punto sulla mappa quando le coordinate ci sono (`Elenco.tsx`)
   - [x] Test della lettura delle risposte di Photon e della scelta di che cosa salvare (`src/dominio/luoghi.test.ts`)
   - Nota: Photon accetta solo `lang` default, de, en e fr; con "default" i nomi tornano già in italiano dove OpenStreetMap li ha
-- [ ] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"
+- [x] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"
+  - [x] `010_impostazioni.sql` applicato in produzione il 2026-09-23: tabella di una riga sola, vuota, in sola lettura per `authenticated`
+  - [ ] Coordinate di casa inserite a mano dal SQL Editor: le fa Giacomo, non vanno in nessun file ([04](04-sicurezza.md))
+  - [x] Distanza in linea d'aria con l'emisenoverso, calcolata nel browser (`src/dominio/distanza.ts`)
+  - [x] Colonna "Da casa" nell'elenco, ordinabile, che compare solo quando la posizione di casa c'è (`Elenco.tsx`, `useCasa.ts`)
+  - [x] Filtro "Distanza da casa (km)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
+  - [x] Test della distanza, del filtro e del caso "senza casa non si nasconde nessuno" (`distanza.test.ts`, `filtri.test.ts`)
 - [ ] **14 · Tempo di viaggio a mano**: campo, filtro "tempo massimo"
 - [ ] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
 - [ ] **16 · Tempi mancanti**: recupero dei mancanti a ogni salvataggio, popup "Ricalcola percorsi mancanti" all'apertura, luogo tolto quando il percorso è impossibile

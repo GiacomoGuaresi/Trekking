@@ -5,6 +5,8 @@
  * della roadmap.
  */
 
+import type { Coordinate } from './coordinate'
+import { distanzaDaCasa } from './distanza'
 import type { Trekking } from './tipi'
 
 export interface Intervallo {
@@ -15,11 +17,14 @@ export interface Intervallo {
 export interface Filtri {
   dislivello: Intervallo
   durata: Intervallo
+  /** Chilometri in linea d'aria da casa: si usa il solo massimo. */
+  distanza: Intervallo
 }
 
 export const FILTRI_VUOTI: Filtri = {
   dislivello: { min: null, max: null },
   durata: { min: null, max: null },
+  distanza: { min: null, max: null },
 }
 
 /** Il numero scritto in un campo del filtro: vuoto o storto vuol dire "nessun limite". */
@@ -37,8 +42,10 @@ export function testoLimite(valore: number | null): string {
 }
 
 /** Quanti limiti sono accesi: il pulsante dei filtri lo mostra. */
-export function quantiFiltri({ dislivello, durata }: Filtri): number {
-  return [dislivello.min, dislivello.max, durata.min, durata.max].filter((x) => x !== null).length
+export function quantiFiltri({ dislivello, durata, distanza }: Filtri): number {
+  return [dislivello.min, dislivello.max, durata.min, durata.max, distanza.min, distanza.max].filter(
+    (x) => x !== null,
+  ).length
 }
 
 /** Se il valore sta nell'intervallo; chi non ha il dato passa sempre. */
@@ -49,6 +56,12 @@ export function dentro(valore: number | null, { min, max }: Intervallo): boolean
   return true
 }
 
-export function filtra(elenco: readonly Trekking[], filtri: Filtri): Trekking[] {
-  return elenco.filter((t) => dentro(t.dislivello, filtri.dislivello) && dentro(t.durata_ore, filtri.durata))
+/** La distanza non è una colonna: si calcola qui, con la posizione di casa. */
+export function filtra(elenco: readonly Trekking[], filtri: Filtri, casa: Coordinate | null = null): Trekking[] {
+  return elenco.filter(
+    (t) =>
+      dentro(t.dislivello, filtri.dislivello) &&
+      dentro(t.durata_ore, filtri.durata) &&
+      dentro(distanzaDaCasa(t, casa), filtri.distanza),
+  )
 }

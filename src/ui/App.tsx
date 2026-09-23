@@ -13,6 +13,7 @@ import { ModaleTrekking } from './ModaleTrekking'
 import { MostraCompletati } from './MostraCompletati'
 import { Ricerca } from './Ricerca'
 import { useInterruttore } from './preferenze'
+import { useCasa } from './useCasa'
 import { useRotta } from './rotta'
 import { useTrekking } from './useTrekking'
 
@@ -38,6 +39,7 @@ export function App() {
   const [filtri, setFiltri] = useState<ValoriFiltri>(FILTRI_VUOTI)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
   const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
+  const casa = useCasa()
 
   /** Per l'avviso dei doppioni contano tutti, completati compresi. */
   const esistenti = stato.fase === 'pronto' ? stato.trekking : []
@@ -122,7 +124,7 @@ export function App() {
               />
             </div>
             <div className="mb-2">
-              <Filtri valori={filtri} onCambia={setFiltri} />
+              <Filtri valori={filtri} onCambia={setFiltri} conDistanza={casa !== null} />
             </div>
             {erroreCompletato && (
               <p className="mb-2 text-sm text-pericolo" role="alert">
@@ -130,11 +132,16 @@ export function App() {
               </p>
             )}
             <Elenco
-              trekking={ordina(filtra(cerca(visibili(stato.trekking, mostraCompletati), ricerca), filtri), ordinamento)}
+              trekking={ordina(
+                filtra(cerca(visibili(stato.trekking, mostraCompletati), ricerca), filtri, casa),
+                ordinamento,
+                casa,
+              )}
               ordinamento={ordinamento}
               onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
               ricerca={ricerca}
               conFiltri={quantiFiltri(filtri) > 0}
+              casa={casa}
               onNuovo={() => setNuovoAperto(true)}
               nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
               onCompletato={(t) => void cambiaCompletato(t)}

@@ -5,14 +5,16 @@ import { FILTRI_VUOTI, type Filtri as Valori, limite, quantiFiltri, testoLimite 
 interface Props {
   valori: Valori
   onCambia: (valori: Valori) => void
+  /** La distanza si filtra solo se la posizione di casa è stata inserita. */
+  conDistanza: boolean
 }
 
 /**
  * I filtri dell'elenco (docs/02-funzionalita.md): un pulsante che dice quanti
- * limiti sono accesi e apre il pannello. Per ora ci sono dislivello e durata;
- * gli altri si aggiungono qui con gli step della roadmap.
+ * limiti sono accesi e apre il pannello. Per ora ci sono dislivello, durata e
+ * distanza da casa; gli altri si aggiungono qui con gli step della roadmap.
  */
-export function Filtri({ valori, onCambia }: Props) {
+export function Filtri({ valori, onCambia, conDistanza }: Props) {
   const [aperto, setAperto] = useState(false)
   const id = useId()
   const quanti = quantiFiltri(valori)
@@ -55,6 +57,15 @@ export function Filtri({ valori, onCambia }: Props) {
             max={valori.durata.max}
             onCambia={(durata) => onCambia({ ...valori, durata })}
           />
+          {conDistanza && (
+            <Intervallo
+              etichetta="Distanza da casa (km)"
+              soloMassimo
+              min={valori.distanza.min}
+              max={valori.distanza.max}
+              onCambia={(distanza) => onCambia({ ...valori, distanza })}
+            />
+          )}
           <p className="m-0 w-full text-xs text-testo-tenue">
             I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
           </p>
@@ -68,36 +79,42 @@ interface PropsIntervallo {
   etichetta: string
   /** Di quanto sale e scende il campo: le ore vanno a mezz'ore. */
   passo?: number
+  /** Per la distanza da casa conta solo quanto lontano si è disposti ad andare. */
+  soloMassimo?: boolean
   min: number | null
   max: number | null
   onCambia: (intervallo: { min: number | null; max: number | null }) => void
 }
 
 /** Una coppia da / a: il campo vuoto vuol dire "nessun limite". */
-function Intervallo({ etichetta, passo = 1, min, max, onCambia }: PropsIntervallo) {
+function Intervallo({ etichetta, passo = 1, soloMassimo = false, min, max, onCambia }: PropsIntervallo) {
   const id = useId()
 
   return (
     <fieldset className="m-0 border-0 p-0">
       <legend className="mb-1 p-0 text-xs text-testo-tenue">{etichetta}</legend>
       <div className="flex items-center gap-2">
-        <label className="sr-only" htmlFor={`${id}-min`}>
-          {etichetta}, da
-        </label>
-        <input
-          id={`${id}-min`}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step={passo}
-          className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-          placeholder="da"
-          value={testoLimite(min)}
-          onChange={(evento) => onCambia({ min: limite(evento.target.value), max })}
-        />
-        <span className="text-testo-tenue">–</span>
+        {!soloMassimo && (
+          <>
+            <label className="sr-only" htmlFor={`${id}-min`}>
+              {etichetta}, da
+            </label>
+            <input
+              id={`${id}-min`}
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step={passo}
+              className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
+              placeholder="da"
+              value={testoLimite(min)}
+              onChange={(evento) => onCambia({ min: limite(evento.target.value), max })}
+            />
+            <span className="text-testo-tenue">–</span>
+          </>
+        )}
         <label className="sr-only" htmlFor={`${id}-max`}>
-          {etichetta}, a
+          {etichetta}, {soloMassimo ? 'al massimo' : 'a'}
         </label>
         <input
           id={`${id}-max`}
@@ -106,7 +123,7 @@ function Intervallo({ etichetta, passo = 1, min, max, onCambia }: PropsIntervall
           min={0}
           step={passo}
           className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-          placeholder="a"
+          placeholder={soloMassimo ? 'al massimo' : 'a'}
           value={testoLimite(max)}
           onChange={(evento) => onCambia({ min, max: limite(evento.target.value) })}
         />
