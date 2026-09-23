@@ -1,13 +1,15 @@
 import { useId, useState, type FormEvent } from 'react'
 import { dislivelloValido, pulisciDislivello, testoDislivello } from '../dominio/dislivello'
-import { coordinateValide, pulisciCoordinate, testoCoordinate } from '../dominio/coordinate'
+import { coordinateValide } from '../dominio/coordinate'
 import { durataValida, pulisciDurata, testoDurata } from '../dominio/durata'
 import { pulisciLink, righeLink } from '../dominio/link'
 import { nomeValido, pulisciNome } from '../dominio/nome'
 import { doppione } from '../dominio/ricerca'
 import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { EditorMarkdown } from './EditorMarkdown'
+import { CampoLuogo } from './CampoLuogo'
 import { Modale } from './Modale'
+import { risolviLuogo, statoLuogoIniziale } from './luogo'
 
 interface Props {
   /** "Nuovo trekking" quando si crea, "Modifica trekking" quando si cambia. */
@@ -23,8 +25,8 @@ interface Props {
 
 /**
  * Il form del trekking (docs/02-funzionalita.md, inserimento rapido): il nome,
- * obbligatorio, il luogo per coordinate, il dislivello, la durata, i link (uno
- * per riga) e le note in Markdown. Gli
+ * obbligatorio, il luogo per nome o per coordinate, il dislivello, la durata, i
+ * link (uno per riga) e le note in Markdown. Gli
  * altri campi si aggiungono qui con gli step della roadmap. Invio salva; a
  * schermo intero su mobile.
  */
@@ -34,30 +36,31 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   const [note, setNote] = useState(iniziale?.note ?? '')
   const [dislivello, setDislivello] = useState(testoDislivello(iniziale?.dislivello ?? null))
   const [durata, setDurata] = useState(testoDurata(iniziale?.durata_ore ?? null))
-  const [luogo, setLuogo] = useState(testoCoordinate(iniziale?.lat ?? null, iniziale?.lon ?? null))
+  const [luogo, setLuogo] = useState(() => statoLuogoIniziale(iniziale))
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
   // L'avviso compare mentre si scrive e non blocca il salvataggio
   // (docs/02-funzionalita.md).
   const gia = doppione(esistenti, nome, escludi)
+  /** Le coordinate incollate storte fermano il salvataggio; il nome no. */
+  const luogoValido = luogo.modo === 'nome' || coordinateValide(luogo.coordinate)
 
   const invia = async (evento: FormEvent) => {
     evento.preventDefault()
-    if (!nomeValido(nome) || !dislivelloValido(dislivello) || !durataValida(durata) || !coordinateValide(luogo)) return
+    if (!nomeValido(nome) || !dislivelloValido(dislivello) || !durataValida(durata) || !luogoValido) return
     if (inCorso) return
     setInCorso(true)
     setErrore(null)
-    const coordinate = pulisciCoordinate(luogo)
     try {
+      const salvato = await risolviLuogo(luogo)
       await onSalva({
         nome: pulisciNome(nome),
         link: pulisciLink(link),
         note: note.trim() === '' ? null : note,
         dislivello: pulisciDislivello(dislivello),
         durata_ore: pulisciDurata(durata),
-        lat: coordinate?.lat ?? null,
-        lon: coordinate?.lon ?? null,
+        ...salvato,
       })
       onChiudi()
     } catch (e) {
@@ -88,7 +91,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
               !nomeValido(nome) ||
               !dislivelloValido(dislivello) ||
               !durataValida(durata) ||
-              !coordinateValide(luogo) ||
+              !luogoValido ||
               inCorso
             }
           >
@@ -113,21 +116,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
             Esiste già un trekking che si chiama <strong>{gia.nome}</strong>.
           </p>
         )}
-        <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-luogo`}>
-          Luogo (coordinate)
-        </label>
-        <input
-          id={`${id}-luogo`}
-          className="min-h-11 w-full rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-          placeholder="45.9876, 9.8765"
-          value={luogo}
-          onChange={(evento) => setLuogo(evento.target.value)}
-        />
-        {coordinateValide(luogo) ? (
-          <p className="m-0 text-xs text-testo-tenue">Si incollano come si copiano da Google Maps.</p>
-        ) : (
-          <p className="m-0 text-xs text-pericolo">Servono due numeri: latitudine e longitudine.</p>
-        )}
+        <CampoLuogo valore={luogo} onCambia={setLuogo} />
         <label className="mt-2 text-xs text-testo-tenue" htmlFor={`${id}-dislivello`}>
           Dislivello (m)
         </label>

@@ -164,6 +164,7 @@ export function App() {
             note: daModificare.note,
             dislivello: daModificare.dislivello,
             durata_ore: daModificare.durata_ore,
+            luogo_nome: daModificare.luogo_nome,
             lat: daModificare.lat,
             lon: daModificare.lon,
           }}

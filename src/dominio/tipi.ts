@@ -10,7 +10,9 @@ export interface Trekking {
   dislivello: number | null
   /** Ore di andata e ritorno, a passi di mezz'ora; `null` quando non si sa. */
   durata_ore: number | null
-  /** Il luogo: o ci sono tutte e due o non c'è il luogo. */
+  /** Il nome del luogo; vuoto quando il luogo è stato messo come coordinate. */
+  luogo_nome: string | null
+  /** Le coordinate: o ci sono tutte e due o non c'è il punto. */
   lat: number | null
   lon: number | null
   completato: boolean
@@ -26,6 +28,7 @@ export interface CampiTrekking {
   note: string | null
   dislivello: number | null
   durata_ore: number | null
+  luogo_nome: string | null
   lat: number | null
   lon: number | null
 }

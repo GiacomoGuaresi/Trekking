@@ -13,6 +13,7 @@ export function esempio(campi: Partial<Trekking> = {}): Trekking {
     note: null,
     dislivello: null,
     durata_ore: null,
+    luogo_nome: null,
     lat: null,
     lon: null,
     completato: false,

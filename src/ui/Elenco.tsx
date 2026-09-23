@@ -147,8 +147,14 @@ export function Elenco({
                     )}
                     <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
                   </span>
-                  {(t.lat !== null || t.link.length > 0) && (
+                  {(t.luogo_nome !== null || t.lat !== null || t.link.length > 0) && (
                     <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {t.luogo_nome !== null && t.lat === null && (
+                        <span className="inline-flex items-center gap-1 text-xs text-testo-tenue">
+                          <MapPin className="size-[13px]" aria-hidden="true" />
+                          {t.luogo_nome}
+                        </span>
+                      )}
                       {t.lat !== null && t.lon !== null && (
                         <a
                           href={mappaEsterna({ lat: t.lat, lon: t.lon })}
@@ -157,7 +163,7 @@ export function Elenco({
                           className="inline-flex items-center gap-1 text-xs text-montagna-scura underline"
                         >
                           <MapPin className="size-[13px]" aria-hidden="true" />
-                          {t.lat.toFixed(4)}, {t.lon.toFixed(4)}
+                          {t.luogo_nome ?? `${t.lat.toFixed(4)}, ${t.lon.toFixed(4)}`}
                         </a>
                       )}
                       {t.link.map((indirizzo) => (

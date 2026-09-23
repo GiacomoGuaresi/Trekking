@@ -4,9 +4,11 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AccessoSupabase, type Accesso } from './accesso'
+import { PhotonLuoghi, type RicercaLuoghi } from './luoghi'
 import { TrekkingSupabase } from './trekking'
 
 export type { Accesso, EsitoAccesso } from './accesso'
+export type { RicercaLuoghi } from './luoghi'
 export type { TrekkingSupabase } from './trekking'
 
 let connessione: { accesso: Accesso; trekking: TrekkingSupabase } | null = null
@@ -44,4 +46,11 @@ export function accesso(): Accesso {
 /** Le query sui trekking. */
 export function trekking(): TrekkingSupabase {
   return connetti().trekking
+}
+
+const ricercaLuoghi = new PhotonLuoghi()
+
+/** La ricerca dei luoghi per nome: Photon, senza chiave e senza sessione. */
+export function luoghi(): RicercaLuoghi {
+  return ricercaLuoghi
 }

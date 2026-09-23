@@ -93,7 +93,14 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Coordinate sotto il nome nell'elenco, che aprono il punto su OpenStreetMap finché non c'è la mappa dell'app (`Elenco.tsx`)
   - [x] Test delle coordinate incollate, comprese quelle fuori dal mondo (`src/dominio/coordinate.test.ts`)
   - Nota: l'interruttore Nome / Coordinate non c'è ancora: con la sola parte Coordinate sarebbe un pezzo a metà. Arriva allo step 12 insieme ai suggerimenti di Photon, con `luogo_nome`
-- [ ] **12 · Luogo per nome**: suggerimenti di Photon, conversione in coordinate, primo risultato se non se ne sceglie uno
+- [x] **12 · Luogo per nome**: suggerimenti di Photon, conversione in coordinate, primo risultato se non se ne sceglie uno
+  - [x] `009_luogo_nome.sql` applicato in produzione il 2026-09-23: colonna `luogo_nome text`
+  - [x] Ricerca dei luoghi dietro la sua interfaccia, con Photon come prima implementazione (`src/dati/luoghi.ts`)
+  - [x] Interruttore Nome / Coordinate con i suggerimenti mentre si scrive (`CampoLuogo.tsx`, `src/ui/luogo.ts`)
+  - [x] Senza scegliere un suggerimento vale il primo risultato; se Photon non risponde si salva il solo nome (`src/dominio/luoghi.ts`)
+  - [x] Nome del luogo nell'elenco, che apre il punto sulla mappa quando le coordinate ci sono (`Elenco.tsx`)
+  - [x] Test della lettura delle risposte di Photon e della scelta di che cosa salvare (`src/dominio/luoghi.test.ts`)
+  - Nota: Photon accetta solo `lang` default, de, en e fr; con "default" i nomi tornano già in italiano dove OpenStreetMap li ha
 - [ ] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"
 - [ ] **14 · Tempo di viaggio a mano**: campo, filtro "tempo massimo"
 - [ ] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
