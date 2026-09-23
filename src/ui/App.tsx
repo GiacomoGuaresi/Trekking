@@ -7,6 +7,7 @@ import { cerca } from '../dominio/ricerca'
 import type { Trekking } from '../dominio/tipi'
 import { BarraMappa } from './BarraMappa'
 import { Conferma } from './Conferma'
+import { ModaleDettagli } from './ModaleDettagli'
 import { Elenco } from './Elenco'
 import { Installa } from './Installa'
 import { Filtri } from './Filtri'
@@ -39,6 +40,12 @@ export function App() {
   /** Il trekking che si sta modificando, e quello che si sta eliminando. */
   const [daModificare, setDaModificare] = useState<Trekking | null>(null)
   const [daEliminare, setDaEliminare] = useState<Trekking | null>(null)
+  /**
+   * Il trekking di cui si guardano i dettagli, per id: si rilegge dall'elenco,
+   * così dopo una modifica o un completato mostra i dati nuovi. Mentre si
+   * modifica resta sotto, e alla chiusura del form ricompare.
+   */
+  const [inDettaglio, setInDettaglio] = useState<string | null>(null)
   const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null)
   /** L'errore di un tocco sul completato: l'elenco resta com'era. */
   const [erroreCompletato, setErroreCompletato] = useState<string | null>(null)
@@ -57,6 +64,9 @@ export function App() {
 
   /** Per l'avviso dei doppioni contano tutti, completati compresi. */
   const esistenti = stato.fase === 'pronto' ? stato.trekking : []
+  const dettaglio = esistenti.find((t) => t.id === inDettaglio) ?? null
+
+  const apriDettagli = (t: Trekking) => setInDettaglio(t.id)
 
   const cambiaCompletato = async (t: Trekking) => {
     setErroreCompletato(null)
@@ -150,7 +160,7 @@ export function App() {
         {suMappa && stato.fase === 'pronto' && (
           <Suspense fallback={<p className="mt-8 text-center text-testo-tenue">Carico la mappa…</p>}>
             <div className="absolute inset-0">
-              <Mappa trekking={daMostrare(stato.trekking)} casa={casa} onModifica={setDaModificare} />
+              <Mappa trekking={daMostrare(stato.trekking)} casa={casa} onDettagli={apriDettagli} />
             </div>
             <BarraMappa
               ricerca={ricerca}
@@ -190,6 +200,7 @@ export function App() {
               conFiltri={quantiFiltri(filtri) > 0}
               casa={casa}
               onNuovo={() => setNuovoAperto(true)}
+              onDettagli={apriDettagli}
               nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
               onCompletato={(t) => void cambiaCompletato(t)}
               onRinomina={setDaModificare}
@@ -207,6 +218,15 @@ export function App() {
           esistenti={esistenti}
           onSalva={crea}
           onChiudi={() => setNuovoAperto(false)}
+        />
+      )}
+      {dettaglio && !daModificare && !daEliminare && (
+        <ModaleDettagli
+          trekking={dettaglio}
+          casa={casa}
+          onModifica={() => setDaModificare(dettaglio)}
+          onCompletato={() => segnaCompletato(dettaglio.id, !dettaglio.completato)}
+          onChiudi={() => setInDettaglio(null)}
         />
       )}
       {daModificare && (
@@ -228,6 +248,11 @@ export function App() {
           escludi={daModificare.id}
           onSalva={(campi) => aggiorna(daModificare.id, campi)}
           onChiudi={() => setDaModificare(null)}
+          onElimina={() => {
+            setErroreEliminazione(null)
+            setDaEliminare(daModificare)
+            setDaModificare(null)
+          }}
         />
       )}
       {daEliminare && (

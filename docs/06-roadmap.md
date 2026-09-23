@@ -169,6 +169,10 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Ricerca e pulsante Filtri in una barra flottante sopra la mappa; il pannello dei filtri, con "Mostra completati", si apre sotto la barra (`BarraMappa.tsx`, `PannelloFiltri` in `Filtri.tsx`)
   - [x] Zoom e scelta della mappa in basso a destra; inquadratura e popup lasciano libera la fascia della barra (`Mappa.tsx`)
   - [x] Mappa prima dell'Elenco nel menu; i vecchi link `#/mappa` portano ancora alla mappa
+- [x] **25 · Dettagli e form più comodi da telefono**
+  - [x] Nel popup della mappa "Dettagli" al posto di "Modifica": apre la scheda in sola lettura (`ModaleDettagli.tsx`), da cui si passa alla modifica; anche toccando il nome nell'elenco
+  - [x] Il modale ha tre aspetti sul telefono: centrato, schermo intero, foglio dal basso (`Modale.tsx`)
+  - [x] Form a gruppi, dislivello / durata / viaggio affiancati con l'unità nel campo e tastiera numerica (la virgola di iOS ora passa), un campo per ogni link, tastiera che si apre da sola solo per un trekking nuovo, "Elimina trekking" in fondo al form (`ModaleTrekking.tsx`)
 
 ## Più avanti, se servirà
 - [ ] Posizione GPS: distanza dalla posizione attuale e puntino sulla mappa

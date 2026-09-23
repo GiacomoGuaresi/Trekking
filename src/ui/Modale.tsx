@@ -7,8 +7,19 @@ interface Props {
   children: ReactNode
   /** I pulsanti in fondo, fuori dalla parte che scorre. */
   piede?: ReactNode
-  /** Su mobile occupa tutto lo schermo (es. "Nuovo trekking"). */
-  schermoInteroMobile?: boolean
+  /**
+   * Come compare sul telefono: al centro (le conferme), a tutto schermo (il
+   * form) o come un foglio che sale dal basso (i dettagli). Da tablet in su è
+   * sempre al centro.
+   */
+  mobile?: 'centrato' | 'schermoIntero' | 'foglio'
+}
+
+const SUL_TELEFONO = {
+  centrato: '',
+  schermoIntero: 'max-sm:h-dvh max-sm:max-h-dvh max-sm:w-full max-sm:rounded-none max-sm:border-0',
+  foglio:
+    'max-sm:mb-0 max-sm:max-h-[92dvh] max-sm:w-full max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0',
 }
 
 /**
@@ -16,7 +27,7 @@ interface Props {
  * Esc e sfondo inerte. È aperto finché è montato; Esc, la X e il tocco fuori
  * chiamano `onChiudi`.
  */
-export function Modale({ titolo, onChiudi, children, piede, schermoInteroMobile = false }: Props) {
+export function Modale({ titolo, onChiudi, children, piede, mobile = 'centrato' }: Props) {
   const dialogo = useRef<HTMLDialogElement>(null)
   const chiudi = useRef(onChiudi)
 
@@ -47,12 +58,14 @@ export function Modale({ titolo, onChiudi, children, piede, schermoInteroMobile 
       onClick={(evento) => {
         if (evento.target === dialogo.current) onChiudi()
       }}
-      className={`open:animate-compari backdrop:animate-dissolvi m-auto max-h-[min(90dvh,800px)] w-[min(100%-24px,640px)] max-w-none overflow-hidden rounded-[14px] border border-bordo bg-white p-0 text-testo shadow-xl backdrop:bg-testo/40 ${
-        schermoInteroMobile ? 'max-sm:h-dvh max-sm:max-h-dvh max-sm:w-full max-sm:rounded-none max-sm:border-0' : ''
-      }`}
+      className={`open:animate-compari backdrop:animate-dissolvi m-auto max-h-[min(90dvh,800px)] w-[min(100%-24px,640px)] max-w-none overflow-hidden rounded-[14px] border border-bordo bg-white p-0 text-testo shadow-xl backdrop:bg-testo/40 ${SUL_TELEFONO[mobile]}`}
     >
-      <div className="flex max-h-[inherit] flex-col max-sm:h-full">
-        <div className="flex items-center gap-2 border-b border-bordo pt-[env(safe-area-inset-top)] pr-1 pl-4">
+      <div className={`flex max-h-[inherit] flex-col ${mobile === 'schermoIntero' ? 'max-sm:h-full' : ''}`}>
+        <div
+          className={`flex items-center gap-2 border-b border-bordo pr-1 pl-4 ${
+            mobile === 'schermoIntero' ? 'max-sm:pt-[env(safe-area-inset-top)]' : ''
+          }`}
+        >
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{titolo}</h2>
           <button
             type="button"
@@ -65,7 +78,7 @@ export function Modale({ titolo, onChiudi, children, piede, schermoInteroMobile 
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
         {piede && (
-          <div className="flex flex-wrap justify-end gap-2 border-t border-bordo px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-bordo px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
             {piede}
           </div>
         )}

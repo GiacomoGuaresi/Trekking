@@ -1,7 +1,7 @@
 import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet'
 import { useEffect, useMemo } from 'react'
 import { divIcon, type LatLngBoundsExpression } from 'leaflet'
-import { Pencil } from 'lucide-react'
+import { Info } from 'lucide-react'
 import type { Coordinate } from '../dominio/coordinate'
 import { distanzaDaCasa, formattaDistanza } from '../dominio/distanza'
 import { formattaDurata } from '../dominio/durata'
@@ -13,7 +13,8 @@ interface Props {
   /** Gli stessi trekking dell'elenco: quelli senza coordinate non compaiono. */
   trekking: readonly Trekking[]
   casa: Coordinate | null
-  onModifica: (trekking: Trekking) => void
+  /** Il pulsante "Dettagli" del popup apre la scheda in sola lettura. */
+  onDettagli: (trekking: Trekking) => void
 }
 
 /** L'icona di casa: una casetta disegnata a mano, senza file da caricare. */
@@ -35,7 +36,7 @@ const SOTTO_LA_BARRA = 80
 
 /**
  * La mappa (docs/02-funzionalita.md): un puntino per ogni trekking con le
- * coordinate, con il popup dei dettagli e il pulsante per modificare. Chi non ha
+ * coordinate, con un popup riassuntivo e il pulsante per aprire i dettagli. Chi non ha
  * il luogo resta nell'elenco ma non compare qui. Casa ha la sua icona, e si può
  * passare a OpenTopoMap per vedere curve di livello e sentieri.
  *
@@ -43,7 +44,7 @@ const SOTTO_LA_BARRA = 80
  * e filtri, quindi i comandi di Leaflet stanno in basso a destra e inquadratura
  * e popup lasciano libera la fascia in alto.
  */
-export function Mappa({ trekking, casa, onModifica }: Props) {
+export function Mappa({ trekking, casa, onDettagli }: Props) {
   const conLuogo = trekking.filter((t) => t.lat !== null && t.lon !== null)
 
   return (
@@ -83,7 +84,7 @@ export function Mappa({ trekking, casa, onModifica }: Props) {
             }}
           >
             <Popup autoPanPaddingTopLeft={[16, SOTTO_LA_BARRA]}>
-              <Dettagli trekking={t} casa={casa} onModifica={onModifica} />
+              <Anteprima trekking={t} casa={casa} onDettagli={onDettagli} />
             </Popup>
           </CircleMarker>
         ))}
@@ -120,8 +121,8 @@ function Inquadra({ trekking, casa }: { trekking: readonly Trekking[]; casa: Coo
   return null
 }
 
-/** Il popup: nome, numeri e link, con il pulsante per modificare. */
-function Dettagli({ trekking: t, casa, onModifica }: { trekking: Trekking; casa: Coordinate | null; onModifica: (t: Trekking) => void }) {
+/** Il popup: nome e numeri, con il pulsante che apre i dettagli. */
+function Anteprima({ trekking: t, casa, onDettagli }: { trekking: Trekking; casa: Coordinate | null; onDettagli: (t: Trekking) => void }) {
   const righe = [
     ['Dislivello', t.dislivello === null ? '—' : `${t.dislivello} m`],
     ['Durata', formattaDurata(t.durata_ore)],
@@ -140,11 +141,11 @@ function Dettagli({ trekking: t, casa, onModifica }: { trekking: Trekking; casa:
       </dl>
       <button
         type="button"
-        className="flex min-h-9 items-center gap-1.5 rounded-[9px] px-2 font-semibold text-montagna-scura hover:bg-fondo"
-        onClick={() => onModifica(t)}
+        className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-[11px] bg-montagna px-3 font-semibold text-panna hover:bg-montagna-scura"
+        onClick={() => onDettagli(t)}
       >
-        <Pencil className="size-[15px]" aria-hidden="true" />
-        Modifica
+        <Info className="size-[17px]" aria-hidden="true" />
+        Dettagli
       </button>
     </div>
   )

@@ -24,6 +24,8 @@ interface Props {
   /** Quanti sono nascosti perché completati: cambia il messaggio dell'elenco vuoto. */
   nascosti: number
   onNuovo: () => void
+  /** Toccando il nome si aprono i dettagli in sola lettura. */
+  onDettagli: (trekking: Trekking) => void
   onCompletato: (trekking: Trekking) => void
   onRinomina: (trekking: Trekking) => void
   onElimina: (trekking: Trekking) => void
@@ -48,6 +50,7 @@ export function Elenco({
   casa,
   nascosti,
   onNuovo,
+  onDettagli,
   onCompletato,
   onRinomina,
   onElimina,
@@ -167,7 +170,13 @@ export function Elenco({
                         )}
                       </button>
                     )}
-                    <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
+                    <button
+                      type="button"
+                      className={`text-left font-semibold hover:underline ${t.completato ? 'text-testo-tenue line-through' : ''}`}
+                      onClick={() => onDettagli(t)}
+                    >
+                      {t.nome}
+                    </button>
                   </span>
                   {(t.luogo_nome !== null || t.lat !== null || t.link.length > 0) && (
                     <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">

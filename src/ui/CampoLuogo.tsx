@@ -56,7 +56,7 @@ export function CampoLuogo({ valore, onCambia }: Props) {
 
   return (
     <>
-      <span className="mt-2 text-xs text-testo-tenue">Luogo</span>
+      <span className="text-sm font-semibold">Luogo</span>
       <div className="flex w-fit gap-0.5 rounded-[11px] bg-fondo p-0.5" role="group" aria-label="Come si indica il luogo">
         {(['nome', 'coordinate'] as const).map((modo) => (
           <button

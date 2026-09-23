@@ -77,5 +77,6 @@ La posizione di **casa** è un punto fisso salvato nel database ([04](04-sicurez
 - **Pagina principale** dell'app: la mappa occupa tutta la pagina, con la **stessa ricerca e gli stessi filtri** dell'elenco in una barra flottante sopra la mappa.
 - Mappa base **OpenStreetMap**, con **OpenTopoMap** (curve di livello e sentieri) come alternativa selezionabile.
 - Un **puntino** per ogni trekking con le coordinate. Quelli senza luogo non compaiono sulla mappa, ma restano nell'elenco.
-- Toccando un puntino si apre un **popup con i dettagli**: nome, dislivello, durata, tempo di viaggio, distanza, link, note, con il pulsante per modificare.
+- Toccando un puntino si apre un **popup riassuntivo** (nome, luogo, dislivello, durata, tempo di viaggio, distanza) con il pulsante **Dettagli**.
+- **Dettagli** apre la scheda in **sola lettura** (sul telefono un foglio che sale dal basso): luogo apribile in Maps, numeri, link, note, data di aggiunta. Da lì **Modifica** apre il form e **Fatto / Da rifare** cambia il completato; chiuso il form si torna ai dettagli aggiornati. La stessa scheda si apre toccando il nome nell'elenco.
 - **Casa** è segnata con un'icona propria.
