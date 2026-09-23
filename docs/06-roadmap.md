@@ -37,6 +37,12 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Variabili `VITE_SUPABASE_*` nel repository GitHub, GitHub Pages attivo, deploy riuscito il 2026-09-16
   - [x] Provato da telefono e da PC il 2026-09-23: entrati in Grocery, Trekking si apre senza passphrase
 - [ ] **3 · Salvare un trekking**: tabella `trekking` con il solo nome, RLS, pulsante **+** con form di un campo, tabella semplice con i nomi, guscio con intestazione blu e menu. *Finito anche quando*: senza sessione una query non restituisce righe
+  - [x] `002_trekking.sql` applicato in produzione il 2026-09-23: tabella con `nome`, `creato_il`, `modificato_il` da trigger, RLS e grant solo per `authenticated`
+  - [x] Verifica: senza sessione la query è respinta ("permission denied for schema trekking"), con la sessione risponde
+  - [x] Guscio con intestazione blu, menu laterale, rotta `#/` (`src/ui/App.tsx`, `MenuLaterale.tsx`, `rotta.ts`)
+  - [x] Pulsante **+** con il modale di un campo ed elenco dei nomi (`ModaleNuovo.tsx`, `Elenco.tsx`)
+  - [x] Test del nome ripulito e validato (`src/dominio/nome.test.ts`)
+  - [ ] Prova da telefono e da PC sull'app online: salvare un trekking e rivederlo nell'elenco
 - [ ] **4 · Modificare ed eliminare**: modifica del nome, eliminazione con conferma
 - [ ] **5 · Completato**: segno reversibile, completati nascosti, interruttore "Mostra completati"
 - [ ] **6 · Ricerca, ordinamento e doppioni**: ricerca per nome, ordinamento cliccando sulle colonne, avviso mentre si scrive un nome già presente

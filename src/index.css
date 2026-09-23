@@ -7,12 +7,52 @@
   --color-montagna-chiara: #5b87ad;
   --color-montagna-scura: #32516c;
   --color-fondo: #f1f5f9;
+  /* Fondo della voce scelta nel menu. */
+  --color-ghiaccio: #dbe7f1;
   --color-panna: #fbf8f1;
+  --color-testo: #25323e;
   --color-testo-tenue: #5c6b78;
   --color-bordo: #d6e0e8;
   --color-pericolo: #a8333a;
 
   --font-sans: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Animazioni brevi, come nelle altre app (~200ms): un modale che si apre e
+     il suo velo (docs/09-interfaccia.md). */
+  --animate-entra: entra 200ms ease-out;
+  --animate-compari: compari 180ms ease-out;
+  --animate-dissolvi: dissolvi 180ms ease-out;
+
+  @keyframes entra {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  @keyframes compari {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+  @keyframes dissolvi {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+/* Chi ha chiesto meno movimento vede tutto cambiare di colpo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::backdrop {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
 }
 
 :root {
@@ -22,6 +62,14 @@
 body {
   margin: 0;
   background: var(--color-fondo);
+  color: var(--color-testo);
   font-family: var(--font-sans);
   font-size: 14px;
+}
+
+/* I campi di testo restano a 16px: sotto, iOS zooma da solo al tocco. */
+input,
+textarea,
+select {
+  font-size: 16px;
 }

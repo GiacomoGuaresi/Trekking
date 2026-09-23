@@ -44,8 +44,8 @@ Un'app statica **non ha segreti**: ogni variabile `VITE_*`, anche se sta nei *Se
 ## Checklist prima di pubblicare
 
 - [x] Registrazioni pubbliche spente sul progetto (`disable_signup: true`, verificato il 2026-09-16)
-- [ ] RLS attiva su ogni tabella dello schema `trekking`
-- [ ] Una query con la sola publishable key e senza sessione non restituisce righe, nemmeno da `impostazioni`
+- [x] RLS attiva su ogni tabella dello schema `trekking` (verificato il 2026-09-23 su `trekking.trekking`)
+- [x] Una query con la sola publishable key e senza sessione non restituisce righe, nemmeno da `impostazioni` (2026-09-23: "permission denied for schema trekking"; `impostazioni` non esiste ancora)
 - [ ] Nessun file `.env*` committato (solo `.env.example`)
 - [ ] Coordinate di casa assenti dal repo, dalla storia git e dal `dist/` pubblicato
 - [ ] Secret key e password del DB assenti dal repo e dalla storia git

@@ -4,10 +4,12 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AccessoSupabase, type Accesso } from './accesso'
+import { TrekkingSupabase } from './trekking'
 
 export type { Accesso, EsitoAccesso } from './accesso'
+export type { TrekkingSupabase } from './trekking'
 
-let connessione: { accesso: Accesso } | null = null
+let connessione: { accesso: Accesso; trekking: TrekkingSupabase } | null = null
 
 /**
  * Il client è uno solo: accesso e query condividono la sessione.
@@ -30,11 +32,16 @@ function connetti() {
     cookieOptions: { path: '/' },
     db: { schema: 'trekking' },
   }) as unknown as SupabaseClient
-  connessione = { accesso: new AccessoSupabase(client, email) }
+  connessione = { accesso: new AccessoSupabase(client, email), trekking: new TrekkingSupabase(client) }
   return connessione
 }
 
 /** Chi può entrare: serve la sessione aperta dalla passphrase. */
 export function accesso(): Accesso {
   return connetti().accesso
+}
+
+/** Le query sui trekking. */
+export function trekking(): TrekkingSupabase {
+  return connetti().trekking
 }
