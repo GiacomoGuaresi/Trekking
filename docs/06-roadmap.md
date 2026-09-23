@@ -49,7 +49,11 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Matita e cestino in fondo a ogni riga dell'elenco (`src/ui/Elenco.tsx`)
   - [x] "Cambia nome" riusa il modale del nome; eliminazione dietro una conferma (`ModaleNome.tsx`, `Conferma.tsx`)
   - [x] Test dell'elenco aggiornato senza rileggere il database (`src/dominio/elenco.test.ts`)
-- [ ] **5 · Completato**: segno reversibile, completati nascosti, interruttore "Mostra completati"
+- [x] **5 · Completato**: segno reversibile, completati nascosti, interruttore "Mostra completati"
+  - [x] `003_completato.sql` applicato in produzione il 2026-09-23: colonna `completato` con default `false`
+  - [x] Segno rotondo a inizio riga, reversibile, con il nome barrato (`src/ui/Elenco.tsx`)
+  - [x] Interruttore "Mostra completati" con il conto, salvato in un cookie dell'app (`MostraCompletati.tsx`, `preferenze.ts`)
+  - [x] Test del filtro, del conto e della lettura del cookie (`src/dominio/elenco.test.ts`, `src/ui/preferenze.test.ts`)
 - [ ] **6 · Ricerca, ordinamento e doppioni**: ricerca per nome, ordinamento cliccando sulle colonne, avviso mentre si scrive un nome già presente
 - [ ] **7 · Link**: uno o più link per trekking, apribili dall'elenco
 - [ ] **8 · Note**: campo Markdown con la formattazione di base

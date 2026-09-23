@@ -44,11 +44,18 @@ export function useTrekking() {
     return cambiato
   }, [])
 
+  /** Segna o toglie il completato: sparisce dall'elenco se non si mostrano i completati. */
+  const segnaCompletato = useCallback(async (id: string, completato: boolean) => {
+    const cambiato = await trekking().segnaCompletato(id, completato)
+    setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: sostituisci(prima.trekking, cambiato) } : prima))
+    return cambiato
+  }, [])
+
   /** Elimina; la conferma è già stata data dall'interfaccia. */
   const elimina = useCallback(async (id: string) => {
     await trekking().elimina(id)
     setStato((prima) => (prima.fase === 'pronto' ? { ...prima, trekking: rimuovi(prima.trekking, id) } : prima))
   }, [])
 
-  return { stato, ricarica, crea, rinomina, elimina }
+  return { stato, ricarica, crea, rinomina, segnaCompletato, elimina }
 }

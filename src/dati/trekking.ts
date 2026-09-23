@@ -28,6 +28,13 @@ export class TrekkingSupabase {
     return data as Trekking
   }
 
+  /** Segna o toglie il completato (docs/02-funzionalita.md): è reversibile. */
+  async segnaCompletato(id: string, completato: boolean): Promise<Trekking> {
+    const { data, error } = await this.client.from('trekking').update({ completato }).eq('id', id).select().single()
+    if (error) throw fallita('Completato non cambiato', error)
+    return data as Trekking
+  }
+
   async elimina(id: string): Promise<void> {
     const { error } = await this.client.from('trekking').delete().eq('id', id)
     if (error) throw fallita('Trekking non eliminato', error)

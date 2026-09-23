@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react'
 import { Menu, MountainSnow, Plus } from 'lucide-react'
+import { quantiCompletati, visibili } from '../dominio/elenco'
 import type { Trekking } from '../dominio/tipi'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
 import { MenuLaterale } from './MenuLaterale'
 import { ModaleNome } from './ModaleNome'
+import { MostraCompletati } from './MostraCompletati'
+import { useInterruttore } from './preferenze'
 import { useRotta } from './rotta'
 import { useTrekking } from './useTrekking'
 
@@ -22,8 +25,20 @@ export function App() {
   const [daRinominare, setDaRinominare] = useState<Trekking | null>(null)
   const [daEliminare, setDaEliminare] = useState<Trekking | null>(null)
   const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null)
+  /** L'errore di un tocco sul completato: l'elenco resta com'era. */
+  const [erroreCompletato, setErroreCompletato] = useState<string | null>(null)
+  const [mostraCompletati, setMostraCompletati] = useInterruttore('trekking_completati', false)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
-  const { stato, ricarica, crea, rinomina, elimina } = useTrekking()
+  const { stato, ricarica, crea, rinomina, segnaCompletato, elimina } = useTrekking()
+
+  const cambiaCompletato = async (t: Trekking) => {
+    setErroreCompletato(null)
+    try {
+      await segnaCompletato(t.id, !t.completato)
+    } catch (e) {
+      setErroreCompletato((e as Error).message)
+    }
+  }
 
   const chiudiEliminazione = () => {
     setDaEliminare(null)
@@ -86,15 +101,29 @@ export function App() {
           </p>
         )}
         {stato.fase === 'pronto' && (
-          <Elenco
-            trekking={stato.trekking}
-            onNuovo={() => setNuovoAperto(true)}
-            onRinomina={setDaRinominare}
-            onElimina={(t) => {
-              setErroreEliminazione(null)
-              setDaEliminare(t)
-            }}
-          />
+          <>
+            <MostraCompletati
+              acceso={mostraCompletati}
+              quanti={quantiCompletati(stato.trekking)}
+              onCambia={setMostraCompletati}
+            />
+            {erroreCompletato && (
+              <p className="mb-2 text-sm text-pericolo" role="alert">
+                {erroreCompletato}
+              </p>
+            )}
+            <Elenco
+              trekking={visibili(stato.trekking, mostraCompletati)}
+              onNuovo={() => setNuovoAperto(true)}
+              nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
+              onCompletato={(t) => void cambiaCompletato(t)}
+              onRinomina={setDaRinominare}
+              onElimina={(t) => {
+                setErroreEliminazione(null)
+                setDaEliminare(t)
+              }}
+            />
+          </>
         )}
       </main>
       {nuovoAperto && (
