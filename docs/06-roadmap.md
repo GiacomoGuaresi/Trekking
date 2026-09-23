@@ -121,8 +121,16 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 ## Fase 3 · Mappa
 
-- [ ] **17 · Mappa essenziale**: pagina Mappa nel menu, Leaflet con OpenStreetMap, un puntino per trekking con coordinate, popup con i dettagli
-- [ ] **18 · Mappa con i filtri**: stessa ricerca e stessi filtri dell'elenco, condivisi tra le due pagine
+- [x] **17 · Mappa essenziale**: pagina Mappa nel menu, Leaflet con OpenStreetMap, un puntino per trekking con coordinate, popup con i dettagli
+  - [x] Rotta `#/mappa` e voce Mappa nel menu (`rotta.ts`, `MenuLaterale.tsx`)
+  - [x] Leaflet con le tessere di OpenStreetMap e l'attribuzione visibile (`Mappa.tsx`)
+  - [x] Un puntino per trekking con coordinate, più chiaro se completato; la mappa si inquadra sui puntini
+  - [x] Popup con nome, luogo, dislivello, durata, viaggio, distanza e il pulsante "Modifica"
+  - [x] Leaflet caricato solo aprendo la Mappa: l'Elenco resta a 655 kB invece di 809
+- [x] **18 · Mappa con i filtri**: stessa ricerca e stessi filtri dell'elenco, condivisi tra le due pagine
+  - [x] Ricerca, "Mostra completati" e pannello dei filtri sopra tutte e due le pagine (`App.tsx`)
+  - [x] Un solo calcolo di che cosa mostrare (`daMostrare`), usato dall'elenco e dalla mappa: passando da una pagina all'altra i filtri restano
+  - Nota: 17 e 18 sono in un commit solo. Tenendo ricerca e filtri in `App`, la mappa li ha ereditati senza codice in più: dividerli avrebbe voluto dire scrivere una mappa senza filtri per poi toglierla subito
 - [ ] **19 · Casa e OpenTopoMap**: icona di casa, scelta della mappa topografica
 
 ## Fase 4 · Rifinitura

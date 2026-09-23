@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { LayoutList, Plus, X, type LucideIcon } from 'lucide-react'
+import { LayoutList, Map, Plus, X, type LucideIcon } from 'lucide-react'
 import { indirizzi, type Rotta } from './rotta'
 
 /** Da questa larghezza il menu è sempre aperto: la stessa soglia di `lg:`. */
 const SEMPRE_APERTO = '(min-width: 1024px)'
 
-/** Mappa e "Installa l'app" si aggiungono qui, agli step 17 e 20 della roadmap. */
+/** "Installa l'app" si aggiunge qui, allo step 20 della roadmap. */
 const sezioni: { rotta: Rotta; etichetta: string; icona: LucideIcon }[] = [
   { rotta: 'elenco', etichetta: 'Elenco', icona: LayoutList },
+  { rotta: 'mappa', etichetta: 'Mappa', icona: Map },
 ]
 
 interface Props {

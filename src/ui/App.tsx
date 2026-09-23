@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { Suspense, lazy, useCallback, useState } from 'react'
 import { Menu, MountainSnow, Plus } from 'lucide-react'
 import { quantiCompletati, visibili } from '../dominio/elenco'
 import { FILTRI_VUOTI, type Filtri as ValoriFiltri, filtra, quantiFiltri } from '../dominio/filtri'
@@ -16,6 +16,10 @@ import { useInterruttore } from './preferenze'
 import { useCasa } from './useCasa'
 import { useRotta } from './rotta'
 import { useTrekking } from './useTrekking'
+
+// Leaflet pesa: si carica solo quando si apre la Mappa, così l'Elenco resta
+// leggero anche con la rete del telefono in montagna.
+const Mappa = lazy(async () => ({ default: (await import('./Mappa')).Mappa }))
 
 /**
  * Il guscio dell'app, come Grocery e Projects (docs/09-interfaccia.md):
@@ -40,6 +44,10 @@ export function App() {
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
   const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
   const casa = useCasa()
+
+  /** Quelli da mostrare, uguali per l'elenco e per la mappa (docs/02-funzionalita.md). */
+  const daMostrare = (tutti: readonly Trekking[]) =>
+    filtra(cerca(visibili(tutti, mostraCompletati), ricerca), filtri, casa)
 
   /** Per l'avviso dei doppioni contano tutti, completati compresi. */
   const esistenti = stato.fase === 'pronto' ? stato.trekking : []
@@ -131,26 +139,28 @@ export function App() {
                 {erroreCompletato}
               </p>
             )}
-            <Elenco
-              trekking={ordina(
-                filtra(cerca(visibili(stato.trekking, mostraCompletati), ricerca), filtri, casa),
-                ordinamento,
-                casa,
-              )}
-              ordinamento={ordinamento}
-              onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
-              ricerca={ricerca}
-              conFiltri={quantiFiltri(filtri) > 0}
-              casa={casa}
-              onNuovo={() => setNuovoAperto(true)}
-              nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
-              onCompletato={(t) => void cambiaCompletato(t)}
-              onRinomina={setDaModificare}
-              onElimina={(t) => {
-                setErroreEliminazione(null)
-                setDaEliminare(t)
-              }}
-            />
+            {rotta === 'mappa' ? (
+              <Suspense fallback={<p className="mt-8 text-center text-testo-tenue">Carico la mappa…</p>}>
+                <Mappa trekking={daMostrare(stato.trekking)} casa={casa} onModifica={setDaModificare} />
+              </Suspense>
+            ) : (
+              <Elenco
+                trekking={ordina(daMostrare(stato.trekking), ordinamento, casa)}
+                ordinamento={ordinamento}
+                onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
+                ricerca={ricerca}
+                conFiltri={quantiFiltri(filtri) > 0}
+                casa={casa}
+                onNuovo={() => setNuovoAperto(true)}
+                nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
+                onCompletato={(t) => void cambiaCompletato(t)}
+                onRinomina={setDaModificare}
+                onElimina={(t) => {
+                  setErroreEliminazione(null)
+                  setDaEliminare(t)
+                }}
+              />
+            )}
           </>
         )}
       </main>
