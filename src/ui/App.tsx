@@ -151,7 +151,7 @@ export function App() {
       {daModificare && (
         <ModaleTrekking
           titolo="Modifica trekking"
-          iniziale={{ nome: daModificare.nome, link: daModificare.link }}
+          iniziale={{ nome: daModificare.nome, link: daModificare.link, note: daModificare.note }}
           esistenti={esistenti}
           escludi={daModificare.id}
           onSalva={(campi) => aggiorna(daModificare.id, campi)}

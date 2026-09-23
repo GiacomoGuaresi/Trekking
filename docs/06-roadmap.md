@@ -25,7 +25,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 - [x] Prima stesura del modello dati ([08](08-modello-dati.md)) e dell'interfaccia ([09](09-interfaccia.md))
 - [x] Documentazione senza punti aperti
 
-## Fase 1 · Un'app online che sostituisce il file di note ← *in corso*
+## Fase 1 · Un'app online che sostituisce il file di note ✅
 
 - [x] **1 · Scheletro pubblicato**: `git init`, LICENSE, repository pubblico, scaffold Vite + React + TS + Tailwind + Vitest, workflow `pubblica.yml`, una pagina vuota "Trekking" online su GitHub Pages
 - [x] **2 · Accesso**: schermata della passphrase, sessione condivisa con Grocery e Projects, schema `trekking` vuoto ed esposto nell'API. *Finito anche quando*: da Grocery si entra senza passphrase
@@ -65,11 +65,15 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Campo "Link (uno per riga)" nel form, che ora salva più campi (`ModaleTrekking.tsx`, prima `ModaleNome.tsx`)
   - [x] Link sotto il nome nell'elenco, con il sito come etichetta, che si aprono in una scheda nuova (`Elenco.tsx`)
   - [x] Test di ripulitura, apertura ed etichetta (`src/dominio/link.test.ts`); trekking d'esempio comuni ai test (`esempi.ts`)
-- [ ] **8 · Note**: campo Markdown con la formattazione di base
+- [x] **8 · Note**: campo Markdown con la formattazione di base
+  - [x] `005_note.sql` applicato in produzione il 2026-09-23: colonna `note text`, vuota vuol dire `null`
+  - [x] Campo Note con "Scrivi" / "Anteprima" e l'aiuto sulla sintassi (`EditorMarkdown.tsx`, `Markdown.tsx`, portati da Projects)
+  - [x] Freccia nell'elenco che apre le note sotto la riga (`Elenco.tsx`)
+  - [x] Test delle checklist scritte di fretta (`src/dominio/markdown.test.ts`)
 
-➜ **Da qui l'app può già sostituire il file di note.**
+➜ **Da qui l'app può già sostituire il file di note.** (Fase 1 finita il 2026-09-23.)
 
-## Fase 2 · Scegliere un trekking
+## Fase 2 · Scegliere un trekking ← *in corso*
 
 - [ ] **9 · Dislivello**: campo nel form, filtro min/max (i trekking senza dislivello restano visibili)
 - [ ] **10 · Durata**: campo a passi di mezz'ora, filtro min/max

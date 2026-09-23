@@ -3,6 +3,7 @@ import { pulisciLink, righeLink } from '../dominio/link'
 import { nomeValido, pulisciNome } from '../dominio/nome'
 import { doppione } from '../dominio/ricerca'
 import type { CampiTrekking, Trekking } from '../dominio/tipi'
+import { EditorMarkdown } from './EditorMarkdown'
 import { Modale } from './Modale'
 
 interface Props {
@@ -19,12 +20,13 @@ interface Props {
 
 /**
  * Il form del trekking (docs/02-funzionalita.md, inserimento rapido): il nome,
- * obbligatorio, e i link, uno per riga. Gli altri campi si aggiungono qui con
+ * obbligatorio, i link (uno per riga) e le note in Markdown. Gli altri campi si aggiungono qui con
  * gli step della roadmap. Invio salva; a schermo intero su mobile.
  */
 export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, onChiudi }: Props) {
   const [nome, setNome] = useState(iniziale?.nome ?? '')
   const [link, setLink] = useState(righeLink(iniziale?.link ?? []))
+  const [note, setNote] = useState(iniziale?.note ?? '')
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const id = useId()
@@ -38,7 +40,7 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
     setInCorso(true)
     setErrore(null)
     try {
-      await onSalva({ nome: pulisciNome(nome), link: pulisciLink(link) })
+      await onSalva({ nome: pulisciNome(nome), link: pulisciLink(link), note: note.trim() === '' ? null : note })
       onChiudi()
     } catch (e) {
       setErrore((e as Error).message)
@@ -98,6 +100,8 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
           value={link}
           onChange={(evento) => setLink(evento.target.value)}
         />
+        <span className="mt-2 text-xs text-testo-tenue">Note</span>
+        <EditorMarkdown valore={note} onCambia={setNote} etichetta="Note" righe={6} />
         {errore && (
           <p className="m-0 text-xs text-pericolo" role="alert">
             {errore}

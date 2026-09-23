@@ -1,7 +1,9 @@
-import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { Fragment, useState } from 'react'
+import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronRight, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { etichettaLink, perApertura } from '../dominio/link'
 import type { Colonna, Ordinamento } from '../dominio/ordinamento'
 import type { Trekking } from '../dominio/tipi'
+import { Markdown } from './Markdown'
 
 interface Props {
   /** Solo quelli da mostrare: completati, ricerca e ordinamento sono già stati applicati. */
@@ -23,7 +25,7 @@ const data = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', 
 /**
  * L'elenco dei trekking (docs/09-interfaccia.md): il segno del completato, il
  * nome con i suoi link, la data di aggiunta e i pulsanti per modificare o
- * eliminare.
+ * eliminare. Chi ha delle note ha anche una freccia che le apre sotto la riga.
  * Toccando un'intestazione si ordina per quella colonna, un secondo tocco
  * inverte. Le altre colonne e i filtri arrivano con gli step successivi.
  */
@@ -38,6 +40,11 @@ export function Elenco({
   onRinomina,
   onElimina,
 }: Props) {
+  /** Le note aperte, per id: restano aperte finché si guarda l'elenco. */
+  const [aperte, setAperte] = useState<readonly string[]>([])
+  const apriChiudi = (id: string) =>
+    setAperte((prima) => (prima.includes(id) ? prima.filter((x) => x !== id) : [...prima, id]))
+
   if (trekking.length === 0) {
     if (ricerca.trim() !== '') {
       return <p className="mt-8 text-center text-testo-tenue">Nessun trekking con questo nome.</p>
@@ -79,50 +86,77 @@ export function Elenco({
         </thead>
         <tbody>
           {trekking.map((t) => (
-            <tr key={t.id} className="border-b border-bordo last:border-0">
-              <td className="py-1 pl-1">
-                <button
-                  type="button"
-                  className="grid size-11 place-items-center rounded-full hover:bg-fondo"
-                  aria-pressed={t.completato}
-                  aria-label={t.completato ? `Togli il completato a ${t.nome}` : `Segna ${t.nome} come completato`}
-                  onClick={() => onCompletato(t)}
-                >
-                  <span
-                    className={`grid size-[22px] place-items-center rounded-full border ${
-                      t.completato ? 'border-montagna-scura bg-montagna-scura text-panna' : 'border-bordo'
-                    }`}
+            <Fragment key={t.id}>
+              <tr className="border-b border-bordo last:border-0">
+                <td className="py-1 pl-1">
+                  <button
+                    type="button"
+                    className="grid size-11 place-items-center rounded-full hover:bg-fondo"
+                    aria-pressed={t.completato}
+                    aria-label={t.completato ? `Togli il completato a ${t.nome}` : `Segna ${t.nome} come completato`}
+                    onClick={() => onCompletato(t)}
                   >
-                    {t.completato && <Check className="size-[15px]" aria-hidden="true" />}
+                    <span
+                      className={`grid size-[22px] place-items-center rounded-full border ${
+                        t.completato ? 'border-montagna-scura bg-montagna-scura text-panna' : 'border-bordo'
+                      }`}
+                    >
+                      {t.completato && <Check className="size-[15px]" aria-hidden="true" />}
+                    </span>
+                  </button>
+                </td>
+                <td className="px-3 py-2">
+                  <span className="flex items-center gap-1">
+                    {t.note && (
+                      <button
+                        type="button"
+                        className="-ml-1 grid size-6 shrink-0 place-items-center rounded text-testo-tenue hover:bg-fondo"
+                        aria-expanded={aperte.includes(t.id)}
+                        aria-label={aperte.includes(t.id) ? `Chiudi le note di ${t.nome}` : `Apri le note di ${t.nome}`}
+                        onClick={() => apriChiudi(t.id)}
+                      >
+                        {aperte.includes(t.id) ? (
+                          <ChevronDown className="size-[17px]" aria-hidden="true" />
+                        ) : (
+                          <ChevronRight className="size-[17px]" aria-hidden="true" />
+                        )}
+                      </button>
+                    )}
+                    <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
                   </span>
-                </button>
-              </td>
-              <td className="px-3 py-2">
-                <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
-                {t.link.length > 0 && <Link link={t.link} />}
-              </td>
-              <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{data.format(new Date(t.creato_il))}</td>
-              <td className="py-1 pr-1">
-                <div className="flex justify-end gap-0.5">
-                  <button
-                    type="button"
-                    className="grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
-                    aria-label={`Modifica ${t.nome}`}
-                    onClick={() => onRinomina(t)}
-                  >
-                    <Pencil className="size-[18px]" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className="grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo hover:text-pericolo"
-                    aria-label={`Elimina ${t.nome}`}
-                    onClick={() => onElimina(t)}
-                  >
-                    <Trash2 className="size-[18px]" aria-hidden="true" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+                  {t.link.length > 0 && <Link link={t.link} />}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">{data.format(new Date(t.creato_il))}</td>
+                <td className="py-1 pr-1">
+                  <div className="flex justify-end gap-0.5">
+                    <button
+                      type="button"
+                      className="grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
+                      aria-label={`Modifica ${t.nome}`}
+                      onClick={() => onRinomina(t)}
+                    >
+                      <Pencil className="size-[18px]" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className="grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo hover:text-pericolo"
+                      aria-label={`Elimina ${t.nome}`}
+                      onClick={() => onElimina(t)}
+                    >
+                      <Trash2 className="size-[18px]" aria-hidden="true" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {t.note && aperte.includes(t.id) && (
+                <tr className="border-b border-bordo last:border-0">
+                  <td />
+                  <td className="px-3 pt-0 pb-3" colSpan={3}>
+                    <Markdown testo={t.note} />
+                  </td>
+                </tr>
+              )}
+            </Fragment>
           ))}
         </tbody>
       </table>
