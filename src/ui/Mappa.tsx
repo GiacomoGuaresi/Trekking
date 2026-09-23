@@ -1,4 +1,4 @@
-import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
+import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet'
 import { useEffect, useMemo } from 'react'
 import { divIcon, type LatLngBoundsExpression } from 'leaflet'
 import { Pencil } from 'lucide-react'
@@ -30,19 +30,27 @@ const ICONA_CASA = divIcon({
 const CENTRO: [number, number] = [45.98, 9.87]
 const ZOOM = 9
 
+/** Quanto spazio lascia in alto la barra flottante di ricerca e filtri. */
+const SOTTO_LA_BARRA = 80
+
 /**
  * La mappa (docs/02-funzionalita.md): un puntino per ogni trekking con le
  * coordinate, con il popup dei dettagli e il pulsante per modificare. Chi non ha
  * il luogo resta nell'elenco ma non compare qui. Casa ha la sua icona, e si può
  * passare a OpenTopoMap per vedere curve di livello e sentieri.
+ *
+ * Riempie tutto il contenitore: sopra, in alto, galleggia la barra con ricerca
+ * e filtri, quindi i comandi di Leaflet stanno in basso a destra e inquadratura
+ * e popup lasciano libera la fascia in alto.
  */
 export function Mappa({ trekking, casa, onModifica }: Props) {
   const conLuogo = trekking.filter((t) => t.lat !== null && t.lon !== null)
 
   return (
-    <div className="h-[calc(100dvh-140px)] min-h-[320px] overflow-hidden rounded-[11px] border border-bordo">
-      <MapContainer center={CENTRO} zoom={ZOOM} scrollWheelZoom className="size-full">
-        <LayersControl position="topright">
+    <div className="size-full">
+      <MapContainer center={CENTRO} zoom={ZOOM} scrollWheelZoom zoomControl={false} className="size-full">
+        <ZoomControl position="bottomright" />
+        <LayersControl position="bottomright">
           <LayersControl.BaseLayer checked name="Mappa">
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -74,7 +82,7 @@ export function Mappa({ trekking, casa, onModifica }: Props) {
               fillOpacity: 1,
             }}
           >
-            <Popup>
+            <Popup autoPanPaddingTopLeft={[16, SOTTO_LA_BARRA]}>
               <Dettagli trekking={t} casa={casa} onModifica={onModifica} />
             </Popup>
           </CircleMarker>
@@ -102,7 +110,11 @@ function Inquadra({ trekking, casa }: { trekking: readonly Trekking[]; casa: Coo
 
   useEffect(() => {
     if (punti.length === 0) return
-    mappa.fitBounds(punti as LatLngBoundsExpression, { padding: [32, 32], maxZoom: 13 })
+    mappa.fitBounds(punti as LatLngBoundsExpression, {
+      paddingTopLeft: [32, SOTTO_LA_BARRA],
+      paddingBottomRight: [32, 32],
+      maxZoom: 13,
+    })
   }, [mappa, punti])
 
   return null

@@ -74,7 +74,7 @@ La posizione di **casa** è un punto fisso salvato nel database ([04](04-sicurez
 
 ## Mappa
 
-- **Pagina a sé**, con la **stessa ricerca e gli stessi filtri** dell'elenco.
+- **Pagina principale** dell'app: la mappa occupa tutta la pagina, con la **stessa ricerca e gli stessi filtri** dell'elenco in una barra flottante sopra la mappa.
 - Mappa base **OpenStreetMap**, con **OpenTopoMap** (curve di livello e sentieri) come alternativa selezionabile.
 - Un **puntino** per ogni trekking con le coordinate. Quelli senza luogo non compaiono sulla mappa, ma restano nell'elenco.
 - Toccando un puntino si apre un **popup con i dettagli**: nome, dislivello, durata, tempo di viaggio, distanza, link, note, con il pulsante per modificare.

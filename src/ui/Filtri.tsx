@@ -43,45 +43,54 @@ export function Filtri({ valori, onCambia, conDistanza }: Props) {
         )}
       </div>
       {aperto && (
-        <div
-          id={id}
-          className="mt-1 flex animate-entra flex-wrap gap-x-6 gap-y-3 rounded-[11px] border border-bordo bg-white p-3"
-        >
-          <Intervallo
-            etichetta="Dislivello (m)"
-            min={valori.dislivello.min}
-            max={valori.dislivello.max}
-            onCambia={(dislivello) => onCambia({ ...valori, dislivello })}
-          />
-          <Intervallo
-            etichetta="Durata (ore)"
-            passo={0.5}
-            min={valori.durata.min}
-            max={valori.durata.max}
-            onCambia={(durata) => onCambia({ ...valori, durata })}
-          />
-          {conDistanza && (
-            <Intervallo
-              etichetta="Distanza da casa (km)"
-              soloMassimo
-              min={valori.distanza.min}
-              max={valori.distanza.max}
-              onCambia={(distanza) => onCambia({ ...valori, distanza })}
-            />
-          )}
-          <Intervallo
-            etichetta="Viaggio (minuti)"
-            passo={5}
-            soloMassimo
-            min={valori.viaggio.min}
-            max={valori.viaggio.max}
-            onCambia={(viaggio) => onCambia({ ...valori, viaggio })}
-          />
-          <p className="m-0 w-full text-xs text-testo-tenue">
-            I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
-          </p>
+        <div id={id} className="mt-1 animate-entra rounded-[11px] border border-bordo bg-white p-3">
+          <PannelloFiltri valori={valori} onCambia={onCambia} conDistanza={conDistanza} />
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * I campi dei filtri, senza il pulsante che li apre: li usano sia l'elenco sia
+ * la barra flottante della mappa.
+ */
+export function PannelloFiltri({ valori, onCambia, conDistanza }: Props) {
+  return (
+    <div className="flex flex-wrap gap-x-6 gap-y-3">
+      <Intervallo
+        etichetta="Dislivello (m)"
+        min={valori.dislivello.min}
+        max={valori.dislivello.max}
+        onCambia={(dislivello) => onCambia({ ...valori, dislivello })}
+      />
+      <Intervallo
+        etichetta="Durata (ore)"
+        passo={0.5}
+        min={valori.durata.min}
+        max={valori.durata.max}
+        onCambia={(durata) => onCambia({ ...valori, durata })}
+      />
+      {conDistanza && (
+        <Intervallo
+          etichetta="Distanza da casa (km)"
+          soloMassimo
+          min={valori.distanza.min}
+          max={valori.distanza.max}
+          onCambia={(distanza) => onCambia({ ...valori, distanza })}
+        />
+      )}
+      <Intervallo
+        etichetta="Viaggio (minuti)"
+        passo={5}
+        soloMassimo
+        min={valori.viaggio.min}
+        max={valori.viaggio.max}
+        onCambia={(viaggio) => onCambia({ ...valori, viaggio })}
+      />
+      <p className="m-0 w-full text-xs text-testo-tenue">
+        I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
+      </p>
     </div>
   )
 }

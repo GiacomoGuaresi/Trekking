@@ -4,7 +4,7 @@
 
 Stessa struttura di Grocery e Projects, con un colore diverso:
 - **intestazione piena** nel colore dell'app, con ☰ a sinistra e **+** (inserimento rapido) a destra;
-- **menu laterale** a scomparsa, sempre aperto su schermi larghi: **Elenco**, **Mappa**, **Installa l'app**;
+- **menu laterale** a scomparsa, sempre aperto su schermi larghi: **Mappa**, **Elenco**, **Installa l'app**;
 - stesso font e stesse icone Lucide;
 - solo **italiano** e solo **tema chiaro**.
 
@@ -31,8 +31,8 @@ Stesso sistema delle altre app: disegno Lucide **`mountain-snow`** (montagna con
 
 | Schermata | Contenuto |
 |---|---|
-| **Elenco** (`#/`) | ricerca, filtri, tabella semplice ordinabile per colonna ([02](02-funzionalita.md#elenco)) |
-| **Mappa** (`#/mappa`) | stessa ricerca e stessi filtri, puntini, casa, popup con i dettagli |
+| **Mappa** (`#/`, pagina principale) | mappa a tutta pagina sotto l'intestazione; sopra galleggia una barra con ricerca e pulsante **Filtri** (pannello con "Mostra completati" e gli stessi filtri dell'elenco); zoom e scelta della mappa in basso a destra; puntini, casa, popup con i dettagli |
+| **Elenco** (`#/elenco`) | ricerca, filtri, tabella semplice ordinabile per colonna ([02](02-funzionalita.md#elenco)) |
 | **Inserimento / modifica** | modale con il form ([02](02-funzionalita.md#inserimento-rapido)) |
 | **Accesso** | solo passphrase, come le altre app |
 | **Popup dei percorsi mancanti** | all'apertura, se ci sono tempi di viaggio da calcolare |

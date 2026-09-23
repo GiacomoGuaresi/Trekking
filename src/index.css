@@ -81,3 +81,9 @@ textarea,
 select {
   font-size: 16px;
 }
+
+/* La mappa arriva al bordo di sotto: i comandi di Leaflet restano sopra la
+   barra di iPhone. */
+.leaflet-bottom {
+  margin-bottom: env(safe-area-inset-bottom);
+}

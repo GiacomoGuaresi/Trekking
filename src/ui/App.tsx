@@ -5,6 +5,7 @@ import { FILTRI_VUOTI, type Filtri as ValoriFiltri, filtra, quantiFiltri } from 
 import { ORDINAMENTO_INIZIALE, ordina, tocca, type Ordinamento } from '../dominio/ordinamento'
 import { cerca } from '../dominio/ricerca'
 import type { Trekking } from '../dominio/tipi'
+import { BarraMappa } from './BarraMappa'
 import { Conferma } from './Conferma'
 import { Elenco } from './Elenco'
 import { Installa } from './Installa'
@@ -19,8 +20,8 @@ import { indirizzi, useRotta } from './rotta'
 import { installa, useInstallazione } from './installazione'
 import { useTrekking } from './useTrekking'
 
-// Leaflet pesa: si carica solo quando si apre la Mappa, così l'Elenco resta
-// leggero anche con la rete del telefono in montagna.
+// Leaflet pesa: si carica a parte, così l'intestazione compare subito anche
+// con la rete del telefono in montagna, e chi apre l'Elenco non lo scarica.
 const Mappa = lazy(async () => ({ default: (await import('./Mappa')).Mappa }))
 
 /**
@@ -31,6 +32,8 @@ const Mappa = lazy(async () => ({ default: (await import('./Mappa')).Mappa }))
  */
 export function App() {
   const rotta = useRotta()
+  /** La Mappa è la pagina principale e prende tutto lo spazio sotto l'intestazione. */
+  const suMappa = rotta === 'mappa'
   const [menuAperto, setMenuAperto] = useState(false)
   const [nuovoAperto, setNuovoAperto] = useState(false)
   /** Il trekking che si sta modificando, e quello che si sta eliminando. */
@@ -81,7 +84,9 @@ export function App() {
   }
 
   return (
-    <div className="sfondo-montagna flex min-h-dvh flex-col lg:grid lg:grid-cols-[256px_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
+    <div
+      className={`sfondo-montagna flex flex-col lg:grid ${suMappa ? 'h-dvh' : 'min-h-dvh'} lg:grid-cols-[256px_minmax(0,1fr)] lg:grid-rows-[auto_1fr]`}
+    >
       <header className="sticky top-0 z-1 flex items-center gap-1 border-b border-montagna-scura bg-montagna pt-[env(safe-area-inset-top)] pr-2 pl-1 text-panna lg:col-span-full lg:min-h-11 lg:pl-3">
         <button
           className="grid size-11 place-items-center rounded-[11px] active:bg-montagna-scura lg:hidden"
@@ -125,10 +130,16 @@ export function App() {
               }
         }
       />
-      <main className="mx-auto w-full max-w-[1200px] flex-1 p-3 pb-[calc(12px+env(safe-area-inset-bottom))] lg:col-start-2">
+      <main
+        className={
+          suMappa
+            ? 'relative min-h-0 flex-1 lg:col-start-2'
+            : 'mx-auto w-full max-w-[1200px] flex-1 p-3 pb-[calc(12px+env(safe-area-inset-bottom))] lg:col-start-2'
+        }
+      >
         {rotta !== 'installa' && stato.fase === 'caricamento' && <p className="mt-8 text-center text-testo-tenue">Carico…</p>}
         {rotta !== 'installa' && stato.fase === 'errore' && (
-          <p className="mt-8 text-center text-testo-tenue" role="alert">
+          <p className="mt-8 px-3 text-center text-testo-tenue" role="alert">
             {stato.messaggio}{' '}
             <button type="button" className="font-semibold text-montagna-scura underline" onClick={() => void ricarica()}>
               Riprova
@@ -136,7 +147,24 @@ export function App() {
           </p>
         )}
         {rotta === 'installa' && <Installa stato={statoInstallazione} />}
-        {rotta !== 'installa' && stato.fase === 'pronto' && (
+        {suMappa && stato.fase === 'pronto' && (
+          <Suspense fallback={<p className="mt-8 text-center text-testo-tenue">Carico la mappa…</p>}>
+            <div className="absolute inset-0">
+              <Mappa trekking={daMostrare(stato.trekking)} casa={casa} onModifica={setDaModificare} />
+            </div>
+            <BarraMappa
+              ricerca={ricerca}
+              onRicerca={setRicerca}
+              filtri={filtri}
+              onFiltri={setFiltri}
+              conDistanza={casa !== null}
+              mostraCompletati={mostraCompletati}
+              quantiCompletati={quantiCompletati(stato.trekking)}
+              onMostraCompletati={setMostraCompletati}
+            />
+          </Suspense>
+        )}
+        {rotta === 'elenco' && stato.fase === 'pronto' && (
           <>
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <Ricerca testo={ricerca} onCambia={setRicerca} />
@@ -154,28 +182,22 @@ export function App() {
                 {erroreCompletato}
               </p>
             )}
-            {rotta === 'mappa' ? (
-              <Suspense fallback={<p className="mt-8 text-center text-testo-tenue">Carico la mappa…</p>}>
-                <Mappa trekking={daMostrare(stato.trekking)} casa={casa} onModifica={setDaModificare} />
-              </Suspense>
-            ) : (
-              <Elenco
-                trekking={ordina(daMostrare(stato.trekking), ordinamento, casa)}
-                ordinamento={ordinamento}
-                onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
-                ricerca={ricerca}
-                conFiltri={quantiFiltri(filtri) > 0}
-                casa={casa}
-                onNuovo={() => setNuovoAperto(true)}
-                nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
-                onCompletato={(t) => void cambiaCompletato(t)}
-                onRinomina={setDaModificare}
-                onElimina={(t) => {
-                  setErroreEliminazione(null)
-                  setDaEliminare(t)
-                }}
-              />
-            )}
+            <Elenco
+              trekking={ordina(daMostrare(stato.trekking), ordinamento, casa)}
+              ordinamento={ordinamento}
+              onOrdina={(colonna) => setOrdinamento((prima) => tocca(prima, colonna))}
+              ricerca={ricerca}
+              conFiltri={quantiFiltri(filtri) > 0}
+              casa={casa}
+              onNuovo={() => setNuovoAperto(true)}
+              nascosti={mostraCompletati ? 0 : quantiCompletati(stato.trekking)}
+              onCompletato={(t) => void cambiaCompletato(t)}
+              onRinomina={setDaModificare}
+              onElimina={(t) => {
+                setErroreEliminazione(null)
+                setDaEliminare(t)
+              }}
+            />
           </>
         )}
       </main>

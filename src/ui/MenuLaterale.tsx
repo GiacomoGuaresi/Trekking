@@ -6,8 +6,8 @@ import { indirizzi, type Rotta } from './rotta'
 const SEMPRE_APERTO = '(min-width: 1024px)'
 
 const sezioni: { rotta: Rotta; etichetta: string; icona: LucideIcon }[] = [
-  { rotta: 'elenco', etichetta: 'Elenco', icona: LayoutList },
   { rotta: 'mappa', etichetta: 'Mappa', icona: Map },
+  { rotta: 'elenco', etichetta: 'Elenco', icona: LayoutList },
 ]
 
 interface Props {

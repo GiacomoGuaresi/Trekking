@@ -163,6 +163,13 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [ ] Screenshot nel README: lo fa Giacomo dall'app online
   - [ ] Ultimo giro della checklist quando ci sarà la chiave di openrouteservice
 
+## Fase 5 · Ritocchi dopo l'uso
+
+- [x] **24 · Mappa a tutta pagina**: la mappa è la pagina principale (`#/`, l'elenco passa a `#/elenco`) e prende tutto lo spazio sotto l'intestazione
+  - [x] Ricerca e pulsante Filtri in una barra flottante sopra la mappa; il pannello dei filtri, con "Mostra completati", si apre sotto la barra (`BarraMappa.tsx`, `PannelloFiltri` in `Filtri.tsx`)
+  - [x] Zoom e scelta della mappa in basso a destra; inquadratura e popup lasciano libera la fascia della barra (`Mappa.tsx`)
+  - [x] Mappa prima dell'Elenco nel menu; i vecchi link `#/mappa` portano ancora alla mappa
+
 ## Più avanti, se servirà
 - [ ] Posizione GPS: distanza dalla posizione attuale e puntino sulla mappa
 - [ ] Google Places al posto di Photon

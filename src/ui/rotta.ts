@@ -1,24 +1,24 @@
 import { useSyncExternalStore } from 'react'
 
 /**
- * Le pagine, raggiunte con l'hash (docs/03-architettura.md): `#/` è l'Elenco,
- * `#/mappa` è la Mappa, `#/installa` sono le istruzioni per installare l'app.
+ * Le pagine, raggiunte con l'hash (docs/03-architettura.md): `#/` è la Mappa,
+ * la pagina principale, `#/elenco` è l'Elenco, `#/installa` sono le istruzioni per installare l'app.
  * Con l'hash GitHub Pages non vede mai le rotte, quindi non serve un 404.html.
  */
 export type Rotta = 'elenco' | 'mappa' | 'installa'
 
 export const indirizzi: Record<Rotta, string> = {
-  elenco: '#/',
-  mappa: '#/mappa',
+  mappa: '#/',
+  elenco: '#/elenco',
   installa: '#/installa',
 }
 
-/** Qualunque hash sconosciuto porta all'Elenco. */
+/** Qualunque hash sconosciuto porta alla Mappa, anche il vecchio `#/mappa`. */
 function leggi(): Rotta {
   const hash = window.location.hash.replace(/^#\/?/, '')
-  if (hash === 'mappa') return 'mappa'
+  if (hash === 'elenco') return 'elenco'
   if (hash === 'installa') return 'installa'
-  return 'elenco'
+  return 'mappa'
 }
 
 function iscriviti(avvisa: () => void) {
@@ -27,5 +27,5 @@ function iscriviti(avvisa: () => void) {
 }
 
 export function useRotta(): Rotta {
-  return useSyncExternalStore(iscriviti, leggi, () => 'elenco' as Rotta)
+  return useSyncExternalStore(iscriviti, leggi, () => 'mappa' as Rotta)
 }

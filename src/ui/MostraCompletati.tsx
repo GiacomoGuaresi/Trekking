@@ -14,7 +14,7 @@ export function MostraCompletati({ acceso, quanti, onCambia }: Props) {
   if (quanti === 0) return null
 
   return (
-    <label className="mb-2 flex min-h-11 w-fit cursor-pointer items-center gap-2 rounded-[11px] px-2 text-testo-tenue hover:bg-white">
+    <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2 rounded-[11px] px-2 text-testo-tenue hover:bg-white">
       <input
         type="checkbox"
         className="size-[18px] accent-montagna"
