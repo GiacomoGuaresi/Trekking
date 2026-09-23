@@ -87,7 +87,12 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Colonna Durata nell'elenco, scritta "3 h 30" e ordinabile, con chi non ce l'ha in fondo (`Elenco.tsx`, `ordinamento.ts`)
   - [x] Durata minima e massima nel pannello dei filtri, insieme al dislivello (`Filtri.tsx`, `src/dominio/filtri.ts`)
   - [x] Test della durata, del filtro doppio e dell'ordinamento (`durata.test.ts`, `filtri.test.ts`, `ordinamento.test.ts`)
-- [ ] **11 · Luogo per coordinate**: interruttore Nome / Coordinate con la sola parte Coordinate, `lat` e `lon` nel database
+- [x] **11 · Luogo per coordinate**: interruttore Nome / Coordinate con la sola parte Coordinate, `lat` e `lon` nel database
+  - [x] `008_luogo.sql` applicato in produzione il 2026-09-23: `lat` e `lon`, sempre insieme e dentro i limiti del mondo
+  - [x] Campo "Luogo (coordinate)" nel form, che legge quello che si copia da Google Maps (`ModaleTrekking.tsx`, `src/dominio/coordinate.ts`)
+  - [x] Coordinate sotto il nome nell'elenco, che aprono il punto su OpenStreetMap finché non c'è la mappa dell'app (`Elenco.tsx`)
+  - [x] Test delle coordinate incollate, comprese quelle fuori dal mondo (`src/dominio/coordinate.test.ts`)
+  - Nota: l'interruttore Nome / Coordinate non c'è ancora: con la sola parte Coordinate sarebbe un pezzo a metà. Arriva allo step 12 insieme ai suggerimenti di Photon, con `luogo_nome`
 - [ ] **12 · Luogo per nome**: suggerimenti di Photon, conversione in coordinate, primo risultato se non se ne sceglie uno
 - [ ] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"
 - [ ] **14 · Tempo di viaggio a mano**: campo, filtro "tempo massimo"

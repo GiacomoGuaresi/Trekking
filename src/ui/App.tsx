@@ -164,6 +164,8 @@ export function App() {
             note: daModificare.note,
             dislivello: daModificare.dislivello,
             durata_ore: daModificare.durata_ore,
+            lat: daModificare.lat,
+            lon: daModificare.lon,
           }}
           esistenti={esistenti}
           escludi={daModificare.id}

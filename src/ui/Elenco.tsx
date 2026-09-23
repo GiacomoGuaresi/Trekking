@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
-import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronRight, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronRight, ExternalLink, MapPin, Pencil, Trash2 } from 'lucide-react'
+import { mappaEsterna } from '../dominio/coordinate'
 import { formattaDurata } from '../dominio/durata'
 import { etichettaLink, perApertura } from '../dominio/link'
 import type { Colonna, Ordinamento } from '../dominio/ordinamento'
@@ -27,7 +28,8 @@ const data = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', 
 
 /**
  * L'elenco dei trekking (docs/09-interfaccia.md): il segno del completato, il
- * nome con i suoi link, il dislivello, la durata, la data di aggiunta e i pulsanti per modificare o
+ * nome con il suo luogo e i suoi link, il dislivello, la durata, la data di
+ * aggiunta e i pulsanti per modificare o
  * eliminare. Chi ha delle note ha anche una freccia che le apre sotto la riga.
  * Toccando un'intestazione si ordina per quella colonna, un secondo tocco
  * inverte. Le altre colonne e i filtri arrivano con gli step successivi.
@@ -145,7 +147,24 @@ export function Elenco({
                     )}
                     <span className={t.completato ? 'text-testo-tenue line-through' : undefined}>{t.nome}</span>
                   </span>
-                  {t.link.length > 0 && <Link link={t.link} />}
+                  {(t.lat !== null || t.link.length > 0) && (
+                    <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {t.lat !== null && t.lon !== null && (
+                        <a
+                          href={mappaEsterna({ lat: t.lat, lon: t.lon })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-montagna-scura underline"
+                        >
+                          <MapPin className="size-[13px]" aria-hidden="true" />
+                          {t.lat.toFixed(4)}, {t.lon.toFixed(4)}
+                        </a>
+                      )}
+                      {t.link.map((indirizzo) => (
+                        <Link key={indirizzo} indirizzo={indirizzo} />
+                      ))}
+                    </span>
+                  )}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-testo-tenue">
                   {t.dislivello === null ? '—' : `${t.dislivello} m`}
@@ -219,33 +238,24 @@ function Intestazione({ colonna, etichetta, ordinamento, onOrdina, stretta = fal
   )
 }
 
-/** I link del trekking, apribili dall'elenco (docs/02-funzionalita.md). */
-function Link({ link }: { link: readonly string[] }) {
+/** Un link del trekking, apribile dall'elenco (docs/02-funzionalita.md). */
+function Link({ indirizzo }: { indirizzo: string }) {
+  const apribile = perApertura(indirizzo)
+  const etichetta = etichettaLink(indirizzo)
+
+  if (apribile === null) {
+    return <span className="text-xs text-testo-tenue">{etichetta}</span>
+  }
+
   return (
-    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
-      {link.map((indirizzo) => {
-        const apribile = perApertura(indirizzo)
-        const etichetta = etichettaLink(indirizzo)
-        if (apribile === null) {
-          return (
-            <span key={indirizzo} className="text-xs text-testo-tenue">
-              {etichetta}
-            </span>
-          )
-        }
-        return (
-          <a
-            key={indirizzo}
-            href={apribile}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-montagna-scura underline"
-          >
-            <ExternalLink className="size-[13px]" aria-hidden="true" />
-            {etichetta}
-          </a>
-        )
-      })}
-    </span>
+    <a
+      href={apribile}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-xs text-montagna-scura underline"
+    >
+      <ExternalLink className="size-[13px]" aria-hidden="true" />
+      {etichetta}
+    </a>
   )
 }
