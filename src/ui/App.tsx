@@ -1,10 +1,12 @@
-import { Suspense, lazy, useCallback, useState } from 'react'
-import { Menu, MountainSnow, Plus } from 'lucide-react'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Menu, MountainSnow, Plus, X } from 'lucide-react'
+import { percorsi } from '../dati'
 import { quantiCompletati, visibili } from '../dominio/elenco'
 import { FILTRI_VUOTI, type Filtri as ValoriFiltri, filtra, quantiFiltri } from '../dominio/filtri'
 import { ORDINAMENTO_INIZIALE, ordina, tocca, type Ordinamento } from '../dominio/ordinamento'
+import { mancanti } from '../dominio/percorsi'
 import { cerca } from '../dominio/ricerca'
-import type { Trekking } from '../dominio/tipi'
+import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { BarraMappa } from './BarraMappa'
 import { Conferma } from './Conferma'
 import { ModaleDettagli } from './ModaleDettagli'
@@ -54,9 +56,31 @@ export function App() {
   const [ordinamento, setOrdinamento] = useState<Ordinamento>(ORDINAMENTO_INIZIALE)
   const [filtri, setFiltri] = useState<ValoriFiltri>(FILTRI_VUOTI)
   const chiudiMenu = useCallback(() => setMenuAperto(false), [])
-  const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina } = useTrekking()
+  const { stato, ricarica, crea, aggiorna, segnaCompletato, elimina, calcolaViaggi, luoghiTolti, chiudiLuoghiTolti } =
+    useTrekking()
   const casa = useCasa()
   const statoInstallazione = useInstallazione()
+  /** Quanti tempi di viaggio mancano all'apertura: se più di zero compare il popup. */
+  const [daRicalcolare, setDaRicalcolare] = useState(0)
+  const ricalcoloChiesto = useRef(false)
+
+  // Il popup "Ricalcola percorsi mancanti" (docs/02-funzionalita.md): una volta
+  // per apertura, appena ci sono l'elenco e casa, solo se il calcolo è acceso.
+  useEffect(() => {
+    if (ricalcoloChiesto.current || stato.fase !== 'pronto' || !casa || !percorsi()) return
+    ricalcoloChiesto.current = true
+    setDaRicalcolare(mancanti(stato.trekking).length)
+  }, [stato, casa])
+
+  /**
+   * Dopo ogni salvataggio si calcola il tempo del trekking appena salvato e di
+   * quelli che ancora mancano, in sottofondo: il form si chiude subito.
+   */
+  const conViaggi = (salva: (campi: CampiTrekking) => Promise<Trekking>) => async (campi: CampiTrekking) => {
+    const salvato = await salva(campi)
+    if (casa) void calcolaViaggi(casa)
+    return salvato
+  }
 
   /** Quelli da mostrare, uguali per l'elenco e per la mappa (docs/02-funzionalita.md). */
   const daMostrare = (tutti: readonly Trekking[]) =>
@@ -142,8 +166,10 @@ export function App() {
       />
       <main
         className={
+          // `isolate`: i livelli di Leaflet (z-index fino a 1000) e la barra
+          // flottante restano chiusi qui dentro, sotto il menu e l'intestazione.
           suMappa
-            ? 'relative min-h-0 flex-1 lg:col-start-2'
+            ? 'relative isolate min-h-0 flex-1 lg:col-start-2'
             : 'mx-auto w-full max-w-[1200px] flex-1 p-3 pb-[calc(12px+env(safe-area-inset-bottom))] lg:col-start-2'
         }
       >
@@ -216,7 +242,7 @@ export function App() {
         <ModaleTrekking
           titolo="Nuovo trekking"
           esistenti={esistenti}
-          onSalva={crea}
+          onSalva={conViaggi(crea)}
           onChiudi={() => setNuovoAperto(false)}
         />
       )}
@@ -246,7 +272,7 @@ export function App() {
           }}
           esistenti={esistenti}
           escludi={daModificare.id}
-          onSalva={(campi) => aggiorna(daModificare.id, campi)}
+          onSalva={conViaggi((campi) => aggiorna(daModificare.id, campi))}
           onChiudi={() => setDaModificare(null)}
           onElimina={() => {
             setErroreEliminazione(null)
@@ -254,6 +280,37 @@ export function App() {
             setDaModificare(null)
           }}
         />
+      )}
+      {daRicalcolare > 0 && (
+        <Conferma
+          titolo="Percorsi mancanti"
+          conferma="Ricalcola percorsi mancanti"
+          onConferma={() => {
+            setDaRicalcolare(0)
+            if (casa) void calcolaViaggi(casa)
+          }}
+          onAnnulla={() => setDaRicalcolare(0)}
+        >
+          <p className="m-0">
+            {daRicalcolare === 1
+              ? 'A un trekking manca il tempo di viaggio da casa.'
+              : `A ${daRicalcolare} trekking manca il tempo di viaggio da casa.`}
+          </p>
+        </Conferma>
+      )}
+      {luoghiTolti.length > 0 && (
+        <div
+          className="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-10 mx-auto flex max-w-md items-start gap-2 rounded-[11px] bg-montagna-scura p-3 text-sm text-panna shadow-lg"
+          role="status"
+        >
+          <p className="m-0 flex-1">
+            Nessun percorso in auto per <strong>{luoghiTolti.join(', ')}</strong>: ho tolto il luogo, si può
+            reinserire in modifica.
+          </p>
+          <button type="button" className="grid size-7 shrink-0 place-items-center rounded-lg" aria-label="Chiudi" onClick={chiudiLuoghiTolti}>
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
       )}
       {daEliminare && (
         <Conferma

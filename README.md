@@ -2,16 +2,33 @@
 
 Piccolo database dei trekking da fare: si salvano al volo, con i dettagli disponibili, quando se ne trova uno interessante sui social, su un sito o su Komoot, e si sceglie dove andare dall'elenco o dalla mappa. Terza app di casa dopo **Grocery** e **Projects**. Si usa da smartphone e da PC.
 
-> **Stato: in uso.** Mancano solo il tempo di viaggio automatico (step 15 e 16 della [roadmap](docs/06-roadmap.md), in attesa della chiave di openrouteservice) e il giro di prove a mano. Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
+> **Stato: in uso.** Il tempo di viaggio automatico (step 15 e 16 della [roadmap](docs/06-roadmap.md)) è scritto e si accende con la chiave di openrouteservice; mancano la chiave e il giro di prove a mano. Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
 
 ## Cosa fa
 
 - **Inserimento rapido**: nome (unico obbligatorio), luogo, link, dislivello, durata, tempo di viaggio, note; avviso se il nome esiste già
 - **Luogo** per nome, con i suggerimenti di Photon, oppure per coordinate
-- **Tempo di viaggio in auto da casa** scritto a mano (il calcolo con openrouteservice arriva allo step 15); **distanza in linea d'aria** da casa, calcolata nel browser
+- **Tempo di viaggio in auto da casa** calcolato con openrouteservice al salvataggio, oppure scritto a mano; i mancanti si ricalcolano dal popup all'apertura. **Distanza in linea d'aria** da casa, calcolata nel browser
 - **Elenco** con ricerca per nome e filtri su dislivello, durata, distanza e tempo di viaggio; i completati si nascondono
 - **Mappa** con un puntino per trekking, casa, le tessere di OpenStreetMap o OpenTopoMap e i dettagli in un popup; stessa ricerca e stessi filtri dell'elenco
 - **Installabile** sulla schermata Home, come Grocery e Projects
+
+## Per iniziare
+
+Serve Node 22.12 o più recente (Vite 8 e Vitest 5 con Node 18 non partono); la CI usa Node 24, indicato in [`.nvmrc`](.nvmrc).
+
+```sh
+nvm use                      # o `nvm install` la prima volta
+cp .env.example .env.local   # e riempi le variabili (docs/05)
+npm install
+npm run dev                  # http://localhost:5173/Trekking/
+npm test
+npm run build
+```
+
+Script di supporto: `npm run icone` rigenera le icone della PWA da `public/icona.svg`, `npm run sfondo` rigenera lo sfondo doodle. Il risultato di entrambi è versionato.
+
+A ogni push su `main` il workflow [`pubblica.yml`](.github/workflows/pubblica.yml) esegue i test e pubblica su GitHub Pages.
 
 ## In breve
 

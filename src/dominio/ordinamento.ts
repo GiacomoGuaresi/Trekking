@@ -1,8 +1,8 @@
 /**
  * L'ordinamento dell'elenco (docs/02-funzionalita.md): si tocca l'intestazione
  * di una colonna per ordinare, un secondo tocco inverte. Le colonne su cui si
- * può ordinare arrivano con gli step che le aggiungono; l'ordine di default
- * diventerà il tempo di viaggio crescente allo step 15.
+ * può ordinare arrivano con gli step che le aggiungono. All'apertura i più
+ * vicini in auto stanno in cima.
  */
 
 import type { Coordinate } from './coordinate'
@@ -17,8 +17,8 @@ export interface Ordinamento {
   verso: Verso
 }
 
-/** All'apertura: i più recenti in cima. */
-export const ORDINAMENTO_INIZIALE: Ordinamento = { colonna: 'creato_il', verso: 'decrescente' }
+/** All'apertura: il tempo di viaggio crescente, chi non ce l'ha in fondo (docs/02-funzionalita.md). */
+export const ORDINAMENTO_INIZIALE: Ordinamento = { colonna: 'viaggio_minuti', verso: 'crescente' }
 
 /** Il verso con cui si parte quando si tocca una colonna nuova: le date dalla più recente, il resto dal più piccolo. */
 export function versoIniziale(colonna: Colonna): Verso {

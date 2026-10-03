@@ -103,7 +103,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - Nota: Photon accetta solo `lang` default, de, en e fr; con "default" i nomi tornano già in italiano dove OpenStreetMap li ha
 - [x] **13 · Casa e distanza**: tabella `impostazioni` con le coordinate di casa inserite a mano, distanza in linea d'aria nell'elenco, filtro "distanza massima"
   - [x] `010_impostazioni.sql` applicato in produzione il 2026-09-23: tabella di una riga sola, vuota, in sola lettura per `authenticated`
-  - [ ] Coordinate di casa inserite a mano dal SQL Editor: le fa Giacomo, non vanno in nessun file ([04](04-sicurezza.md))
+  - [x] Coordinate di casa inserite a mano dal SQL Editor il 2026-10-03: non stanno in nessun file ([04](04-sicurezza.md))
   - [x] Distanza in linea d'aria con l'emisenoverso, calcolata nel browser (`src/dominio/distanza.ts`)
   - [x] Colonna "Da casa" nell'elenco, ordinabile, che compare solo quando la posizione di casa c'è (`Elenco.tsx`, `useCasa.ts`)
   - [x] Filtro "Distanza da casa (km)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
@@ -117,7 +117,20 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Filtro "Viaggio (minuti)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
   - [x] Test della lettura, del formato e di quando il tempo resta manuale (`src/dominio/viaggio.test.ts`)
 - [ ] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
+  - [x] Calcolo dietro un'interfaccia, con openrouteservice come prima implementazione e `radiuses: [-1, -1]` (`src/dati/percorsi.ts`); senza `VITE_OPENROUTESERVICE_KEY` il calcolo è spento e il tempo resta solo a mano
+  - [x] Lettura delle risposte: minuti, percorso impossibile (2004, 2009, 2010), servizio irraggiungibile (`src/dominio/percorsi.ts`)
+  - [x] Calcolo in sottofondo dopo ogni salvataggio; il tempo si scrive solo se la riga lo aspetta ancora, così uno scritto a mano nel frattempo non si perde (`salvaViaggio` in `src/dati/trekking.ts`, `useTrekking.ts`)
+  - [x] Ordinamento di default per tempo di viaggio crescente (`ORDINAMENTO_INIZIALE`)
+  - [x] Attribuzione di openrouteservice nei dettagli, quando il tempo è calcolato (`ModaleDettagli.tsx`)
+  - [x] `VITE_OPENROUTESERVICE_KEY` in `.env.example` e nel workflow, con un avviso se manca
+  - [ ] Chiave creata e messa in `.env.local` e nelle variabili del repository GitHub: la fa Giacomo
+  - [ ] Provato online: un trekking nuovo con luogo riceve il tempo, uno scritto a mano resta
 - [ ] **16 · Tempi mancanti**: recupero dei mancanti a ogni salvataggio, popup "Ricalcola percorsi mancanti" all'apertura, luogo tolto quando il percorso è impossibile
+  - [x] A ogni salvataggio si calcolano anche gli altri mancanti, uno alla volta; ci si ferma al primo "irraggiungibile" (`calcolaViaggi` in `useTrekking.ts`)
+  - [x] Popup "Ricalcola percorsi mancanti" con il numero, una volta per apertura (`App.tsx`)
+  - [x] Percorso impossibile: luogo tolto e avviso in basso (`togliLuogo` in `src/dati/trekking.ts`, `App.tsx`)
+  - [x] Test di chi va calcolato e della lettura delle risposte (`src/dominio/percorsi.test.ts`)
+  - [ ] Provato online con la chiave: popup all'apertura e un luogo irraggiungibile (per esempio New York, `40.7, -74.0`: con il raggio illimitato un punto in mare si aggancia comunque a una strada, anche col traghetto)
 
 ## Fase 3 · Mappa
 

@@ -2,8 +2,8 @@
 # URL, chiave publishable ed email dell'account arrivano dalle variabili del
 # repository (Settings → Secrets and variables → Actions → Variables), con gli
 # stessi valori di produzione di Grocery: finiscono comunque nel bundle
-# pubblico, quindi non sono segreti. La chiave di openrouteservice arriva con
-# lo step che la usa.
+# pubblico, quindi non sono segreti. Lo stesso vale per la chiave di
+# openrouteservice: senza, l'app funziona col solo tempo di viaggio a mano.
 
 name: Pubblica
 
@@ -29,6 +29,7 @@ jobs:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
       VITE_SUPABASE_EMAIL: ${{ vars.VITE_SUPABASE_EMAIL }}
+      VITE_OPENROUTESERVICE_KEY: ${{ vars.VITE_OPENROUTESERVICE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,6 +43,7 @@ jobs:
           for v in VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY VITE_SUPABASE_EMAIL; do
             [ -n "${!v}" ] || { echo "::error::Manca la variabile $v"; exit 1; }
           done
+          [ -n "$VITE_OPENROUTESERVICE_KEY" ] || echo "::warning::Manca VITE_OPENROUTESERVICE_KEY: il tempo di viaggio resta solo a mano"
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

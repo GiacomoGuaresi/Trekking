@@ -22,8 +22,13 @@ describe('ordina', () => {
     expect(ordina(elenco, { colonna: 'nome', verso: 'decrescente' }).map((t) => t.id)).toEqual(['1', '2', '3'])
   })
 
-  it('di default i più recenti in cima', () => {
-    expect(ordina(elenco, ORDINAMENTO_INIZIALE).map((t) => t.id)).toEqual(['2', '3', '1'])
+  it('di default i più vicini in auto in cima, chi non ha il tempo in fondo', () => {
+    const conViaggio = [
+      esempio({ id: 'a', nome: 'A', viaggio_minuti: 90 }),
+      esempio({ id: 'b', nome: 'B' }),
+      esempio({ id: 'c', nome: 'C', viaggio_minuti: 30 }),
+    ]
+    expect(ordina(conViaggio, ORDINAMENTO_INIZIALE).map((t) => t.id)).toEqual(['c', 'a', 'b'])
   })
 
   it('non tocca l’elenco di partenza', () => {

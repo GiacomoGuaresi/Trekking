@@ -6,11 +6,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { AccessoSupabase, type Accesso } from './accesso'
 import { ImpostazioniSupabase } from './impostazioni'
 import { PhotonLuoghi, type RicercaLuoghi } from './luoghi'
+import { OpenRouteService, type CalcoloPercorsi } from './percorsi'
 import { TrekkingSupabase } from './trekking'
 
 export type { Accesso, EsitoAccesso } from './accesso'
 export type { ImpostazioniSupabase } from './impostazioni'
 export type { RicercaLuoghi } from './luoghi'
+export type { CalcoloPercorsi } from './percorsi'
 export type { TrekkingSupabase } from './trekking'
 
 let connessione: { accesso: Accesso; trekking: TrekkingSupabase; impostazioni: ImpostazioniSupabase } | null = null
@@ -64,4 +66,15 @@ const ricercaLuoghi = new PhotonLuoghi()
 /** La ricerca dei luoghi per nome: Photon, senza chiave e senza sessione. */
 export function luoghi(): RicercaLuoghi {
   return ricercaLuoghi
+}
+
+const chiavePercorsi = import.meta.env.VITE_OPENROUTESERVICE_KEY
+const calcoloPercorsi = chiavePercorsi ? new OpenRouteService(chiavePercorsi) : null
+
+/**
+ * Il tempo di viaggio automatico: openrouteservice, se la chiave c'è. Senza
+ * chiave è `null` e il tempo si scrive solo a mano, come prima dello step 15.
+ */
+export function percorsi(): CalcoloPercorsi | null {
+  return calcoloPercorsi
 }

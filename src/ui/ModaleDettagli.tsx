@@ -142,6 +142,15 @@ export function ModaleDettagli({ trekking: t, casa, onModifica, onCompletato, on
         )}
 
         <p className="m-0 text-xs text-testo-tenue">Aggiunto il {data.format(new Date(t.creato_il))}</p>
+        {t.viaggio_minuti !== null && !t.viaggio_manuale && (
+          <p className="m-0 text-xs text-testo-tenue">
+            Tempo di viaggio calcolato con{' '}
+            <a href="https://openrouteservice.org" target="_blank" rel="noopener noreferrer" className="underline">
+              openrouteservice.org
+            </a>{' '}
+            by HeiGIT, dati © OpenStreetMap
+          </p>
+        )}
         {errore && (
           <p className="m-0 text-xs text-pericolo" role="alert">
             {errore}
