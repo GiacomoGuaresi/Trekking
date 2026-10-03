@@ -1,7 +1,7 @@
-import { SlidersHorizontal, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { FILTRI_VUOTI, type Filtri as Valori, quantiFiltri } from '../dominio/filtri'
-import { PannelloFiltri } from './Filtri'
+import { PannelloFiltri, PulsanteFiltri } from './Filtri'
 import { MostraCompletati } from './MostraCompletati'
 import { Ricerca } from './Ricerca'
 
@@ -51,24 +51,7 @@ export function BarraMappa({
     <div className="pointer-events-none absolute inset-x-0 top-0 z-[1001] flex flex-col gap-2 p-2 sm:max-w-[560px]">
       <div className="pointer-events-auto flex items-center gap-1.5 rounded-[14px] border border-bordo bg-white/95 p-1.5 shadow-[0_2px_10px_rgb(37_50_62/0.18)] backdrop-blur-sm">
         <Ricerca testo={ricerca} onCambia={onRicerca} />
-        <button
-          type="button"
-          className={`relative flex min-h-11 shrink-0 items-center gap-1.5 rounded-[11px] px-2.5 font-semibold ${
-            aperto || quanti > 0 ? 'bg-ghiaccio text-montagna-scura' : 'text-testo-tenue hover:bg-fondo'
-          }`}
-          aria-label={quanti > 0 ? `Filtri, ${quanti} attivi` : 'Filtri'}
-          aria-expanded={aperto}
-          aria-controls={id}
-          onClick={() => setAperto(!aperto)}
-        >
-          <SlidersHorizontal className="size-[18px]" aria-hidden="true" />
-          <span className="hidden sm:inline">Filtri</span>
-          {quanti > 0 && (
-            <span className="grid min-w-5 place-items-center rounded-full bg-montagna px-1 text-xs leading-5 text-panna">
-              {quanti}
-            </span>
-          )}
-        </button>
+        <PulsanteFiltri quanti={quanti} aperto={aperto} pannello={id} onClick={() => setAperto(!aperto)} />
       </div>
       {aperto && (
         <div

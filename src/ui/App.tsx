@@ -12,11 +12,9 @@ import { Conferma } from './Conferma'
 import { ModaleDettagli } from './ModaleDettagli'
 import { Elenco } from './Elenco'
 import { Installa } from './Installa'
-import { Filtri } from './Filtri'
+import { BarraElenco } from './Filtri'
 import { MenuLaterale } from './MenuLaterale'
 import { ModaleTrekking } from './ModaleTrekking'
-import { MostraCompletati } from './MostraCompletati'
-import { Ricerca } from './Ricerca'
 import { useInterruttore } from './preferenze'
 import { useCasa } from './useCasa'
 import { indirizzi, useRotta } from './rotta'
@@ -202,17 +200,18 @@ export function App() {
         )}
         {rotta === 'elenco' && stato.fase === 'pronto' && (
           <>
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Ricerca testo={ricerca} onCambia={setRicerca} />
-              <MostraCompletati
-                acceso={mostraCompletati}
-                quanti={quantiCompletati(stato.trekking)}
-                onCambia={setMostraCompletati}
-              />
-            </div>
-            <div className="mb-2">
-              <Filtri valori={filtri} onCambia={setFiltri} conDistanza={casa !== null} />
-            </div>
+            <BarraElenco
+              ricerca={ricerca}
+              onRicerca={setRicerca}
+              filtri={filtri}
+              onFiltri={setFiltri}
+              conDistanza={casa !== null}
+              mostraCompletati={mostraCompletati}
+              quantiCompletati={quantiCompletati(stato.trekking)}
+              onMostraCompletati={setMostraCompletati}
+              mostrati={daMostrare(stato.trekking).length}
+              totali={stato.trekking.length}
+            />
             {erroreCompletato && (
               <p className="mb-2 text-sm text-pericolo" role="alert">
                 {erroreCompletato}

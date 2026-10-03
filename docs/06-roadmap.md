@@ -137,7 +137,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 - [x] **17 · Mappa essenziale**: pagina Mappa nel menu, Leaflet con OpenStreetMap, un puntino per trekking con coordinate, popup con i dettagli
   - [x] Rotta `#/mappa` e voce Mappa nel menu (`rotta.ts`, `MenuLaterale.tsx`)
   - [x] Leaflet con le tessere di OpenStreetMap e l'attribuzione visibile (`Mappa.tsx`)
-  - [x] Un puntino per trekking con coordinate, più chiaro se completato; la mappa si inquadra sui puntini
+  - [x] Un puntino per trekking con coordinate, più chiaro se completato; la mappa si apre sul nord Italia e sud Svizzera
   - [x] Popup con nome, luogo, dislivello, durata, viaggio, distanza e il pulsante "Modifica"
   - [x] Leaflet caricato solo aprendo la Mappa: l'Elenco resta a 655 kB invece di 809
 - [x] **18 · Mappa con i filtri**: stessa ricerca e stessi filtri dell'elenco, condivisi tra le due pagine
@@ -147,7 +147,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 - [x] **19 · Casa e OpenTopoMap**: icona di casa, scelta della mappa topografica
   - [x] Casa segnata con la sua icona, disegnata nel codice: nessun file da caricare (`Mappa.tsx`)
   - [x] Scelta fra "Mappa" (OpenStreetMap) e "Sentieri" (OpenTopoMap), con le due attribuzioni
-  - [x] L'inquadratura tiene dentro anche casa
+  - [x] L'inquadratura resta fissa: filtri e salvataggi non spostano la mappa
   - Nota: l'icona di casa compare quando le coordinate di casa sono nel database (step 13)
 
 ## Fase 4 · Rifinitura ✅
@@ -186,6 +186,21 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Nel popup della mappa "Dettagli" al posto di "Modifica": apre la scheda in sola lettura (`ModaleDettagli.tsx`), da cui si passa alla modifica; anche toccando il nome nell'elenco
   - [x] Il modale ha tre aspetti sul telefono: centrato, schermo intero, foglio dal basso (`Modale.tsx`)
   - [x] Form a gruppi, dislivello / durata / viaggio affiancati con l'unità nel campo e tastiera numerica (la virgola di iOS ora passa), un campo per ogni link, tastiera che si apre da sola solo per un trekking nuovo, "Elimina trekking" in fondo al form (`ModaleTrekking.tsx`)
+
+- [x] **27 · Wizard per inserire e modificare**: il form diventa quattro passi (Dove, Quanto, Link, Note) con "Indietro" e "Avanti" in fondo e l'indicatore in alto (`ModaleTrekking.tsx`)
+  - [x] Un passo con un campo storto ferma "Avanti" e i passi dopo; Invio in un campo porta al passo dopo
+  - [x] Nuovo trekking: "Salva" all'ultimo passo. Modifica: "Salva" a ogni passo, e dall'indicatore si salta dove serve
+
+- [x] **28 · Luogo da un link di Google Maps**: nel campo del luogo si incolla il link di "Condividi"
+  - [x] Lettura dei link lunghi: segnaposto `!3d…!4d…`, `?q=`, centro `@lat,lon`, nome dopo `/place/` senza CAP (`src/dominio/mappeGoogle.ts`, con i test)
+  - [x] Edge Function `trekking-link-mappe` che apre i link brevi, solo con la sessione e solo verso Google Maps (`supabase/functions/`)
+  - [x] Campo del luogo: il link incollato diventa nome e coordinate, o solo coordinate; "Avanti" resta fermo finché il link non è letto (`CampoLuogo.tsx`, `luogo.ts`)
+  - [x] Edge Function pubblicata sul progetto Supabase (2026-10-03, `supabase functions deploy --use-api`)
+
+- [x] **29 · Filtri più comodi**: barra dell'elenco come quella della mappa, scelte rapide, filtri accesi in vista (`Filtri.tsx`, `src/dominio/filtri.ts`)
+  - [x] Ricerca e pulsante Filtri sulla stessa riga; "Mostra completati" nel pannello, come sulla mappa
+  - [x] Scelte rapide per ogni filtro e "Altro…" per l'intervallo a mano; il conteggio del pulsante conta i filtri, non i limiti
+  - [x] Filtri accesi come etichette con la X, "Azzera" e "N di M"
 
 - [x] **26 · Apri in Google Maps**: "Apri in Maps" e il luogo nell'elenco aprono il punto su Google Maps invece che su OpenStreetMap, così sul telefono si parte col navigatore (`mappaEsterna` in `coordinate.ts`)
 

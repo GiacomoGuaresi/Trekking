@@ -14,6 +14,8 @@ flowchart LR
   end
   U -->|ricerca luoghi| PH[Photon<br/>photon.komoot.io]
   U -->|tempo di viaggio| ORS[openrouteservice]
+  U -->|link brevi di Maps + JWT| EF[Edge Function<br/>trekking-link-mappe]
+  EF -->|segue il redirect| GM[maps.app.goo.gl]
   U -->|tessere della mappa| TILES[OpenStreetMap<br/>OpenTopoMap]
   GH[GitHub Actions] -->|test, build, deploy| GP
 ```
@@ -24,10 +26,11 @@ flowchart LR
 2. L'app gira interamente nel browser e usa `@supabase/supabase-js` per l'accesso ([04](04-sicurezza.md)) e per leggere e scrivere le tabelle ([08](08-modello-dati.md)).
 3. Postgres applica i permessi con la **Row Level Security**: senza sessione non si vede nulla, nemmeno la posizione di casa.
 4. La **ricerca dei luoghi** chiama **Photon** dal browser, senza chiave. Il codice passa da un'interfaccia (`src/dati/luoghi.ts`), così Google Places si potrà aggiungere come seconda implementazione.
-5. Il **tempo di viaggio** si chiede a **openrouteservice** (API Directions, profilo `driving-car`, da casa al luogo) e si salva sul trekking. Con `radiuses: [-1, -1]` il luogo si aggancia alla strada più vicina a qualunque distanza: senza, i punti a più di 350 m da una strada danno errore. La chiave è pubblica nel bundle ([04](04-sicurezza.md)).
+5. Il **tempo di viaggio** si chiede a **openrouteservice** (API Directions, profilo `driving-car`, da casa al luogo) e si salva sul trekking. Le Directions agganciano i punti alle strade solo entro 350 m, anche con `radiuses: [-1, -1]`: per cime, laghi e rifugi il luogo si aggancia prima alla strada più vicina con l'API **Snap** (raggio 50 km), e il percorso si calcola fino a quel punto. Due richieste per trekking. La chiave è pubblica nel bundle ([04](04-sicurezza.md)).
 6. La **distanza in linea d'aria** si calcola nel browser con la formula dell'emisenoverso (haversine), dalle coordinate di casa e del luogo. Non si salva.
 7. La **mappa** usa **Leaflet** con le tessere di OpenStreetMap e OpenTopoMap, con l'attribuzione visibile come chiedono le loro regole d'uso.
-8. Nessun backend e nessuna Edge Function. I tempi di viaggio mancanti li ricalcola il browser, al salvataggio di un trekking o dal popup all'apertura ([02](02-funzionalita.md)), una richiesta alla volta per restare nei limiti di openrouteservice. Le risposte si dividono in due casi:
+8. Un solo pezzo di backend: la **Edge Function `trekking-link-mappe`** (`supabase/functions/`), che apre i link brevi di Google Maps (`maps.app.goo.gl`) incollati nel campo del luogo. Il browser non può farlo da sé: Google non manda le intestazioni CORS, e il redirect resta invisibile. La funzione accetta solo chi ha la sessione: il controllo JWT di Supabase lascia passare anche la publishable key, quindi la funzione chiede ad Auth chi è l'utente; apre solo link brevi di Google Maps, segue al massimo 4 redirect senza uscire da Google Maps e restituisce il link lungo; coordinate e nome si leggono poi nel browser (`src/dominio/mappeGoogle.ts`). Non tocca il database. Si pubblica a mano, una volta, come gli script SQL.
+9. I tempi di viaggio mancanti li ricalcola il browser, al salvataggio di un trekking o dal popup all'apertura ([02](02-funzionalita.md)), una richiesta alla volta per restare nei limiti di openrouteservice. Le risposte si dividono in due casi:
    - **percorso impossibile**: risposta di errore di openrouteservice sul percorso (punto o percorso non trovato, distanza oltre il limite) → si toglie il luogo dal trekking;
    - **servizio non disponibile**: rete assente, timeout, errori `5xx`, quota esaurita (`429`), chiave non valida → non si tocca nulla e si riprova più tardi.
 

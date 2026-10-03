@@ -3,7 +3,8 @@ import { useEffect, useId, useState } from 'react'
 import { luoghi } from '../dati'
 import { coordinateValide } from '../dominio/coordinate'
 import type { Luogo } from '../dominio/luoghi'
-import type { StatoLuogo } from './luogo'
+import { linkGoogle } from '../dominio/mappeGoogle'
+import { statoDaLink, type StatoLuogo } from './luogo'
 
 interface Props {
   valore: StatoLuogo
@@ -17,7 +18,8 @@ const ATTESA = 350
  * Il campo del luogo (docs/02-funzionalita.md): l'interruttore Nome /
  * Coordinate, i suggerimenti di Photon mentre si scrive il nome e le coordinate
  * incollate da Google Maps. Se si salva senza scegliere un suggerimento vale il
- * primo risultato (`risolviLuogo`).
+ * primo risultato (`risolviLuogo`). Un link di Google Maps incollato in uno dei
+ * due campi si legge subito e lo sostituisce con il luogo trovato.
  */
 export function CampoLuogo({ valore, onCambia }: Props) {
   const id = useId()
@@ -25,9 +27,29 @@ export function CampoLuogo({ valore, onCambia }: Props) {
   const [inCorso, setInCorso] = useState(false)
   const scritto = valore.nome.trim()
   const gia = valore.scelto?.nome === scritto
+  const incollato = (valore.modo === 'nome' ? valore.nome : valore.coordinate).trim()
+  const link = linkGoogle(incollato)
+  const [erroreLink, setErroreLink] = useState<string | null>(null)
 
   useEffect(() => {
-    if (valore.modo !== 'nome' || scritto === '' || gia) {
+    setErroreLink(null)
+    if (!link) return
+    let annullato = false
+    statoDaLink(incollato)
+      .then((stato) => {
+        if (!annullato) onCambia(stato)
+      })
+      .catch((errore: Error) => {
+        console.error('Link di Google Maps non letto', errore)
+        if (!annullato) setErroreLink('Link non letto: incolla le coordinate o scrivi il nome.')
+      })
+    return () => {
+      annullato = true
+    }
+  }, [link, incollato, onCambia])
+
+  useEffect(() => {
+    if (valore.modo !== 'nome' || scritto === '' || gia || link) {
       setSuggerimenti([])
       setInCorso(false)
       return
@@ -52,7 +74,7 @@ export function CampoLuogo({ valore, onCambia }: Props) {
       clearTimeout(attesa)
       controllo.abort()
     }
-  }, [valore.modo, scritto, gia])
+  }, [valore.modo, scritto, gia, link])
 
   return (
     <>
@@ -101,13 +123,23 @@ export function CampoLuogo({ valore, onCambia }: Props) {
               ))}
             </ul>
           )}
-          <p className="m-0 text-xs text-testo-tenue">
-            {gia
-              ? 'Luogo trovato: si salvano nome e coordinate.'
-              : inCorso
-                ? 'Cerco i luoghi…'
-                : 'Senza scegliere un suggerimento vale il primo risultato.'}
-          </p>
+          {link ? (
+            <AvvisoLink errore={erroreLink} />
+          ) : (
+            <p className="m-0 text-xs text-testo-tenue">
+              {gia && valore.scelto ? (
+                <>
+                  Luogo trovato: si salvano nome e coordinate{' '}
+                  <strong className="font-semibold text-testo">
+                    {valore.scelto.lat.toFixed(5)}, {valore.scelto.lon.toFixed(5)}
+                  </strong>
+                  .
+                </>
+              ) : inCorso
+                  ? 'Cerco i luoghi…'
+                  : 'Senza scegliere un suggerimento vale il primo risultato.'}
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -117,17 +149,34 @@ export function CampoLuogo({ valore, onCambia }: Props) {
           <input
             id={`${id}-coordinate`}
             className="min-h-11 w-full rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-            placeholder="45.9876, 9.8765"
+            placeholder="45.9876, 9.8765 o link di Maps"
             value={valore.coordinate}
             onChange={(evento) => onCambia({ ...valore, coordinate: evento.target.value })}
           />
-          {coordinateValide(valore.coordinate) ? (
-            <p className="m-0 text-xs text-testo-tenue">Si incollano come si copiano da Google Maps.</p>
+          {link ? (
+            <AvvisoLink errore={erroreLink} />
+          ) : coordinateValide(valore.coordinate) ? (
+            <p className="m-0 text-xs text-testo-tenue">
+              Si incollano come si copiano da Google Maps, oppure il link di "Condividi".
+            </p>
           ) : (
             <p className="m-0 text-xs text-pericolo">Servono due numeri: latitudine e longitudine.</p>
           )}
         </>
       )}
     </>
+  )
+}
+
+/** Sotto il campo mentre si legge un link di Google Maps, o quando non si è letto. */
+function AvvisoLink({ errore }: { errore: string | null }) {
+  return errore ? (
+    <p className="m-0 text-xs text-pericolo" role="alert">
+      {errore}
+    </p>
+  ) : (
+    <p className="m-0 text-xs text-testo-tenue" role="status">
+      Leggo il link di Google Maps…
+    </p>
   )
 }

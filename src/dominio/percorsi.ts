@@ -4,6 +4,7 @@
  * chi va calcolato e come si legge una risposta.
  */
 
+import type { Coordinate } from './coordinate'
 import type { Trekking } from './tipi'
 
 /**
@@ -47,4 +48,19 @@ export function daOpenRouteService(stato: number, risposta: unknown): EsitoPerco
   const codice = (risposta as { error?: { code?: unknown } })?.error?.code
   if (stato < 500 && typeof codice === 'number' && PERCORSO_IMPOSSIBILE.has(codice)) return { esito: 'impossibile' }
   return { esito: 'irraggiungibile' }
+}
+
+/**
+ * Legge la risposta di `/v2/snap/driving-car/json` per un punto solo: la
+ * strada più vicina, `null` se entro il raggio non ce n'è nessuna, oppure
+ * `irraggiungibile` se il servizio non ha risposto bene.
+ */
+export function daSnap(stato: number, risposta: unknown): Coordinate | null | 'irraggiungibile' {
+  if (stato < 200 || stato >= 300) return 'irraggiungibile'
+  const punti = (risposta as { locations?: unknown })?.locations
+  if (!Array.isArray(punti) || punti.length === 0) return 'irraggiungibile'
+  const punto = (punti[0] as { location?: unknown } | null)?.location
+  if (punto === undefined) return null
+  if (!Array.isArray(punto) || typeof punto[0] !== 'number' || typeof punto[1] !== 'number') return 'irraggiungibile'
+  return { lat: punto[1], lon: punto[0] }
 }

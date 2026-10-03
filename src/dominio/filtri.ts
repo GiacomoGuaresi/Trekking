@@ -8,6 +8,7 @@
 import type { Coordinate } from './coordinate'
 import { distanzaDaCasa } from './distanza'
 import type { Trekking } from './tipi'
+import { formattaViaggio } from './viaggio'
 
 export interface Intervallo {
   min: number | null
@@ -44,10 +45,82 @@ export function testoLimite(valore: number | null): string {
   return valore === null ? '' : String(valore)
 }
 
-/** Quanti limiti sono accesi: il pulsante dei filtri lo mostra. */
-export function quantiFiltri({ dislivello, durata, distanza, viaggio }: Filtri): number {
-  const limiti = [dislivello, durata, distanza, viaggio].flatMap(({ min, max }) => [min, max])
-  return limiti.filter((x) => x !== null).length
+export type ChiaveFiltro = keyof Filtri
+
+/** L'ordine in cui compaiono nel pannello e fra i filtri attivi. */
+export const CHIAVI_FILTRI: readonly ChiaveFiltro[] = ['dislivello', 'durata', 'distanza', 'viaggio']
+
+export const NOMI_FILTRI: Record<ChiaveFiltro, string> = {
+  dislivello: 'Dislivello',
+  durata: 'Durata',
+  distanza: 'Distanza da casa',
+  viaggio: 'Viaggio',
+}
+
+/** Un filtro è acceso se ha almeno un limite. */
+export function acceso({ min, max }: Intervallo): boolean {
+  return min !== null || max !== null
+}
+
+/** Quanti filtri sono accesi: il pulsante dei filtri lo mostra. "500–1000 m" conta uno. */
+export function quantiFiltri(filtri: Filtri): number {
+  return CHIAVI_FILTRI.filter((chiave) => acceso(filtri[chiave])).length
+}
+
+export function stessoIntervallo(a: Intervallo, b: Intervallo): boolean {
+  return a.min === b.min && a.max === b.max
+}
+
+const numero = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 })
+
+/** Un intervallo da leggere: "500–1000 m", "≤ 3,5 h", "≥ 1500 m", "≤ 1 h 30"; `null` se è spento. */
+export function testoIntervallo(chiave: ChiaveFiltro, { min, max }: Intervallo): string | null {
+  if (min === null && max === null) return null
+  if (chiave === 'viaggio') {
+    if (min === null) return `≤ ${formattaViaggio(max)}`
+    if (max === null) return `≥ ${formattaViaggio(min)}`
+    return `${formattaViaggio(min)} – ${formattaViaggio(max)}`
+  }
+  const unita = { dislivello: 'm', durata: 'h', distanza: 'km' }[chiave]
+  if (min === null) return `≤ ${numero.format(max as number)} ${unita}`
+  if (max === null) return `≥ ${numero.format(min)} ${unita}`
+  return `${numero.format(min)}–${numero.format(max)} ${unita}`
+}
+
+/**
+ * Le scelte rapide del pannello, da toccare invece di scrivere. Distanza e
+ * viaggio hanno solo il massimo: conta quanto lontano si è disposti ad andare.
+ */
+export const SCORCIATOIE: Record<ChiaveFiltro, readonly Intervallo[]> = {
+  dislivello: [
+    { min: null, max: 500 },
+    { min: 500, max: 1000 },
+    { min: 1000, max: 1500 },
+    { min: 1500, max: null },
+  ],
+  durata: [
+    { min: null, max: 3 },
+    { min: 3, max: 5 },
+    { min: 5, max: 7 },
+    { min: 7, max: null },
+  ],
+  distanza: [
+    { min: null, max: 25 },
+    { min: null, max: 50 },
+    { min: null, max: 100 },
+    { min: null, max: 150 },
+  ],
+  viaggio: [
+    { min: null, max: 30 },
+    { min: null, max: 60 },
+    { min: null, max: 90 },
+    { min: null, max: 120 },
+  ],
+}
+
+/** Se l'intervallo è stato scritto a mano: allora il pannello mostra i campi da / a. */
+export function personalizzato(chiave: ChiaveFiltro, intervallo: Intervallo): boolean {
+  return acceso(intervallo) && !SCORCIATOIE[chiave].some((s) => stessoIntervallo(s, intervallo))
 }
 
 /** Se il valore sta nell'intervallo; chi non ha il dato passa sempre. */

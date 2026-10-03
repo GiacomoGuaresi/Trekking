@@ -5,17 +5,24 @@ import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AccessoSupabase, type Accesso } from './accesso'
 import { ImpostazioniSupabase } from './impostazioni'
+import { LinkMappeSupabase, type AperturaLink } from './linkMappe'
 import { PhotonLuoghi, type RicercaLuoghi } from './luoghi'
 import { OpenRouteService, type CalcoloPercorsi } from './percorsi'
 import { TrekkingSupabase } from './trekking'
 
 export type { Accesso, EsitoAccesso } from './accesso'
 export type { ImpostazioniSupabase } from './impostazioni'
+export type { AperturaLink } from './linkMappe'
 export type { RicercaLuoghi } from './luoghi'
 export type { CalcoloPercorsi } from './percorsi'
 export type { TrekkingSupabase } from './trekking'
 
-let connessione: { accesso: Accesso; trekking: TrekkingSupabase; impostazioni: ImpostazioniSupabase } | null = null
+let connessione: {
+  accesso: Accesso
+  trekking: TrekkingSupabase
+  impostazioni: ImpostazioniSupabase
+  linkMappe: AperturaLink
+} | null = null
 
 /**
  * Il client è uno solo: accesso e query condividono la sessione.
@@ -42,6 +49,7 @@ function connetti() {
     accesso: new AccessoSupabase(client, email),
     trekking: new TrekkingSupabase(client),
     impostazioni: new ImpostazioniSupabase(client),
+    linkMappe: new LinkMappeSupabase(client),
   }
   return connessione
 }
@@ -59,6 +67,11 @@ export function trekking(): TrekkingSupabase {
 /** Le impostazioni: per ora la sola posizione di casa. */
 export function impostazioni(): ImpostazioniSupabase {
   return connetti().impostazioni
+}
+
+/** I link brevi di Google Maps, aperti dalla Edge Function con la sessione. */
+export function linkMappe(): AperturaLink {
+  return connetti().linkMappe
 }
 
 const ricercaLuoghi = new PhotonLuoghi()

@@ -51,3 +51,4 @@ Un'app statica **non ha segreti**: ogni variabile `VITE_*`, anche se sta nei *Se
 - [x] Secret key e password del DB assenti dal repo e dalla storia git (2026-10-03)
 - [x] URL di redirect di Auth: aggiunto `https://giacomoguaresi.github.io/Trekking/`
 - [x] Sessione condivisa verificata: accesso a Grocery → Trekking aperto senza passphrase (2026-10-03)
+- [x] Edge Function `trekking-link-mappe`: senza sessione risponde `401`, anche con la sola publishable key (2026-10-03)

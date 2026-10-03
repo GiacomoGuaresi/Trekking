@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { esempio } from './esempi'
-import { daCalcolare, daOpenRouteService, mancanti } from './percorsi'
+import { daCalcolare, daOpenRouteService, daSnap, mancanti } from './percorsi'
 
 describe('daCalcolare', () => {
   it('vuole le coordinate, nessun tempo e nessun tempo scritto a mano', () => {
@@ -37,5 +37,22 @@ describe('daOpenRouteService', () => {
     expect(daOpenRouteService(500, { error: { code: 2099 } })).toEqual({ esito: 'irraggiungibile' })
     expect(daOpenRouteService(502, null)).toEqual({ esito: 'irraggiungibile' })
     expect(daOpenRouteService(200, { routes: [{ summary: { duration: 'tanto' } }] })).toEqual({ esito: 'irraggiungibile' })
+  })
+})
+
+describe('daSnap', () => {
+  it('dà la strada più vicina, con lat e lon al posto giusto', () => {
+    const risposta = { locations: [{ location: [10.036481, 46.053041], snapped_distance: 2895.77 }] }
+    expect(daSnap(200, risposta)).toEqual({ lat: 46.053041, lon: 10.036481 })
+  })
+
+  it('nessuna strada nel raggio: null', () => {
+    expect(daSnap(200, { locations: [null] })).toBeNull()
+  })
+
+  it('errori e risposte strane: si riprova più tardi', () => {
+    expect(daSnap(403, { error: 'Access to this API has been disallowed' })).toBe('irraggiungibile')
+    expect(daSnap(200, {})).toBe('irraggiungibile')
+    expect(daSnap(200, { locations: [{ location: ['a', 'b'] }] })).toBe('irraggiungibile')
   })
 })

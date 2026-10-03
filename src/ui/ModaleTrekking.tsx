@@ -1,7 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
-import { Plus, Trash2, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react'
 import { dislivelloValido, pulisciDislivello, testoDislivello } from '../dominio/dislivello'
-import { coordinateValide } from '../dominio/coordinate'
 import { durataValida, pulisciDurata, testoDurata } from '../dominio/durata'
 import { pulisciLink } from '../dominio/link'
 import { nomeValido, pulisciNome } from '../dominio/nome'
@@ -11,7 +10,7 @@ import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { EditorMarkdown } from './EditorMarkdown'
 import { CampoLuogo } from './CampoLuogo'
 import { Modale } from './Modale'
-import { risolviLuogo, statoLuogoIniziale } from './luogo'
+import { luogoValido, risolviLuogo, statoLuogoIniziale } from './luogo'
 
 interface Props {
   /** "Nuovo trekking" quando si crea, "Modifica trekking" quando si cambia. */
@@ -30,15 +29,19 @@ interface Props {
 const CAMPO =
   'min-h-11 w-full rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna'
 
+const PASSI = ['Dove', 'Quanto', 'Link', 'Note'] as const
+const ULTIMO = PASSI.length - 1
 
 /**
  * Il form del trekking (docs/02-funzionalita.md, inserimento rapido), pensato
- * per il telefono: a schermo intero, con i campi in tre gruppi (dove, quanto,
- * link e note), tastiere numeriche per i numeri e "Salva" sempre in vista in
- * fondo. Serve solo il nome; il luogo si scrive per nome o per coordinate, i
- * link uno per campo, le note in Markdown.
+ * per il telefono: a schermo intero, un wizard in quattro passi (dove, quanto,
+ * link, note) con "Indietro" e "Avanti" sempre in vista in fondo. Serve solo il
+ * nome; il luogo si scrive per nome o per coordinate, i link uno per campo, le
+ * note in Markdown. Un trekking nuovo si salva all'ultimo passo; in modifica
+ * "Salva" c'è a ogni passo e dall'indicatore si salta dove serve.
  */
 export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, onChiudi, onElimina }: Props) {
+  const [passo, setPasso] = useState(0)
   const [nome, setNome] = useState(iniziale?.nome ?? '')
   const [link, setLink] = useState<string[]>(() => (iniziale?.link.length ? [...iniziale.link] : ['']))
   const [note, setNote] = useState(iniziale?.note ?? '')
@@ -52,13 +55,29 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   // L'avviso compare mentre si scrive e non blocca il salvataggio
   // (docs/02-funzionalita.md).
   const gia = doppione(esistenti, nome, escludi)
-  /** Le coordinate incollate storte fermano il salvataggio; il nome no. */
-  const luogoValido = luogo.modo === 'nome' || coordinateValide(luogo.coordinate)
-  const valido =
-    nomeValido(nome) && dislivelloValido(dislivello) && durataValida(durata) && luogoValido && viaggioValido(viaggio)
+  /** Chi ha un campo storto ferma il wizard lì: link e note vanno sempre bene. */
+  const passiValidi = [
+    nomeValido(nome) && luogoValido(luogo),
+    dislivelloValido(dislivello) && durataValida(durata) && viaggioValido(viaggio),
+    true,
+    true,
+  ]
+  const valido = passiValidi.every(Boolean)
+  /** Si arriva fino al primo passo storto compreso, non oltre. */
+  const raggiungibile = (indice: number) => passiValidi.slice(0, indice).every(Boolean)
+  const salvabile = valido && (passo === ULTIMO || iniziale !== undefined)
 
-  const invia = async (evento: FormEvent) => {
+  // Invio dentro un campo porta avanti; solo all'ultimo passo salva.
+  const invia = (evento: FormEvent) => {
     evento.preventDefault()
+    if (passo < ULTIMO) {
+      if (passiValidi[passo]) setPasso(passo + 1)
+      return
+    }
+    void salva()
+  }
+
+  const salva = async () => {
     if (!valido || inCorso) return
     setInCorso(true)
     setErrore(null)
@@ -101,142 +120,196 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
           )}
           <button
             type="button"
-            className="min-h-11 flex-1 rounded-[11px] border border-bordo px-4 font-semibold text-testo-tenue hover:bg-fondo sm:flex-none sm:border-0"
-            onClick={onChiudi}
+            className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-[11px] border border-bordo px-4 font-semibold text-testo-tenue hover:bg-fondo sm:mr-auto sm:flex-none sm:border-0"
+            onClick={passo === 0 ? onChiudi : () => setPasso(passo - 1)}
           >
-            Annulla
+            {passo === 0 ? (
+              'Annulla'
+            ) : (
+              <>
+                <ChevronLeft className="size-[18px]" aria-hidden="true" />
+                Indietro
+              </>
+            )}
           </button>
-          <button
-            type="submit"
-            form={id}
-            className="min-h-11 flex-[2] rounded-[11px] bg-montagna px-4 font-semibold text-panna hover:bg-montagna-scura disabled:opacity-50 sm:flex-none"
-            disabled={!valido || inCorso}
-          >
-            {inCorso ? 'Salvo…' : 'Salva'}
-          </button>
+          {passo < ULTIMO && iniziale !== undefined && (
+            <button
+              type="button"
+              className="min-h-11 flex-1 rounded-[11px] border border-montagna px-4 font-semibold text-montagna-scura hover:bg-fondo disabled:opacity-50 sm:flex-none"
+              disabled={!salvabile || inCorso}
+              onClick={() => void salva()}
+            >
+              {inCorso ? 'Salvo…' : 'Salva'}
+            </button>
+          )}
+          {passo < ULTIMO ? (
+            <button
+              type="button"
+              className="flex min-h-11 flex-[2] items-center justify-center gap-1 rounded-[11px] bg-montagna px-4 font-semibold text-panna hover:bg-montagna-scura disabled:opacity-50 sm:flex-none"
+              disabled={!passiValidi[passo]}
+              onClick={() => setPasso(passo + 1)}
+            >
+              Avanti
+              <ChevronRight className="size-[18px]" aria-hidden="true" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              form={id}
+              className="min-h-11 flex-[2] rounded-[11px] bg-montagna px-4 font-semibold text-panna hover:bg-montagna-scura disabled:opacity-50 sm:flex-none"
+              disabled={!salvabile || inCorso}
+            >
+              {inCorso ? 'Salvo…' : 'Salva'}
+            </button>
+          )}
         </>
       }
     >
-      <form id={id} className="flex flex-col gap-6" onSubmit={invia}>
-        <Gruppo titolo="Dove">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold" htmlFor={`${id}-nome`}>
-              Nome
-            </label>
-            <input
-              id={`${id}-nome`}
-              className={CAMPO}
-              // Solo per un trekking nuovo: in modifica la tastiera coprirebbe metà form.
-              autoFocus={!iniziale}
-              autoCapitalize="sentences"
-              enterKeyHint="next"
-              placeholder="Pizzo Coca"
-              value={nome}
-              onChange={(evento) => setNome(evento.target.value)}
-            />
-            {gia && (
-              <p className="m-0 text-xs text-testo-tenue">
-                Esiste già un trekking che si chiama <strong>{gia.nome}</strong>.
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <CampoLuogo valore={luogo} onCambia={setLuogo} />
-          </div>
-        </Gruppo>
-
-        <Gruppo titolo="Quanto">
-          <div className="grid grid-cols-3 gap-2">
-            <CampoNumero
-              id={`${id}-dislivello`}
-              etichetta="Dislivello"
-              unita="m"
-              inputMode="numeric"
-              placeholder="1200"
-              valore={dislivello}
-              onCambia={setDislivello}
-              storto={!dislivelloValido(dislivello)}
-            />
-            <CampoNumero
-              id={`${id}-durata`}
-              etichetta="Durata A/R"
-              unita="h"
-              inputMode="decimal"
-              placeholder="3,5"
-              valore={durata}
-              onCambia={setDurata}
-              storto={!durataValida(durata)}
-            />
-            <CampoNumero
-              id={`${id}-viaggio`}
-              etichetta="Viaggio"
-              unita="min"
-              inputMode="numeric"
-              placeholder="90"
-              valore={viaggio}
-              onCambia={setViaggio}
-              storto={!viaggioValido(viaggio)}
-            />
-          </div>
-          {!dislivelloValido(dislivello) && (
-            <p className="m-0 text-xs text-pericolo">Il dislivello sono metri interi, sopra lo zero.</p>
-          )}
-          {!durataValida(durata) && (
-            <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 o 3,5, non 3,2.</p>
-          )}
-          {viaggioValido(viaggio) ? (
-            <p className="m-0 text-xs text-testo-tenue">
-              Il viaggio anche come 1:30. Scritto a mano non verrà ricalcolato.
-            </p>
-          ) : (
-            <p className="m-0 text-xs text-pericolo">Il viaggio in minuti (90) oppure ore e minuti (1:30).</p>
-          )}
-        </Gruppo>
-
-        <Gruppo titolo="Link">
-          {link.map((indirizzo, indice) => (
-            <div key={indice} className="flex items-center gap-1">
-              <label className="sr-only" htmlFor={`${id}-link-${indice}`}>
-                Link {indice + 1}
-              </label>
-              <input
-                id={`${id}-link-${indice}`}
-                type="url"
-                inputMode="url"
-                autoCapitalize="off"
-                autoCorrect="off"
-                className={CAMPO}
-                placeholder="https://www.komoot.com/tour/..."
-                value={indirizzo}
-                onChange={(evento) => cambiaLink(indice, evento.target.value)}
-              />
-              {(link.length > 1 || indirizzo !== '') && (
-                <button
-                  type="button"
-                  className="grid size-11 shrink-0 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
-                  aria-label={`Togli il link ${indice + 1}`}
-                  onClick={() => togliLink(indice)}
-                >
-                  <X className="size-[18px]" aria-hidden="true" />
-                </button>
-              )}
-            </div>
-          ))}
-          {link[link.length - 1].trim() !== '' && (
+      <ol className="m-0 mb-5 grid list-none grid-cols-4 gap-1.5 p-0" aria-label="Passi">
+        {PASSI.map((nomePasso, indice) => (
+          <li key={nomePasso}>
             <button
               type="button"
-              className="flex min-h-11 w-fit items-center gap-1.5 rounded-[11px] px-2 font-semibold text-montagna-scura hover:bg-fondo"
-              onClick={() => setLink((prima) => [...prima, ''])}
+              className="flex w-full flex-col gap-1 text-left text-xs font-semibold text-testo-tenue disabled:opacity-50 aria-[current=step]:text-montagna-scura"
+              aria-current={indice === passo ? 'step' : undefined}
+              disabled={!raggiungibile(indice)}
+              onClick={() => setPasso(indice)}
             >
-              <Plus className="size-[18px]" aria-hidden="true" />
-              Aggiungi un link
+              <span className={`h-1 w-full rounded-full ${indice <= passo ? 'bg-montagna' : 'bg-bordo'}`} />
+              {nomePasso}
             </button>
-          )}
-        </Gruppo>
+          </li>
+        ))}
+      </ol>
+      <form id={id} className="flex flex-col gap-6" onSubmit={invia}>
+        {passo === 0 && (
+          <Gruppo titolo="Dove">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold" htmlFor={`${id}-nome`}>
+                Nome <span className="font-normal text-testo-tenue">(obbligatorio)</span>
+              </label>
+              <input
+                id={`${id}-nome`}
+                aria-required="true"
+                className={CAMPO}
+                // Solo per un trekking nuovo: in modifica la tastiera coprirebbe metà form.
+                autoFocus={!iniziale}
+                autoCapitalize="sentences"
+                enterKeyHint="next"
+                placeholder="Pizzo Coca"
+                value={nome}
+                onChange={(evento) => setNome(evento.target.value)}
+              />
+              {gia && (
+                <p className="m-0 text-xs text-testo-tenue">
+                  Esiste già un trekking che si chiama <strong>{gia.nome}</strong>.
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CampoLuogo valore={luogo} onCambia={setLuogo} />
+            </div>
+          </Gruppo>
+        )}
 
-        <Gruppo titolo="Note">
-          <EditorMarkdown valore={note} onCambia={setNote} etichetta="Note" righe={5} />
-        </Gruppo>
+        {passo === 1 && (
+          <Gruppo titolo="Quanto">
+            <div className="grid grid-cols-3 gap-2">
+              <CampoNumero
+                id={`${id}-dislivello`}
+                etichetta="Dislivello"
+                unita="m"
+                inputMode="numeric"
+                placeholder="1200"
+                valore={dislivello}
+                onCambia={setDislivello}
+                storto={!dislivelloValido(dislivello)}
+              />
+              <CampoNumero
+                id={`${id}-durata`}
+                etichetta="Durata A/R"
+                unita="h"
+                inputMode="decimal"
+                placeholder="3,5"
+                valore={durata}
+                onCambia={setDurata}
+                storto={!durataValida(durata)}
+              />
+              <CampoNumero
+                id={`${id}-viaggio`}
+                etichetta="Viaggio"
+                unita="min"
+                inputMode="numeric"
+                placeholder="90"
+                valore={viaggio}
+                onCambia={setViaggio}
+                storto={!viaggioValido(viaggio)}
+              />
+            </div>
+            {!dislivelloValido(dislivello) && (
+              <p className="m-0 text-xs text-pericolo">Il dislivello sono metri interi, sopra lo zero.</p>
+            )}
+            {!durataValida(durata) && (
+              <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 o 3,5, non 3,2.</p>
+            )}
+            {viaggioValido(viaggio) ? (
+              <p className="m-0 text-xs text-testo-tenue">
+                Il viaggio anche come 1:30. Scritto a mano non verrà ricalcolato.
+              </p>
+            ) : (
+              <p className="m-0 text-xs text-pericolo">Il viaggio in minuti (90) oppure ore e minuti (1:30).</p>
+            )}
+          </Gruppo>
+        )}
+
+        {passo === 2 && (
+          <Gruppo titolo="Link">
+            {link.map((indirizzo, indice) => (
+              <div key={indice} className="flex items-center gap-1">
+                <label className="sr-only" htmlFor={`${id}-link-${indice}`}>
+                  Link {indice + 1}
+                </label>
+                <input
+                  id={`${id}-link-${indice}`}
+                  type="url"
+                  inputMode="url"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  className={CAMPO}
+                  placeholder="https://www.komoot.com/tour/..."
+                  value={indirizzo}
+                  onChange={(evento) => cambiaLink(indice, evento.target.value)}
+                />
+                {(link.length > 1 || indirizzo !== '') && (
+                  <button
+                    type="button"
+                    className="grid size-11 shrink-0 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
+                    aria-label={`Togli il link ${indice + 1}`}
+                    onClick={() => togliLink(indice)}
+                  >
+                    <X className="size-[18px]" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            ))}
+            {link[link.length - 1].trim() !== '' && (
+              <button
+                type="button"
+                className="flex min-h-11 w-fit items-center gap-1.5 rounded-[11px] px-2 font-semibold text-montagna-scura hover:bg-fondo"
+                onClick={() => setLink((prima) => [...prima, ''])}
+              >
+                <Plus className="size-[18px]" aria-hidden="true" />
+                Aggiungi un link
+              </button>
+            )}
+          </Gruppo>
+        )}
+
+        {passo === ULTIMO && (
+          <Gruppo titolo="Note">
+            <EditorMarkdown valore={note} onCambia={setNote} etichetta="Note" righe={8} />
+          </Gruppo>
+        )}
 
         {onElimina && (
           <button
@@ -253,11 +326,11 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
   )
 }
 
-/** Un gruppo di campi con il suo titolo piccolo, come le sezioni dei dettagli. */
+/** Un passo del wizard: il titolo si vede già nell'indicatore, qui resta per i lettori di schermo. */
 function Gruppo({ titolo, children }: { titolo: string; children: ReactNode }) {
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
-      <legend className="mb-2 p-0 text-xs font-semibold tracking-wide text-testo-tenue uppercase">{titolo}</legend>
+      <legend className="sr-only">{titolo}</legend>
       {children}
     </fieldset>
   )

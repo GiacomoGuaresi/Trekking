@@ -10,7 +10,7 @@ Poi, quando si decide dove andare, si apre l'**elenco** o la **mappa** e si filt
 
 ## Inserimento rapido
 
-Un solo form, pensato per il telefono. Solo il nome è obbligatorio.
+Un wizard in quattro passi, pensato per il telefono: **Dove** (nome e luogo), **Quanto** (dislivello, durata, viaggio), **Link**, **Note**. Solo il nome è obbligatorio. Un trekking nuovo si salva all'ultimo passo; in modifica lo stesso wizard ha "Salva" a ogni passo e dall'indicatore in alto si salta al passo che serve.
 
 | Campo | Obbligatorio | Formato |
 |---|---|---|
@@ -31,6 +31,7 @@ Un interruttore **Nome / Coordinate** sceglie come si indica il luogo:
 
 - **Nome**: si scrive il nome del luogo, l'app propone i luoghi trovati da **Photon** e lo converte in coordinate. Si salvano nome e coordinate. Se si salva **senza scegliere un suggerimento**, l'app usa **il primo risultato** di Photon: un luogo impreciso è accettabile, e si corregge in modifica. Se Photon non trova nulla, si salva solo il nome del luogo, senza coordinate.
 - **Coordinate**: si incollano latitudine e longitudine, come si copiano da Google Maps (`45.9876, 9.8765`). Si salvano solo le coordinate; il nome del luogo resta vuoto.
+- **Link di Google Maps**: in tutti e due i campi si può incollare il link di "Condividi" (`https://maps.app.goo.gl/...`) o un link lungo `google.com/maps/...`. L'app ne legge il punto del segnaposto e, se c'è, il nome del posto senza il CAP: con il nome passa a **Nome** con il luogo già trovato, senza nome alle **Coordinate**. I link brevi li apre la Edge Function ([03](03-architettura.md)); se il link non si legge, compare un messaggio e il luogo va scritto a mano.
 
 Regole:
 - il luogo è **indipendente dal nome del trekking**: nessun suggerimento automatico a partire dal nome;
@@ -61,12 +62,13 @@ La posizione di **casa** è un punto fisso salvato nel database ([04](04-sicurez
 
 - **Tabella semplice**, sia su PC sia su telefono (su telefono scorre in orizzontale). Le card su telefono si valuteranno dopo l'uso.
 - **Ordinamento**: di default per **tempo di viaggio crescente**, i più vicini in cima. Toccando l'intestazione di una colonna si ordina per quella colonna; un secondo tocco inverte l'ordine. I trekking senza il valore vanno sempre in fondo.
-- **Ricerca per nome**.
-- **Filtri**:
-  - dislivello minimo / massimo;
-  - durata minima / massima;
-  - distanza massima da casa, in linea d'aria;
-  - tempo di viaggio massimo da casa.
+- **Ricerca per nome** e pulsante **Filtri** sulla stessa riga, come sulla mappa; il pulsante mostra quanti filtri sono accesi.
+- **Filtri**, ognuno con le **scelte rapide** da toccare (toccare quella accesa la spegne) e **Altro…** per scrivere un intervallo a mano:
+  - dislivello: ≤ 500, 500–1000, 1000–1500, ≥ 1500 m;
+  - durata: ≤ 3, 3–5, 5–7, ≥ 7 h;
+  - distanza da casa in linea d'aria: ≤ 25, 50, 100, 150 km;
+  - tempo di viaggio da casa: ≤ 30 min, 1 h, 1 h 30, 2 h.
+- I filtri accesi restano **in vista sotto la barra** come etichette ("Dislivello 500–1000 m ×") da togliere con un tocco, con **Azzera** e quanti trekking passano ("12 di 40"). Nel pannello c'è anche **Mostra completati**.
 - Un trekking a cui **manca il dato** su cui si filtra (niente luogo, niente tempo di viaggio, niente dislivello…) **resta visibile**: i filtri nascondono solo i trekking con un valore fuori dall'intervallo.
 - **Completato**: si segna e si toglie con un tocco. I completati spariscono dall'elenco; l'interruttore **Mostra completati** li fa ricomparire.
 - **Modifica** di tutti i campi ed **eliminazione** con conferma.

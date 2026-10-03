@@ -1,11 +1,13 @@
 /**
  * Lo stato del campo del luogo (docs/02-funzionalita.md): un interruttore
  * sceglie se il luogo si scrive per **nome**, con i suggerimenti di Photon, o
- * per **coordinate**, incollate da Google Maps.
+ * per **coordinate**, incollate da Google Maps. In tutti e due i campi si può
+ * incollare anche un link di Google Maps.
  */
 
-import { luoghi } from '../dati'
-import { pulisciCoordinate, testoCoordinate } from '../dominio/coordinate'
+import { linkMappe, luoghi } from '../dati'
+import { coordinateValide, pulisciCoordinate, testoCoordinate } from '../dominio/coordinate'
+import { daLinkLungo, linkBreve, linkGoogle } from '../dominio/mappeGoogle'
 import { SENZA_LUOGO, luogoDaSalvare, type Luogo, type LuogoSalvato } from '../dominio/luoghi'
 
 export type Modo = 'nome' | 'coordinate'
@@ -34,6 +36,14 @@ export function statoLuogoIniziale(salvato?: LuogoSalvato): StatoLuogo {
 }
 
 /**
+ * Si può salvare: coordinate buone o campo vuoto, e nessun link ancora da
+ * leggere, che altrimenti finirebbe salvato come nome del luogo.
+ */
+export function luogoValido({ modo, nome, coordinate }: StatoLuogo): boolean {
+  return modo === 'nome' ? !linkGoogle(nome) : coordinateValide(coordinate)
+}
+
+/**
  * Il luogo da salvare. Per coordinate è quello che c'è scritto; per nome vale il
  * suggerimento scelto, altrimenti si chiede a Photon e si prende il primo
  * risultato. Se Photon non risponde si salva il solo nome scritto: il trekking
@@ -53,4 +63,18 @@ export async function risolviLuogo({ modo, nome, scelto, coordinate }: StatoLuog
     console.error('Luoghi non cercati', errore)
   }
   return luogoDaSalvare(nome, scelto, primo)
+}
+
+/**
+ * Il campo dopo aver incollato un link di Google Maps: col nome del posto si
+ * passa a "Nome" con il luogo già trovato, senza nome alle coordinate. I link
+ * brevi li apre prima la Edge Function. Lancia se il link non si legge.
+ */
+export async function statoDaLink(testo: string): Promise<StatoLuogo> {
+  const lungo = linkBreve(testo) ? await linkMappe().apri(testo) : testo
+  const trovato = daLinkLungo(lungo)
+  if (trovato === null) throw new Error('Nel link non ci sono coordinate')
+  const { nome, lat, lon } = trovato
+  if (nome === null) return { modo: 'coordinate', nome: '', scelto: null, coordinate: testoCoordinate(lat, lon) }
+  return { modo: 'nome', nome, scelto: { nome, lat, lon }, coordinate: '' }
 }

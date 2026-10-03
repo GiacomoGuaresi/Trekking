@@ -1,5 +1,4 @@
-import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet'
-import { useEffect, useMemo } from 'react'
+import { CircleMarker, LayersControl, MapContainer, Marker, Popup, TileLayer, ZoomControl } from 'react-leaflet'
 import { divIcon, type LatLngBoundsExpression } from 'leaflet'
 import { Info } from 'lucide-react'
 import type { Coordinate } from '../dominio/coordinate'
@@ -27,9 +26,15 @@ const ICONA_CASA = divIcon({
   </span>`,
 })
 
-/** Le Alpi orobiche, quando non c'è nessun puntino da mostrare. */
-const CENTRO: [number, number] = [45.98, 9.87]
-const ZOOM = 9
+/**
+ * L'inquadratura all'apertura: il nord Italia e il sud della Svizzera, dal
+ * Monviso al Friuli e dall'Appennino al Vallese. Resta fissa anche quando i
+ * filtri cambiano i puntini.
+ */
+const NORD_ITALIA: LatLngBoundsExpression = [
+  [44.1, 6.6],
+  [46.7, 13.8],
+]
 
 /** Quanto spazio lascia in alto la barra flottante di ricerca e filtri. */
 const SOTTO_LA_BARRA = 80
@@ -49,7 +54,13 @@ export function Mappa({ trekking, casa, onDettagli }: Props) {
 
   return (
     <div className="size-full">
-      <MapContainer center={CENTRO} zoom={ZOOM} scrollWheelZoom zoomControl={false} className="size-full">
+      <MapContainer
+        bounds={NORD_ITALIA}
+        boundsOptions={{ paddingTopLeft: [16, SOTTO_LA_BARRA], paddingBottomRight: [16, 16] }}
+        scrollWheelZoom
+        zoomControl={false}
+        className="size-full"
+      >
         <ZoomControl position="bottomright" />
         <LayersControl position="bottomright">
           <LayersControl.BaseLayer checked name="Mappa">
@@ -67,7 +78,6 @@ export function Mappa({ trekking, casa, onDettagli }: Props) {
             />
           </LayersControl.BaseLayer>
         </LayersControl>
-        <Inquadra trekking={conLuogo} casa={casa} />
         {casa !== null && (
           <Marker position={[casa.lat, casa.lon]} icon={ICONA_CASA} title="Casa" alt="Casa" />
         )}
@@ -96,29 +106,6 @@ export function Mappa({ trekking, casa, onDettagli }: Props) {
       )}
     </div>
   )
-}
-
-/** Sposta la mappa per far entrare tutti i puntini e casa, quando cambiano. */
-function Inquadra({ trekking, casa }: { trekking: readonly Trekking[]; casa: Coordinate | null }) {
-  const mappa = useMap()
-  const punti = useMemo(
-    () => [
-      ...trekking.map((t) => [t.lat as number, t.lon as number] as [number, number]),
-      ...(casa === null ? [] : [[casa.lat, casa.lon] as [number, number]]),
-    ],
-    [trekking, casa],
-  )
-
-  useEffect(() => {
-    if (punti.length === 0) return
-    mappa.fitBounds(punti as LatLngBoundsExpression, {
-      paddingTopLeft: [32, SOTTO_LA_BARRA],
-      paddingBottomRight: [32, 32],
-      maxZoom: 13,
-    })
-  }, [mappa, punti])
-
-  return null
 }
 
 /** Il popup: nome e numeri, con il pulsante che apre i dettagli. */

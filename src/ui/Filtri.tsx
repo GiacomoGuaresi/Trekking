@@ -1,153 +1,289 @@
-import { SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal, X } from 'lucide-react'
 import { useId, useState } from 'react'
-import { FILTRI_VUOTI, type Filtri as Valori, limite, quantiFiltri, testoLimite } from '../dominio/filtri'
+import {
+  CHIAVI_FILTRI,
+  FILTRI_VUOTI,
+  NOMI_FILTRI,
+  SCORCIATOIE,
+  type ChiaveFiltro,
+  type Filtri as Valori,
+  type Intervallo as ValoreIntervallo,
+  acceso,
+  limite,
+  personalizzato,
+  quantiFiltri,
+  stessoIntervallo,
+  testoIntervallo,
+  testoLimite,
+} from '../dominio/filtri'
+import { MostraCompletati } from './MostraCompletati'
+import { Ricerca } from './Ricerca'
 
-interface Props {
-  valori: Valori
-  onCambia: (valori: Valori) => void
+interface PropsBarra {
+  ricerca: string
+  onRicerca: (testo: string) => void
+  filtri: Valori
+  onFiltri: (valori: Valori) => void
   /** La distanza si filtra solo se la posizione di casa è stata inserita. */
   conDistanza: boolean
+  mostraCompletati: boolean
+  quantiCompletati: number
+  onMostraCompletati: (acceso: boolean) => void
+  /** Quanti trekking si vedono e quanti sono in tutto, per "12 di 40". */
+  mostrati: number
+  totali: number
 }
 
 /**
- * I filtri dell'elenco (docs/02-funzionalita.md): un pulsante che dice quanti
- * limiti sono accesi e apre il pannello: dislivello, durata, distanza da casa e
- * tempo di viaggio.
+ * La barra dell'elenco (docs/02-funzionalita.md), come quella della mappa:
+ * ricerca e pulsante Filtri sulla stessa riga. Il pannello si apre sotto; i
+ * filtri accesi restano in vista come etichette da togliere con un tocco, con
+ * quanti trekking passano.
  */
-export function Filtri({ valori, onCambia, conDistanza }: Props) {
+export function BarraElenco({
+  ricerca,
+  onRicerca,
+  filtri,
+  onFiltri,
+  conDistanza,
+  mostraCompletati,
+  quantiCompletati,
+  onMostraCompletati,
+  mostrati,
+  totali,
+}: PropsBarra) {
   const [aperto, setAperto] = useState(false)
   const id = useId()
-  const quanti = quantiFiltri(valori)
+  const completatiAccesi = mostraCompletati && quantiCompletati > 0
+  const quanti = quantiFiltri(filtri) + (completatiAccesi ? 1 : 0)
+  const qualcosa = quanti > 0 || ricerca.trim() !== ''
 
   return (
-    <div className="w-full">
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="flex min-h-11 items-center gap-1.5 rounded-[11px] px-2.5 font-semibold text-testo-tenue hover:bg-white"
-          aria-expanded={aperto}
-          aria-controls={id}
-          onClick={() => setAperto(!aperto)}
-        >
-          <SlidersHorizontal className="size-[18px]" aria-hidden="true" />
-          Filtri{quanti > 0 && ` (${quanti})`}
-        </button>
-        {quanti > 0 && (
-          <button
-            type="button"
-            className="min-h-11 rounded-[11px] px-2 text-montagna-scura underline"
-            onClick={() => onCambia(FILTRI_VUOTI)}
-          >
-            Azzera
-          </button>
-        )}
+    <div className="mb-2 flex flex-col gap-2">
+      <div className="flex items-center gap-1.5">
+        <Ricerca testo={ricerca} onCambia={onRicerca} />
+        <PulsanteFiltri quanti={quanti} aperto={aperto} pannello={id} onClick={() => setAperto(!aperto)} />
       </div>
       {aperto && (
-        <div id={id} className="mt-1 animate-entra rounded-[11px] border border-bordo bg-white p-3">
-          <PannelloFiltri valori={valori} onCambia={onCambia} conDistanza={conDistanza} />
+        <div id={id} className="animate-entra rounded-[14px] border border-bordo bg-white p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <MostraCompletati acceso={mostraCompletati} quanti={quantiCompletati} onCambia={onMostraCompletati} />
+            <button
+              type="button"
+              className="ml-auto grid size-11 place-items-center rounded-[11px] text-testo-tenue hover:bg-fondo"
+              aria-label="Chiudi i filtri"
+              onClick={() => setAperto(false)}
+            >
+              <X className="size-[18px]" aria-hidden="true" />
+            </button>
+          </div>
+          <PannelloFiltri valori={filtri} onCambia={onFiltri} conDistanza={conDistanza} />
+        </div>
+      )}
+      {qualcosa && (
+        <div className="flex flex-wrap items-center gap-1.5" aria-label="Filtri attivi">
+          {CHIAVI_FILTRI.map((chiave) => {
+            const testo = testoIntervallo(chiave, filtri[chiave])
+            if (testo === null) return null
+            return (
+              <Etichetta
+                key={chiave}
+                testo={`${NOMI_FILTRI[chiave]} ${testo}`}
+                onTogli={() => onFiltri({ ...filtri, [chiave]: FILTRI_VUOTI[chiave] })}
+              />
+            )
+          })}
+          {completatiAccesi && <Etichetta testo="Con i completati" onTogli={() => onMostraCompletati(false)} />}
+          {quantiFiltri(filtri) > 1 && (
+            <button
+              type="button"
+              className="min-h-9 rounded-full px-2 text-sm text-montagna-scura underline"
+              onClick={() => onFiltri(FILTRI_VUOTI)}
+            >
+              Azzera
+            </button>
+          )}
+          <span className="ml-auto text-sm text-testo-tenue" role="status">
+            {mostrati} di {totali}
+          </span>
         </div>
       )}
     </div>
   )
 }
 
+/** Un filtro acceso, da togliere con la X. */
+function Etichetta({ testo, onTogli }: { testo: string; onTogli: () => void }) {
+  return (
+    <span className="flex min-h-9 items-center gap-0.5 rounded-full bg-ghiaccio pl-3 text-sm font-semibold text-montagna-scura">
+      {testo}
+      <button
+        type="button"
+        className="grid size-9 place-items-center rounded-full hover:bg-white/60"
+        aria-label={`Togli il filtro ${testo}`}
+        onClick={onTogli}
+      >
+        <X className="size-[15px]" aria-hidden="true" />
+      </button>
+    </span>
+  )
+}
+
+interface PropsPulsante {
+  quanti: number
+  aperto: boolean
+  /** L'id del pannello che apre. */
+  pannello: string
+  onClick: () => void
+}
+
+/** Il pulsante Filtri, con il numero dei filtri accesi: lo usano l'elenco e la mappa. */
+export function PulsanteFiltri({ quanti, aperto, pannello, onClick }: PropsPulsante) {
+  return (
+    <button
+      type="button"
+      className={`relative flex min-h-11 shrink-0 items-center gap-1.5 rounded-[11px] px-2.5 font-semibold ${
+        aperto || quanti > 0 ? 'bg-ghiaccio text-montagna-scura' : 'text-testo-tenue hover:bg-fondo'
+      }`}
+      aria-label={quanti > 0 ? `Filtri, ${quanti} attivi` : 'Filtri'}
+      aria-expanded={aperto}
+      aria-controls={pannello}
+      onClick={onClick}
+    >
+      <SlidersHorizontal className="size-[18px]" aria-hidden="true" />
+      <span className="hidden sm:inline">Filtri</span>
+      {quanti > 0 && (
+        <span className="grid min-w-5 place-items-center rounded-full bg-montagna px-1 text-xs leading-5 text-panna">
+          {quanti}
+        </span>
+      )}
+    </button>
+  )
+}
+
+interface PropsPannello {
+  valori: Valori
+  onCambia: (valori: Valori) => void
+  conDistanza: boolean
+}
+
 /**
  * I campi dei filtri, senza il pulsante che li apre: li usano sia l'elenco sia
- * la barra flottante della mappa.
+ * la barra flottante della mappa. Per ogni filtro le scelte rapide; "Altro…"
+ * apre i campi per scrivere un intervallo a mano.
  */
-export function PannelloFiltri({ valori, onCambia, conDistanza }: Props) {
+export function PannelloFiltri({ valori, onCambia, conDistanza }: PropsPannello) {
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-3">
-      <Intervallo
-        etichetta="Dislivello (m)"
-        min={valori.dislivello.min}
-        max={valori.dislivello.max}
-        onCambia={(dislivello) => onCambia({ ...valori, dislivello })}
-      />
-      <Intervallo
-        etichetta="Durata (ore)"
-        passo={0.5}
-        min={valori.durata.min}
-        max={valori.durata.max}
-        onCambia={(durata) => onCambia({ ...valori, durata })}
-      />
-      {conDistanza && (
-        <Intervallo
-          etichetta="Distanza da casa (km)"
-          soloMassimo
-          min={valori.distanza.min}
-          max={valori.distanza.max}
-          onCambia={(distanza) => onCambia({ ...valori, distanza })}
+    <div className="flex flex-col gap-4">
+      {CHIAVI_FILTRI.filter((chiave) => chiave !== 'distanza' || conDistanza).map((chiave) => (
+        <Filtro
+          key={chiave}
+          chiave={chiave}
+          valore={valori[chiave]}
+          onCambia={(intervallo) => onCambia({ ...valori, [chiave]: intervallo })}
         />
-      )}
-      <Intervallo
-        etichetta="Viaggio (minuti)"
-        passo={5}
-        soloMassimo
-        min={valori.viaggio.min}
-        max={valori.viaggio.max}
-        onCambia={(viaggio) => onCambia({ ...valori, viaggio })}
-      />
-      <p className="m-0 w-full text-xs text-testo-tenue">
+      ))}
+      <p className="m-0 text-xs text-testo-tenue">
         I trekking senza il dato restano visibili: i filtri nascondono solo chi è fuori dall'intervallo.
       </p>
     </div>
   )
 }
 
-interface PropsIntervallo {
-  etichetta: string
-  /** Di quanto sale e scende il campo: le ore vanno a mezz'ore. */
-  passo?: number
-  /** Per la distanza da casa conta solo quanto lontano si è disposti ad andare. */
-  soloMassimo?: boolean
-  min: number | null
-  max: number | null
-  onCambia: (intervallo: { min: number | null; max: number | null }) => void
+const SCELTA =
+  'min-h-11 rounded-full border px-3 text-sm font-semibold aria-pressed:border-montagna aria-pressed:bg-montagna aria-pressed:text-panna'
+
+interface PropsFiltro {
+  chiave: ChiaveFiltro
+  valore: ValoreIntervallo
+  onCambia: (intervallo: ValoreIntervallo) => void
 }
 
-/** Una coppia da / a: il campo vuoto vuol dire "nessun limite". */
-function Intervallo({ etichetta, passo = 1, soloMassimo = false, min, max, onCambia }: PropsIntervallo) {
-  const id = useId()
+/** Un filtro: le scelte rapide (toccare quella accesa la spegne) e i campi da / a. */
+function Filtro({ chiave, valore, onCambia }: PropsFiltro) {
+  const [aMano, setAMano] = useState(() => personalizzato(chiave, valore))
+  const campi = aMano || personalizzato(chiave, valore)
 
   return (
-    <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-1 p-0 text-xs text-testo-tenue">{etichetta}</legend>
-      <div className="flex items-center gap-2">
-        {!soloMassimo && (
-          <>
-            <label className="sr-only" htmlFor={`${id}-min`}>
-              {etichetta}, da
-            </label>
-            <input
-              id={`${id}-min`}
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step={passo}
-              className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-              placeholder="da"
-              value={testoLimite(min)}
-              onChange={(evento) => onCambia({ min: limite(evento.target.value), max })}
-            />
-            <span className="text-testo-tenue">–</span>
-          </>
-        )}
-        <label className="sr-only" htmlFor={`${id}-max`}>
-          {etichetta}, {soloMassimo ? 'al massimo' : 'a'}
-        </label>
-        <input
-          id={`${id}-max`}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step={passo}
-          className="min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna"
-          placeholder={soloMassimo ? 'al massimo' : 'a'}
-          value={testoLimite(max)}
-          onChange={(evento) => onCambia({ min, max: limite(evento.target.value) })}
-        />
+    <fieldset className="m-0 min-w-0 border-0 p-0">
+      <legend className="mb-1.5 p-0 text-sm font-semibold">{NOMI_FILTRI[chiave]}</legend>
+      <div className="flex flex-wrap gap-1.5">
+        {SCORCIATOIE[chiave].map((scelta) => {
+          const scelto = stessoIntervallo(scelta, valore)
+          return (
+            <button
+              key={testoIntervallo(chiave, scelta)}
+              type="button"
+              className={`${SCELTA} border-bordo bg-white text-testo hover:bg-fondo`}
+              aria-pressed={scelto}
+              onClick={() => {
+                setAMano(false)
+                onCambia(scelto ? FILTRI_VUOTI[chiave] : scelta)
+              }}
+            >
+              {testoIntervallo(chiave, scelta)}
+            </button>
+          )
+        })}
+        <button
+          type="button"
+          className={`${SCELTA} border-dashed border-bordo bg-white text-testo-tenue hover:bg-fondo`}
+          aria-pressed={campi}
+          onClick={() => {
+            if (campi && acceso(valore)) onCambia(FILTRI_VUOTI[chiave])
+            setAMano(!campi)
+          }}
+        >
+          Altro…
+        </button>
       </div>
+      {campi && <Intervallo chiave={chiave} valore={valore} onCambia={onCambia} />}
     </fieldset>
+  )
+}
+
+const UNITA: Record<ChiaveFiltro, string> = { dislivello: 'm', durata: 'h', distanza: 'km', viaggio: 'min' }
+const PASSI: Record<ChiaveFiltro, number> = { dislivello: 50, durata: 0.5, distanza: 5, viaggio: 5 }
+
+/** Una coppia da / a, scritta a mano: il campo vuoto vuol dire "nessun limite". */
+function Intervallo({ chiave, valore: { min, max }, onCambia }: PropsFiltro) {
+  const id = useId()
+  const nome = NOMI_FILTRI[chiave]
+  const campo =
+    'min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna'
+
+  return (
+    <div className="mt-2 flex animate-entra items-center gap-2">
+      <label className="sr-only" htmlFor={`${id}-min`}>
+        {nome}, da
+      </label>
+      <input
+        id={`${id}-min`}
+        type="number"
+        inputMode="decimal"
+        min={0}
+        step={PASSI[chiave]}
+        className={campo}
+        placeholder="da"
+        value={testoLimite(min)}
+        onChange={(evento) => onCambia({ min: limite(evento.target.value), max })}
+      />
+      <span className="text-testo-tenue">–</span>
+      <label className="sr-only" htmlFor={`${id}-max`}>
+        {nome}, a
+      </label>
+      <input
+        id={`${id}-max`}
+        type="number"
+        inputMode="decimal"
+        min={0}
+        step={PASSI[chiave]}
+        className={campo}
+        placeholder="a"
+        value={testoLimite(max)}
+        onChange={(evento) => onCambia({ min, max: limite(evento.target.value) })}
+      />
+      <span className="text-sm text-testo-tenue">{UNITA[chiave]}</span>
+    </div>
   )
 }

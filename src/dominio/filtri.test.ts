@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { esempio } from './esempi'
-import { FILTRI_VUOTI, dentro, filtra, limite, quantiFiltri, testoLimite } from './filtri'
+import { FILTRI_VUOTI, dentro, filtra, limite, personalizzato, quantiFiltri, testoIntervallo, testoLimite } from './filtri'
 
 const elenco = [
   esempio({ id: '1', nome: 'Passeggiata', dislivello: 200, durata_ore: 1.5 }),
@@ -81,12 +81,35 @@ describe('limite', () => {
 })
 
 describe('quantiFiltri', () => {
-  it('conta i limiti accesi', () => {
+  it('conta i filtri accesi, non i limiti', () => {
     expect(quantiFiltri(FILTRI_VUOTI)).toBe(0)
     expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: null } })).toBe(1)
-    expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 } })).toBe(2)
+    expect(quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 } })).toBe(1)
     expect(
       quantiFiltri({ ...FILTRI_VUOTI, dislivello: { min: 500, max: 900 }, durata: { min: 2, max: null } }),
-    ).toBe(3)
+    ).toBe(2)
+  })
+})
+
+describe('testoIntervallo', () => {
+  it('scrive gli intervalli da leggere', () => {
+    expect(testoIntervallo('dislivello', { min: 500, max: 1000 })).toBe('500–1000 m')
+    expect(testoIntervallo('dislivello', { min: 1500, max: null })).toBe('≥ 1500 m')
+    expect(testoIntervallo('durata', { min: null, max: 3.5 })).toBe('≤ 3,5 h')
+    expect(testoIntervallo('distanza', { min: null, max: 50 })).toBe('≤ 50 km')
+    expect(testoIntervallo('viaggio', { min: null, max: 90 })).toBe('≤ 1 h 30')
+    expect(testoIntervallo('viaggio', { min: 30, max: 60 })).toBe('30 min – 1 h')
+  })
+
+  it('un filtro spento non ha testo', () => {
+    expect(testoIntervallo('durata', { min: null, max: null })).toBeNull()
+  })
+})
+
+describe('personalizzato', () => {
+  it('è scritto a mano solo se non è una scelta rapida', () => {
+    expect(personalizzato('dislivello', { min: 500, max: 1000 })).toBe(false)
+    expect(personalizzato('dislivello', { min: 600, max: 1000 })).toBe(true)
+    expect(personalizzato('viaggio', { min: null, max: null })).toBe(false)
   })
 })
