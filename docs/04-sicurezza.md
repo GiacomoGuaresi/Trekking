@@ -46,8 +46,8 @@ Un'app statica **non ha segreti**: ogni variabile `VITE_*`, anche se sta nei *Se
 - [x] Registrazioni pubbliche spente sul progetto (`disable_signup: true`, verificato il 2026-09-16)
 - [x] RLS attiva su ogni tabella dello schema `trekking` (verificato il 2026-09-23 su `trekking.trekking`)
 - [x] Una query con la sola publishable key e senza sessione non restituisce righe, nemmeno da `impostazioni` (2026-09-23: "permission denied for schema trekking"; `impostazioni` non esiste ancora)
-- [ ] Nessun file `.env*` committato (solo `.env.example`)
-- [ ] Coordinate di casa assenti dal repo, dalla storia git e dal `dist/` pubblicato
-- [ ] Secret key e password del DB assenti dal repo e dalla storia git
+- [x] Nessun file `.env*` committato (solo `.env.example`) (2026-10-03)
+- [x] Coordinate di casa assenti dal repo, dalla storia git e dal `dist/` pubblicato (2026-10-03)
+- [x] Secret key e password del DB assenti dal repo e dalla storia git (2026-10-03)
 - [x] URL di redirect di Auth: aggiunto `https://giacomoguaresi.github.io/Trekking/`
-- [ ] Sessione condivisa verificata: accesso a Grocery → Trekking aperto senza passphrase
+- [x] Sessione condivisa verificata: accesso a Grocery → Trekking aperto senza passphrase (2026-10-03)

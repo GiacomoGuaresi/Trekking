@@ -73,7 +73,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
 
 ➜ **Da qui l'app può già sostituire il file di note.** (Fase 1 finita il 2026-09-23.)
 
-## Fase 2 · Scegliere un trekking ← *in corso*
+## Fase 2 · Scegliere un trekking ✅
 
 - [x] **9 · Dislivello**: campo nel form, filtro min/max (i trekking senza dislivello restano visibili)
   - [x] `006_dislivello.sql` applicato in produzione il 2026-09-23: colonna `dislivello integer` con il vincolo `> 0`
@@ -116,23 +116,23 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Colonna Viaggio nell'elenco, scritta "1 h 25" e ordinabile (`Elenco.tsx`, `ordinamento.ts`)
   - [x] Filtro "Viaggio (minuti)", col solo massimo (`Filtri.tsx`, `src/dominio/filtri.ts`)
   - [x] Test della lettura, del formato e di quando il tempo resta manuale (`src/dominio/viaggio.test.ts`)
-- [ ] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
+- [x] **15 · Tempo di viaggio automatico**: chiave openrouteservice, calcolo al salvataggio e al cambio del luogo (fino alla strada più vicina), valore manuale non sovrascritto; ordinamento di default per tempo di viaggio
   - [x] Calcolo dietro un'interfaccia, con openrouteservice come prima implementazione e `radiuses: [-1, -1]` (`src/dati/percorsi.ts`); senza `VITE_OPENROUTESERVICE_KEY` il calcolo è spento e il tempo resta solo a mano
   - [x] Lettura delle risposte: minuti, percorso impossibile (2004, 2009, 2010), servizio irraggiungibile (`src/dominio/percorsi.ts`)
   - [x] Calcolo in sottofondo dopo ogni salvataggio; il tempo si scrive solo se la riga lo aspetta ancora, così uno scritto a mano nel frattempo non si perde (`salvaViaggio` in `src/dati/trekking.ts`, `useTrekking.ts`)
   - [x] Ordinamento di default per tempo di viaggio crescente (`ORDINAMENTO_INIZIALE`)
   - [x] Attribuzione di openrouteservice nei dettagli, quando il tempo è calcolato (`ModaleDettagli.tsx`)
   - [x] `VITE_OPENROUTESERVICE_KEY` in `.env.example` e nel workflow, con un avviso se manca
-  - [ ] Chiave creata e messa in `.env.local` e nelle variabili del repository GitHub: la fa Giacomo
-  - [ ] Provato online: un trekking nuovo con luogo riceve il tempo, uno scritto a mano resta
-- [ ] **16 · Tempi mancanti**: recupero dei mancanti a ogni salvataggio, popup "Ricalcola percorsi mancanti" all'apertura, luogo tolto quando il percorso è impossibile
+  - [x] Chiave creata il 2026-10-03, in `.env.local` e nelle variabili del repository GitHub; verificata nel bundle pubblicato
+  - [x] Provato il 2026-10-03: un trekking nuovo con luogo riceve il tempo, uno scritto a mano resta
+- [x] **16 · Tempi mancanti**: recupero dei mancanti a ogni salvataggio, popup "Ricalcola percorsi mancanti" all'apertura, luogo tolto quando il percorso è impossibile
   - [x] A ogni salvataggio si calcolano anche gli altri mancanti, uno alla volta; ci si ferma al primo "irraggiungibile" (`calcolaViaggi` in `useTrekking.ts`)
   - [x] Popup "Ricalcola percorsi mancanti" con il numero, una volta per apertura (`App.tsx`)
   - [x] Percorso impossibile: luogo tolto e avviso in basso (`togliLuogo` in `src/dati/trekking.ts`, `App.tsx`)
   - [x] Test di chi va calcolato e della lettura delle risposte (`src/dominio/percorsi.test.ts`)
-  - [ ] Provato online con la chiave: popup all'apertura e un luogo irraggiungibile (per esempio New York, `40.7, -74.0`: con il raggio illimitato un punto in mare si aggancia comunque a una strada, anche col traghetto)
+  - [x] Provato il 2026-10-03: popup all'apertura e un luogo irraggiungibile (per esempio New York, `40.7, -74.0`: con il raggio illimitato un punto in mare si aggancia comunque a una strada, anche col traghetto)
 
-## Fase 3 · Mappa
+## Fase 3 · Mappa ✅
 
 - [x] **17 · Mappa essenziale**: pagina Mappa nel menu, Leaflet con OpenStreetMap, un puntino per trekking con coordinate, popup con i dettagli
   - [x] Rotta `#/mappa` e voce Mappa nel menu (`rotta.ts`, `MenuLaterale.tsx`)
@@ -150,7 +150,7 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] L'inquadratura tiene dentro anche casa
   - Nota: l'icona di casa compare quando le coordinate di casa sono nel database (step 13)
 
-## Fase 4 · Rifinitura
+## Fase 4 · Rifinitura ✅
 
 - [x] **20 · Installabile**: icona, PWA, voce "Installa l'app" come nelle altre app
   - [x] Icona della montagna su blu (`public/icona.svg`), con le versioni generate da `npm run icone`
@@ -162,21 +162,21 @@ Accanto a uno step è indicata la domanda del [Q&A](../Q&A.md) da chiudere prima
   - [x] Animazioni brevi dove qualcosa compare: pannello dei filtri, suggerimenti dei luoghi, note aperte
   - [x] Palette confermata: i quattro colori di [09](09-interfaccia.md) reggono all'uso, nessuna correzione
   - Nota: le icone dello sfondo sono `#e0eaf3` invece del bianco delle altre app: sul ghiaccio `#f1f5f9` il bianco non si vedrebbe
-- [ ] **22 · Prove da telefono e da PC**: un giro solo sull'app online, con il telefono e con il PC
-  - [ ] Si entra senza passphrase venendo da Grocery o da Projects
-  - [ ] Salvare un trekking e rivederlo nell'elenco dopo aver ricaricato
-  - [ ] Cambiare il nome di un trekking ed eliminarne uno
-  - [ ] Segnare e togliere il completato, con l'interruttore "Mostra completati"
-  - [ ] Ricerca, ordinamento, avviso dei doppioni, link e note
-  - [ ] Filtri di dislivello, durata, distanza e tempo di viaggio
-  - [ ] Mappa: puntini, popup, filtri condivisi con l'elenco
-- [ ] **23 · Chiusura**: checklist di sicurezza completa ([04](04-sicurezza.md)), README con screenshot
+- [x] **22 · Prove da telefono e da PC**: un giro solo sull'app online, con il telefono e con il PC (2026-10-03)
+  - [x] Si entra senza passphrase venendo da Grocery o da Projects
+  - [x] Salvare un trekking e rivederlo nell'elenco dopo aver ricaricato
+  - [x] Cambiare il nome di un trekking ed eliminarne uno
+  - [x] Segnare e togliere il completato, con l'interruttore "Mostra completati"
+  - [x] Ricerca, ordinamento, avviso dei doppioni, link e note
+  - [x] Filtri di dislivello, durata, distanza e tempo di viaggio
+  - [x] Mappa: puntini, popup, filtri condivisi con l'elenco
+- [x] **23 · Chiusura**: checklist di sicurezza completa ([04](04-sicurezza.md)), README aggiornato
   - [x] Checklist di sicurezza verificata il 2026-09-23: niente `.env` committati, niente segreti nella storia, coordinate di casa fuori dal bundle
   - [x] README aggiornato: stato, cosa fa davvero l'app oggi
-  - [ ] Screenshot nel README: lo fa Giacomo dall'app online
-  - [ ] Ultimo giro della checklist quando ci sarà la chiave di openrouteservice
+  - Nota: gli screenshot nel README non si fanno: la mappa mostrerebbe casa in un repository pubblico, e non servono (2026-10-03)
+  - [x] Ultimo giro della checklist il 2026-10-03, con la chiave di openrouteservice: solo `.env.example` su git, coordinate di casa e segreti assenti dalla storia e dal bundle
 
-## Fase 5 · Ritocchi dopo l'uso
+## Fase 5 · Ritocchi dopo l'uso ✅
 
 - [x] **24 · Mappa a tutta pagina**: la mappa è la pagina principale (`#/`, l'elenco passa a `#/elenco`) e prende tutto lo spazio sotto l'intestazione
   - [x] Ricerca e pulsante Filtri in una barra flottante sopra la mappa; il pannello dei filtri, con "Mostra completati", si apre sotto la barra (`BarraMappa.tsx`, `PannelloFiltri` in `Filtri.tsx`)

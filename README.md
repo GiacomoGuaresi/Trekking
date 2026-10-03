@@ -2,7 +2,7 @@
 
 Piccolo database dei trekking da fare: si salvano al volo, con i dettagli disponibili, quando se ne trova uno interessante sui social, su un sito o su Komoot, e si sceglie dove andare dall'elenco o dalla mappa. Terza app di casa dopo **Grocery** e **Projects**. Si usa da smartphone e da PC.
 
-> **Stato: in uso.** Il tempo di viaggio automatico (step 15 e 16 della [roadmap](docs/06-roadmap.md)) è scritto e si accende con la chiave di openrouteservice; mancano la chiave e il giro di prove a mano. Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
+> **Stato: completa e in uso.** Tutti gli step della [roadmap](docs/06-roadmap.md) sono chiusi; restano solo le idee di "Più avanti, se servirà". Online su [giacomoguaresi.github.io/Trekking](https://giacomoguaresi.github.io/Trekking/).
 
 ## Cosa fa
 
