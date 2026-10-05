@@ -8,6 +8,7 @@
 import type { Coordinate } from './coordinate'
 import { distanzaDaCasa } from './distanza'
 import type { Trekking } from './tipi'
+import { formattaDurata } from './durata'
 import { formattaViaggio } from './viaggio'
 
 export interface Intervallo {
@@ -73,15 +74,16 @@ export function stessoIntervallo(a: Intervallo, b: Intervallo): boolean {
 
 const numero = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 })
 
-/** Un intervallo da leggere: "500–1000 m", "≤ 3,5 h", "≥ 1500 m", "≤ 1 h 30"; `null` se è spento. */
+/** Un intervallo da leggere: "500–1000 m", "≤ 3 h 30", "≥ 1500 m", "≤ 1 h 30"; `null` se è spento. */
 export function testoIntervallo(chiave: ChiaveFiltro, { min, max }: Intervallo): string | null {
   if (min === null && max === null) return null
-  if (chiave === 'viaggio') {
-    if (min === null) return `≤ ${formattaViaggio(max)}`
-    if (max === null) return `≥ ${formattaViaggio(min)}`
-    return `${formattaViaggio(min)} – ${formattaViaggio(max)}`
+  if (chiave === 'durata' || chiave === 'viaggio') {
+    const formatta = chiave === 'durata' ? formattaDurata : formattaViaggio
+    if (min === null) return `≤ ${formatta(max)}`
+    if (max === null) return `≥ ${formatta(min)}`
+    return `${formatta(min)} – ${formatta(max)}`
   }
-  const unita = { dislivello: 'm', durata: 'h', distanza: 'km' }[chiave]
+  const unita = { dislivello: 'm', distanza: 'km' }[chiave]
   if (min === null) return `≤ ${numero.format(max as number)} ${unita}`
   if (max === null) return `≥ ${numero.format(min)} ${unita}`
   return `${numero.format(min)}–${numero.format(max)} ${unita}`

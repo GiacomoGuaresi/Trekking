@@ -1,27 +1,26 @@
 /**
  * La durata del trekking (docs/02-funzionalita.md): ore di andata e ritorno, a
  * passi di mezz'ora (3.5 = 3 ore e 30 minuti), facoltativa. Non si calcola: si
- * scrive solo a mano.
+ * scrive solo a mano, in ore e minuti.
  */
 
-/** Il numero scritto nel campo; vuoto o storto vuol dire "niente durata". */
-export function pulisciDurata(testo: string): number | null {
-  const scritto = testo.trim().replace(',', '.')
-  if (scritto === '') return null
-  const ore = Number(scritto)
-  if (!Number.isFinite(ore) || ore <= 0) return null
-  if (!Number.isInteger(ore * 2)) return null
-  return ore
+import { pulisciTempo, testoTempo, type TestoTempo } from './tempo'
+
+/** Le ore scritte nei campi; vuote o storte vogliono dire "niente durata". */
+export function pulisciDurata(tempo: TestoTempo): number | null {
+  const minuti = pulisciTempo(tempo)
+  if (minuti === null || minuti <= 0 || minuti % 30 !== 0) return null
+  return minuti / 60
 }
 
-/** Vale se il campo è vuoto o contiene una durata buona: se è storta il salvataggio si ferma. */
-export function durataValida(testo: string): boolean {
-  return testo.trim() === '' || pulisciDurata(testo) !== null
+/** Vale se i campi sono vuoti o contengono una durata buona: se è storta il salvataggio si ferma. */
+export function durataValida(tempo: TestoTempo): boolean {
+  return (tempo.ore.trim() === '' && tempo.minuti.trim() === '') || pulisciDurata(tempo) !== null
 }
 
-/** Quello che si scrive nel campo partendo dal valore salvato. */
-export function testoDurata(durata: number | null): string {
-  return durata === null ? '' : String(durata)
+/** Quello che si scrive nei campi partendo dal valore salvato. */
+export function testoDurata(durata: number | null): TestoTempo {
+  return testoTempo(durata === null ? null : Math.round(durata * 60))
 }
 
 /** Come si legge nell'elenco: `3.5` diventa "3 h 30". */

@@ -18,8 +18,8 @@ Un wizard in quattro passi, pensato per il telefono: **Dove** (nome e luogo), **
 | **Luogo** | no | nome del luogo **oppure** coordinate, vedi [Luogo](#luogo) |
 | **Link** | no | uno o più indirizzi (post, articolo, Komoot…), salvati così come sono |
 | **Dislivello** | no | metri, intero positivo |
-| **Durata** | no | ore di andata e ritorno, a passi di mezz'ora (`3.5` = 3 ore e 30 minuti) |
-| **Tempo di viaggio** | no | calcolato in automatico da casa; si può anche scrivere a mano, vedi [Tempo di viaggio](#tempo-di-viaggio-e-distanza-da-casa) |
+| **Durata** | no | ore di andata e ritorno, a passi di mezz'ora, in due campi collegati [ore \| minuti] |
+| **Tempo di viaggio** | no | calcolato in automatico da casa; si può anche scrivere a mano in ore e minuti, vedi [Tempo di viaggio](#tempo-di-viaggio-e-distanza-da-casa) |
 | **Note** | no | Markdown con la formattazione di base: grassetto, corsivo, elenchi, link |
 
 - **Doppioni**: mentre si scrive il nome, se esiste già un trekking con un nome simile (senza distinguere maiuscole, minuscole e accenti) compare un avviso con il nome trovato. L'avviso non blocca il salvataggio.

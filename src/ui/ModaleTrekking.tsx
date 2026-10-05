@@ -9,6 +9,7 @@ import { pulisciViaggio, testoViaggio, viaggioManuale, viaggioValido } from '../
 import type { CampiTrekking, Trekking } from '../dominio/tipi'
 import { EditorMarkdown } from './EditorMarkdown'
 import { CampoLuogo } from './CampoLuogo'
+import { CampoTempo } from './CampoTempo'
 import { Modale } from './Modale'
 import { luogoValido, risolviLuogo, statoLuogoIniziale } from './luogo'
 
@@ -214,51 +215,40 @@ export function ModaleTrekking({ titolo, iniziale, esistenti, escludi, onSalva, 
 
         {passo === 1 && (
           <Gruppo titolo="Quanto">
-            <div className="grid grid-cols-3 gap-2">
-              <CampoNumero
-                id={`${id}-dislivello`}
-                etichetta="Dislivello"
-                unita="m"
-                inputMode="numeric"
-                placeholder="1200"
-                valore={dislivello}
-                onCambia={setDislivello}
-                storto={!dislivelloValido(dislivello)}
-              />
-              <CampoNumero
+            <CampoNumero
+              id={`${id}-dislivello`}
+              etichetta="Dislivello"
+              unita="m"
+              placeholder="1200"
+              valore={dislivello}
+              onCambia={setDislivello}
+              storto={!dislivelloValido(dislivello)}
+            />
+            {!dislivelloValido(dislivello) && (
+              <p className="m-0 text-xs text-pericolo">Il dislivello sono metri interi, sopra lo zero.</p>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <CampoTempo
                 id={`${id}-durata`}
                 etichetta="Durata A/R"
-                unita="h"
-                inputMode="decimal"
-                placeholder="3,5"
+                segnaposto={{ ore: '3', minuti: '30' }}
                 valore={durata}
                 onCambia={setDurata}
                 storto={!durataValida(durata)}
               />
-              <CampoNumero
+              <CampoTempo
                 id={`${id}-viaggio`}
                 etichetta="Viaggio"
-                unita="min"
-                inputMode="numeric"
-                placeholder="90"
+                segnaposto={{ ore: '1', minuti: '15' }}
                 valore={viaggio}
                 onCambia={setViaggio}
                 storto={!viaggioValido(viaggio)}
               />
             </div>
-            {!dislivelloValido(dislivello) && (
-              <p className="m-0 text-xs text-pericolo">Il dislivello sono metri interi, sopra lo zero.</p>
-            )}
             {!durataValida(durata) && (
-              <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 o 3,5, non 3,2.</p>
+              <p className="m-0 text-xs text-pericolo">La durata va a mezz'ore: 3 h o 3 h 30, non 3 h 20.</p>
             )}
-            {viaggioValido(viaggio) ? (
-              <p className="m-0 text-xs text-testo-tenue">
-                Il viaggio anche come 1:30. Scritto a mano non verrà ricalcolato.
-              </p>
-            ) : (
-              <p className="m-0 text-xs text-pericolo">Il viaggio in minuti (90) oppure ore e minuti (1:30).</p>
-            )}
+            <p className="m-0 text-xs text-testo-tenue">Il viaggio scritto a mano non verrà ricalcolato.</p>
           </Gruppo>
         )}
 
@@ -341,7 +331,6 @@ interface PropsNumero {
   etichetta: string
   /** L'unità scritta dentro il campo, a destra. */
   unita: string
-  inputMode: 'numeric' | 'decimal'
   placeholder: string
   valore: string
   onCambia: (testo: string) => void
@@ -352,7 +341,7 @@ interface PropsNumero {
  * Un numero con la sua unità. È un campo di testo con la tastiera numerica: con
  * `type="number"` la virgola italiana di iOS si perderebbe.
  */
-function CampoNumero({ id, etichetta, unita, inputMode, placeholder, valore, onCambia, storto }: PropsNumero) {
+function CampoNumero({ id, etichetta, unita, placeholder, valore, onCambia, storto }: PropsNumero) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <label className="truncate text-sm font-semibold" htmlFor={id}>
@@ -362,7 +351,7 @@ function CampoNumero({ id, etichetta, unita, inputMode, placeholder, valore, onC
         <input
           id={id}
           type="text"
-          inputMode={inputMode}
+          inputMode="numeric"
           enterKeyHint="next"
           aria-invalid={storto}
           className={`${CAMPO} pr-10 ${storto ? 'border-pericolo' : ''}`}

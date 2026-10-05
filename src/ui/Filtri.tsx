@@ -16,6 +16,7 @@ import {
   testoIntervallo,
   testoLimite,
 } from '../dominio/filtri'
+import { CampoTempoMinuti } from './CampoTempo'
 import { MostraCompletati } from './MostraCompletati'
 import { Ricerca } from './Ricerca'
 
@@ -242,13 +243,44 @@ function Filtro({ chiave, valore, onCambia }: PropsFiltro) {
   )
 }
 
-const UNITA: Record<ChiaveFiltro, string> = { dislivello: 'm', durata: 'h', distanza: 'km', viaggio: 'min' }
-const PASSI: Record<ChiaveFiltro, number> = { dislivello: 50, durata: 0.5, distanza: 5, viaggio: 5 }
+const UNITA = { dislivello: 'm', distanza: 'km' } as const
+const PASSI = { dislivello: 50, distanza: 5 } as const
+
+/** Durata (in ore) e viaggio (in minuti) si scrivono in ore e minuti: qui le conversioni. */
+const TEMPI = {
+  durata: { inMinuti: (ore: number) => Math.round(ore * 60), daMinuti: (minuti: number) => minuti / 60 },
+  viaggio: { inMinuti: (minuti: number) => minuti, daMinuti: (minuti: number) => minuti },
+} as const
 
 /** Una coppia da / a, scritta a mano: il campo vuoto vuol dire "nessun limite". */
 function Intervallo({ chiave, valore: { min, max }, onCambia }: PropsFiltro) {
   const id = useId()
   const nome = NOMI_FILTRI[chiave]
+  if (chiave === 'durata' || chiave === 'viaggio') {
+    const { inMinuti, daMinuti } = TEMPI[chiave]
+    const limiteTempo = (minuti: number | null) => (minuti === null ? null : daMinuti(minuti))
+    return (
+      <div className="mt-2 flex animate-entra items-center gap-2">
+        <div className="w-36">
+          <CampoTempoMinuti
+            id={`${id}-min`}
+            etichetta={`${nome}, da`}
+            minuti={min === null ? null : inMinuti(min)}
+            onCambia={(minuti) => onCambia({ min: limiteTempo(minuti), max })}
+          />
+        </div>
+        <span className="text-testo-tenue">–</span>
+        <div className="w-36">
+          <CampoTempoMinuti
+            id={`${id}-max`}
+            etichetta={`${nome}, a`}
+            minuti={max === null ? null : inMinuti(max)}
+            onCambia={(minuti) => onCambia({ min, max: limiteTempo(minuti) })}
+          />
+        </div>
+      </div>
+    )
+  }
   const campo =
     'min-h-11 w-24 rounded-[11px] border border-bordo bg-white px-3 focus:outline-2 focus:-outline-offset-1 focus:outline-montagna'
 

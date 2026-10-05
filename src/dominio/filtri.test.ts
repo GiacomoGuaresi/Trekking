@@ -95,7 +95,7 @@ describe('testoIntervallo', () => {
   it('scrive gli intervalli da leggere', () => {
     expect(testoIntervallo('dislivello', { min: 500, max: 1000 })).toBe('500–1000 m')
     expect(testoIntervallo('dislivello', { min: 1500, max: null })).toBe('≥ 1500 m')
-    expect(testoIntervallo('durata', { min: null, max: 3.5 })).toBe('≤ 3,5 h')
+    expect(testoIntervallo('durata', { min: null, max: 3.5 })).toBe('≤ 3 h 30')
     expect(testoIntervallo('distanza', { min: null, max: 50 })).toBe('≤ 50 km')
     expect(testoIntervallo('viaggio', { min: null, max: 90 })).toBe('≤ 1 h 30')
     expect(testoIntervallo('viaggio', { min: 30, max: 60 })).toBe('30 min – 1 h')

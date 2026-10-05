@@ -2,36 +2,32 @@ import { describe, expect, it } from 'vitest'
 import { durataValida, formattaDurata, pulisciDurata, testoDurata } from './durata'
 
 describe('pulisciDurata', () => {
-  it('legge le ore scritte nel campo', () => {
-    expect(pulisciDurata('3')).toBe(3)
-    expect(pulisciDurata('3.5')).toBe(3.5)
-    expect(pulisciDurata(' 0.5 ')).toBe(0.5)
+  it('legge ore e minuti e li porta in ore', () => {
+    expect(pulisciDurata({ ore: '3', minuti: '' })).toBe(3)
+    expect(pulisciDurata({ ore: '3', minuti: '30' })).toBe(3.5)
+    expect(pulisciDurata({ ore: '', minuti: '30' })).toBe(0.5)
+    expect(pulisciDurata({ ore: '', minuti: '90' })).toBe(1.5)
   })
 
-  it('accetta anche la virgola, come si scrive da telefono', () => {
-    expect(pulisciDurata('3,5')).toBe(3.5)
-  })
-
-  it('il campo vuoto vuol dire niente durata', () => {
-    expect(pulisciDurata('')).toBeNull()
+  it('i campi vuoti vogliono dire niente durata', () => {
+    expect(pulisciDurata({ ore: '', minuti: '' })).toBeNull()
   })
 
   it('rifiuta quello che non è un passo di mezz’ora', () => {
-    expect(pulisciDurata('3.2')).toBeNull()
-    expect(pulisciDurata('0')).toBeNull()
-    expect(pulisciDurata('-2')).toBeNull()
-    expect(pulisciDurata('tre ore')).toBeNull()
+    expect(pulisciDurata({ ore: '3', minuti: '20' })).toBeNull()
+    expect(pulisciDurata({ ore: '0', minuti: '00' })).toBeNull()
+    expect(pulisciDurata({ ore: 'tre', minuti: '' })).toBeNull()
   })
 })
 
 describe('durataValida', () => {
-  it('il campo vuoto va bene: la durata non è obbligatoria', () => {
-    expect(durataValida('')).toBe(true)
+  it('i campi vuoti vanno bene: la durata non è obbligatoria', () => {
+    expect(durataValida({ ore: '', minuti: '' })).toBe(true)
   })
 
   it('una durata storta ferma il salvataggio', () => {
-    expect(durataValida('3.2')).toBe(false)
-    expect(durataValida('3.5')).toBe(true)
+    expect(durataValida({ ore: '3', minuti: '20' })).toBe(false)
+    expect(durataValida({ ore: '3', minuti: '30' })).toBe(true)
   })
 })
 
@@ -49,7 +45,7 @@ describe('formattaDurata', () => {
 
 describe('testoDurata', () => {
   it('riporta nel campo quello che c’è salvato', () => {
-    expect(testoDurata(3.5)).toBe('3.5')
-    expect(testoDurata(null)).toBe('')
+    expect(testoDurata(3.5)).toEqual({ ore: '3', minuti: '30' })
+    expect(testoDurata(null)).toEqual({ ore: '', minuti: '' })
   })
 })

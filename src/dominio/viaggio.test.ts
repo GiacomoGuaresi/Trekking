@@ -2,36 +2,25 @@ import { describe, expect, it } from 'vitest'
 import { formattaViaggio, pulisciViaggio, testoViaggio, viaggioManuale, viaggioValido } from './viaggio'
 
 describe('pulisciViaggio', () => {
-  it('legge i minuti', () => {
-    expect(pulisciViaggio('90')).toBe(90)
-    expect(pulisciViaggio(' 45 ')).toBe(45)
+  it('legge ore e minuti', () => {
+    expect(pulisciViaggio({ ore: '1', minuti: '30' })).toBe(90)
+    expect(pulisciViaggio({ ore: '', minuti: '45' })).toBe(45)
+    expect(pulisciViaggio({ ore: '0', minuti: '00' })).toBe(0)
   })
 
-  it('legge anche ore e minuti', () => {
-    expect(pulisciViaggio('1:30')).toBe(90)
-    expect(pulisciViaggio('2:05')).toBe(125)
-  })
-
-  it('il campo vuoto vuol dire niente tempo', () => {
-    expect(pulisciViaggio('')).toBeNull()
-  })
-
-  it('rifiuta i minuti oltre il cinquantanove e quello che non è un numero', () => {
-    expect(pulisciViaggio('1:70')).toBeNull()
-    expect(pulisciViaggio('-30')).toBeNull()
-    expect(pulisciViaggio('un’ora')).toBeNull()
-    expect(pulisciViaggio('90.5')).toBeNull()
+  it('i campi vuoti vogliono dire niente tempo', () => {
+    expect(pulisciViaggio({ ore: '', minuti: '' })).toBeNull()
   })
 })
 
 describe('viaggioValido', () => {
-  it('il campo vuoto va bene: il tempo non è obbligatorio', () => {
-    expect(viaggioValido('')).toBe(true)
+  it('i campi vuoti vanno bene: il tempo non è obbligatorio', () => {
+    expect(viaggioValido({ ore: '', minuti: '' })).toBe(true)
   })
 
   it('un campo storto ferma il salvataggio', () => {
-    expect(viaggioValido('due ore')).toBe(false)
-    expect(viaggioValido('1:30')).toBe(true)
+    expect(viaggioValido({ ore: 'due', minuti: '' })).toBe(false)
+    expect(viaggioValido({ ore: '1', minuti: '30' })).toBe(true)
   })
 })
 
@@ -49,8 +38,8 @@ describe('formattaViaggio', () => {
 
 describe('testoViaggio', () => {
   it('riporta nel campo i minuti salvati', () => {
-    expect(testoViaggio(85)).toBe('85')
-    expect(testoViaggio(null)).toBe('')
+    expect(testoViaggio(85)).toEqual({ ore: '1', minuti: '25' })
+    expect(testoViaggio(null)).toEqual({ ore: '', minuti: '' })
   })
 })
 
