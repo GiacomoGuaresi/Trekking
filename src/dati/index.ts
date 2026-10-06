@@ -7,6 +7,7 @@ import { AccessoSupabase, type Accesso } from './accesso'
 import { ImpostazioniSupabase } from './impostazioni'
 import { LinkMappeSupabase, type AperturaLink } from './linkMappe'
 import { PhotonLuoghi, type RicercaLuoghi } from './luoghi'
+import { fetchPaziente } from './orologio'
 import { OpenRouteService, type CalcoloPercorsi } from './percorsi'
 import { TrekkingSupabase } from './trekking'
 
@@ -43,6 +44,7 @@ function connetti() {
   }
   const client = createBrowserClient(url, chiave, {
     cookieOptions: { path: '/' },
+    global: { fetch: fetchPaziente() },
     db: { schema: 'trekking' },
   }) as unknown as SupabaseClient
   connessione = {
